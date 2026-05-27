@@ -1,0 +1,41 @@
+# Environment and secrets
+.env
+.env.local
+.env.*
+
+# Context files — local policy notes, never commit
+context/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# ChromaDB — local vector store, rebuild from docs
+backend/data/chroma_db/
+
+# Uploaded files — temp storage during processing
+backend/data/uploads/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+frontend/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
