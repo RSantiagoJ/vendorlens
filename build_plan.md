@@ -255,3 +255,46 @@ Vendor B scores highest across every dimension."
 "Every decision the AI made is fully auditable here."
 
 "This took 15 seconds. It would have taken a contracts analyst half a day."
+
+---
+
+## Day 7 optional: Dropbox connector
+
+Prerequisite: Core sprint (Days 1-7) complete and deployed.
+Time estimate: 2-3 hours if the pipeline is working cleanly.
+
+Goal: Staff can drop PDFs into a Dropbox folder and trigger analysis
+from the UI instead of uploading manually.
+
+Tasks:
+
+1. Create a Dropbox app at dropbox.com/developers
+   - Set permissions: files.content.read, files.content.write
+   - Generate an access token
+   - Add to backend/.env
+
+2. Write tools/dropbox_connector.py per architecture.md spec
+   - list_new_proposals()
+   - download_proposal()
+   - mark_processed()
+
+3. Add POST /analyze/dropbox endpoint to api/main.py
+   - Calls connector, passes files to existing pipeline
+   - Returns same response shape as /analyze
+
+4. Add "Analyze from Dropbox" button to frontend
+   - Calls /analyze/dropbox
+   - Same progress bar and results rendering
+
+5. Test end-to-end:
+   - Drop a dummy proposal PDF into the Dropbox folder
+   - Hit the button in the UI
+   - Confirm pipeline runs and results render
+
+6. Update README.md to mention Dropbox integration
+
+7. Update resume bullet to include:
+   "enterprise document pipeline integration via Dropbox API"
+
+Checkpoint: Drop file into Dropbox, click button, see results.
+No manual upload needed.

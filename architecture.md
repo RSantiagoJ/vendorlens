@@ -195,3 +195,62 @@ LangSmith: set the four LANGCHAIN\_ env vars. No other code changes needed.
 Every LLM call, retrieval, tool use, and agent handoff is automatically traced.
 Dashboard: smith.langchain.com
 This is a strong demo talking point — every AI decision is auditable.
+
+---
+
+## Required enhancement: Dropbox document connector
+
+Status: required for sprint. Implement on Day 7 if time permits.
+Resume keyword: document pipeline integration / enterprise content ingestion
+
+### What it does
+
+Instead of uploading PDFs manually through the UI, authorized UMPO staff
+drop vendor proposals into a designated Dropbox folder. VendorLens polls
+the folder on demand (or on a schedule) and pulls new files automatically.
+
+This is how the tool would work in real production at UMPO — staff already
+use Dropbox, no new behavior required from them.
+
+### Implementation
+
+File: tools/dropbox_connector.py
+Library: dropbox (pip install dropbox)
+Auth: Dropbox OAuth2 app token stored in .env
+
+DROPBOX_ACCESS_TOKEN=
+DROPBOX_VENDOR_PROPOSALS_PATH=/VendorLens/Proposals
+
+Key functions:
+list_new_proposals() -> list[str]
+Lists files in the Dropbox folder not yet processed
+
+download_proposal(filename: str) -> bytes
+Downloads a file and returns raw bytes for LlamaIndex ingestion
+
+mark_processed(filename: str)
+Moves file to /VendorLens/Processed/ after pipeline completes
+
+### Integration point
+
+In api/main.py, add a second endpoint alongside /analyze:
+
+POST /analyze/dropbox
+Calls list_new_proposals()
+Downloads each file
+Passes to existing LangGraph pipeline
+Returns same JSON response as /analyze
+
+The frontend adds a second button: "Analyze from Dropbox"
+alongside the existing drag-and-drop upload zone.
+
+### Why this matters for the resume
+
+Most AI portfolio projects use hardcoded files or manual uploads.
+A live document source connector shows the system is designed for
+real-world use, not just demos. It demonstrates understanding of
+enterprise data pipelines — a meaningful differentiator.
+
+Additional .env keys needed:
+DROPBOX_ACCESS_TOKEN=
+DROPBOX_VENDOR_PROPOSALS_PATH=/VendorLens/Proposals
