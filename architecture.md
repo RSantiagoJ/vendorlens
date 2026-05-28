@@ -30,18 +30,21 @@ api/
 main.py
 models.py
 data/
-dummy_docs/ <- vendor proposal text files
-chroma_db/ <- auto-created on first run
-policy_doc.txt <- UMPO policy rules (from context notes)
+dummy_docs/        <- vendor proposal text files
+chroma_db/         <- auto-created on first run
+context_bundle/    <- UMPO context (swappable without code changes)
+policy.txt         <- SVM-01 + UMass Contract for Services rules
+rfp_criteria.txt   <- RFP evaluation dimensions and weights
+scoring_rubric.txt <- per-dimension rubric descriptions, 0-10 scale
 graph/
-pipeline.py <- LangGraph graph definition
-state.py <- VendorLensState + Pydantic models
+pipeline.py        <- LangGraph graph definition
+state.py           <- VendorLensState + Pydantic models
 tools/
-mcp_server.py <- MCP tool server
-.env <- API keys, never commit
+mcp_server.py      <- MCP tool server
+.env               <- API keys, never commit
 requirements.txt
-frontend/ <- Next.js app
-context/ <- LOCAL ONLY, in .gitignore
+frontend/          <- Next.js app
+context/           <- LOCAL ONLY, in .gitignore
 real_policy_notes.md
 real_rfp_criteria.md
 real_contract_terms.md
@@ -104,7 +107,7 @@ File: agents/risk_agent.py
 Model: Claude Sonnet 4.6
 Input: ProposalData
 Output: list[RiskFlag]
-Tool: MCP policy_lookup (searches policy_doc.txt)
+Tool: MCP policy_lookup (searches data/context_bundle/policy.txt)
 Grounded in: UMPO SVM-01 + UMass Contract for Services (see context/)
 
 ### Agent 3: Scoring Agent
@@ -145,7 +148,7 @@ document_reader(filename: str) -> str
 Returns full extracted text of a proposal document
 
 policy_lookup(query: str) -> str
-Semantic search against data/policy_doc.txt
+Semantic search against data/context_bundle/policy.txt
 Returns relevant policy rules matching the query
 
 Note: If MCP SDK + LangGraph integration is complex, implement as standard

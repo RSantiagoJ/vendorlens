@@ -44,7 +44,12 @@ Tasks:
    ProposalData, RiskFlag, ScoreCard, ProposalState, VendorLensState
 
 5. Copy dummy doc content from dummy_data.md into backend/data/dummy_docs/
-   Copy policy doc content from dummy_data.md into backend/data/policy_doc.txt
+   Create backend/data/context_bundle/ with three files:
+   - policy.txt         (UMPO SVM-01 + UMass Contract for Services rules)
+   - rfp_criteria.txt   (scoring dimensions and weights from the real RFP)
+   - scoring_rubric.txt (rubric descriptions per dimension, 0-10 scale)
+   Content sourced from dummy_data.md and context/ folder notes.
+   Agents read these files directly. No wrapper needed.
 
 6. Write backend/ingest.py:
    - SimpleDirectoryReader on data/dummy_docs/
@@ -108,7 +113,8 @@ Tasks:
 
 2. Write agents/scoring_agent.py
    - Gemini Pro
-   - Rubric from agent_prompts.md
+   - Load rubric via context_loader.load_context_bundle() — inject into prompt
+   - Do not hardcode rubric weights in the prompt or agent file
    - Returns ScoreCard
 
 3. Write test_agents.py — run both against all three proposals
@@ -253,6 +259,9 @@ Vendor B scores highest across every dimension."
 [Switch to LangSmith.]
 
 "Every decision the AI made is fully auditable here."
+
+"And the policy, criteria, and rubric are all configurable — any procurement
+team could drop in their own documents and run this against their RFP."
 
 "This took 15 seconds. It would have taken a contracts analyst half a day."
 
