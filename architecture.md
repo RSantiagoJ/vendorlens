@@ -75,7 +75,7 @@ proposals: [
 filename: str,
 raw_text: str,
 extracted: ProposalData | None,
-risks: list[RiskFlag] | None,
+risks: list[RiskFlag] | None,  # RiskFlag includes policy_excerpt field
 scores: ScoreCard | None
 }
 ],
@@ -84,7 +84,8 @@ status: "pending"|"extracting"|"risk"|"scoring"|"memo"|"done"|"error",
 error: str | None
 }
 
-Nodes: extraction_node -> risk_node -> scoring_node -> memo_node -> END
+Nodes: extraction_node (parallel via Send()) -> risk_node -> scoring_node -> memo_node -> END
+Parallel: Send() fans out extraction_node per proposal, fans back in before risk_node
 Error handling: any failure sets status="error", short-circuits to END
 Parallel execution: use LangGraph Send() if straightforward, else sequential
 
@@ -162,7 +163,8 @@ Framework: FastAPI
 Endpoints:
 POST /analyze — multipart PDF upload, runs pipeline, returns JSON
 GET /health — {"status":"ok"} for Railway health check
-GET /stream/{job_id} — SSE progress updates (implement if time permits)
+GET /stream/{job_id} — SSE progress updates (required)
+    Events: extracting | risk | scoring | memo | done | error
 CORS: localhost:3000 + Railway URL
 
 ---
@@ -172,7 +174,7 @@ CORS: localhost:3000 + Railway URL
 Framework: Next.js + TypeScript + Tailwind CSS
 Ricardo is expert in this stack. Claude Code defers to his judgment on UI.
 
-Components: UploadZone, ProgressBar (per agent stage), ProposalCard
+Components: UploadZone, AgentProgressBar (SSE-driven, four labeled stages), ProposalCard
 (vendor name, overall score colored by range, dimension score bars,
 risk tags by severity, expandable contract details), MemoPanel
 (markdown rendered), DownloadButton (.md export)

@@ -136,7 +136,8 @@ Return format — JSON array only:
 "severity": "HIGH",
 "explanation": "One to two sentences in plain English.",
 "recommendation": "One sentence — what to ask the vendor to change.",
-"policy_reference": "SVM-01 / Contract Terms / RFP Requirement"
+"policy_reference": "SVM-01 / Contract Terms / RFP Requirement",
+"policy_excerpt": "Exact text from the policy document that this flag is based on. Quote verbatim. Null only if no specific text was retrieved."
 }
 ]
 

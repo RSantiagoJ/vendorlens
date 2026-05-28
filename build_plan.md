@@ -110,6 +110,9 @@ Tasks:
    - Uses policy_lookup MCP tool
    - Claude Sonnet 4.6 with system prompt from agent_prompts.md
    - Returns list[RiskFlag]
+   - RiskFlag must include policy_excerpt field: the exact retrieved
+     policy chunk that triggered the flag (already in RAG context,
+     just surface it). Never fabricate — null if chunk not retrievable.
 
 2. Write agents/scoring_agent.py
    - Gemini Pro
@@ -141,7 +144,9 @@ Tasks:
    - LangGraph StateGraph with VendorLensState
    - Nodes: extraction_node, risk_node, scoring_node, memo_node
    - Sequential edges with error handling
-   - Parallel execution via Send() if straightforward
+   - Parallel extraction: use Send() to fan out extraction_node across
+     all uploaded proposals simultaneously, fan back in before risk_node
+     This makes the pipeline ~3x faster and is required, not optional
 
 3. Confirm LangSmith:
    - Run pipeline once
@@ -168,7 +173,9 @@ Tasks:
 2. Write api/main.py:
    POST /analyze — multipart upload, runs pipeline, returns JSON
    GET /health — {"status":"ok"}
-   GET /stream/{job_id} — SSE progress (implement if time permits)
+   GET /stream/{job_id} — SSE progress updates (required, not optional)
+     Emit events: extracting | risk | scoring | memo | done | error
+     Each event carries the job_id and current status string
    CORS for localhost:3000
 
 3. Test with curl:
@@ -191,7 +198,12 @@ Tasks:
 1. npx create-next-app frontend --typescript --tailwind
 
 2. Build components per architecture.md:
-   UploadZone, ProgressBar, ProposalCard, MemoPanel, DownloadButton
+   UploadZone, AgentProgressBar, ProposalCard, MemoPanel, DownloadButton
+
+   AgentProgressBar connects to GET /stream/{job_id} via EventSource.
+   Show four labeled stages that light up as SSE events arrive:
+   Extracting → Risk Analysis → Scoring → Writing Memo
+   Each stage shows a spinner while active, checkmark when done.
 
 3. Wire to FastAPI with fetch() and FormData
 
