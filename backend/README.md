@@ -17,6 +17,24 @@ docker compose build backend
 
 ## Day 1 smoke check
 
+One-command sanity check from repository root:
+
+```powershell
+./backend/smoke_day1.ps1
+```
+
+Options:
+
+```powershell
+# Skip image build
+./backend/smoke_day1.ps1 -SkipBuild
+
+# Skip index rebuild
+./backend/smoke_day1.ps1 -SkipReindex
+```
+
+Equivalent manual commands:
+
 ```bash
 docker compose run --rm backend python ingest.py --force
 docker compose run --rm backend python test_rag.py
