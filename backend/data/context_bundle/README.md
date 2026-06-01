@@ -4,15 +4,16 @@ This folder contains runtime-ready context files consumed by agents.
 
 ## Why this exists
 
-The files in `context/` are human working notes.
 The files here are distilled, stable inputs for agent prompts and retrieval.
+They are intentionally formatted for machine consumption (consistent headings,
+explicit thresholds, and unambiguous policy rules).
 
 Using one normalized bundle prevents prompt drift across agents.
 
 ## Source mapping
 
-- `context/policy_notes.md` + `context/contract_terms.md` -> `policy.txt`
-- `context/rfp_criteria.md` -> `rfp_criteria.txt`
+- Upstream policy/contract notes -> `policy.txt`
+- Upstream RFP criteria notes -> `rfp_criteria.txt`
 - RFP criteria + scoring standards -> `scoring_rubric.txt`
 
 ## Update protocol
@@ -22,7 +23,7 @@ When source notes change:
 1. Update corresponding file(s) in `context/`.
 2. Rebuild the distilled file(s) in this folder.
 3. Keep thresholds and requirements explicit (numbers, deadlines, policy triggers).
-4. Run the Day 1 smoke check to verify retrieval still passes.
+4. Run the Docker Day 1 smoke check to verify retrieval still passes.
 5. Commit source note change and bundle change together.
 
 ## Agent usage
@@ -30,3 +31,13 @@ When source notes change:
 - Risk logic reads `policy.txt`.
 - Scoring logic reads `rfp_criteria.txt` and `scoring_rubric.txt`.
 - Any policy-aware extraction should reference these files instead of hardcoded text.
+
+## Verification (Docker-first)
+
+From repository root:
+
+```bash
+docker compose build backend
+docker compose run --rm backend python ingest.py --force
+docker compose run --rm backend python test_rag.py
+```
