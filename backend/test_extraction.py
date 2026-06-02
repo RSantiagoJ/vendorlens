@@ -9,8 +9,8 @@ Usage:
     python test_extraction.py
 
 Prerequisites:
-    - ANTHROPIC_API_KEY set in backend/.env
-    - GOOGLE_API_KEY set in backend/.env
+    - GOOGLE_API_KEY set in backend/.env (always required for embeddings)
+    - ANTHROPIC_API_KEY set in backend/.env (optional — uses Gemini if missing)
     - ChromaDB index built (run python ingest.py first)
 
 Expected output:
@@ -32,16 +32,28 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-for key in ("ANTHROPIC_API_KEY", "GOOGLE_API_KEY"):
-    if not os.getenv(key):
-        sys.exit(f"ERROR: {key} is not set in backend/.env")
+# for key in ("ANTHROPIC_API_KEY", "GOOGLE_API_KEY"):
+#     if not os.getenv(key):
+#         sys.exit(f"ERROR: {key} is not set in backend/.env")
+
+# True when ANTHROPIC_API_KEY is absent — falls back to Gemini 1.5 Pro.
+# Remove this block and restore the commented check above once Claude is available.
+USE_GEMINI = not os.getenv("ANTHROPIC_API_KEY")
+
+if not os.getenv("GOOGLE_API_KEY"):
+    sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
 
 import chromadb
 from llama_index.core import Settings, VectorStoreIndex
-from llama_index.embeddings.google import GeminiEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
-from agents.extraction_agent import ExtractionAgent
+from agents.extraction_agent import ExtractionAgent as AgentClass
+
+if USE_GEMINI:
+    print("Using Gemini 3.5 Flash (ANTHROPIC_API_KEY not set)")
+else:
+    print("Using Claude Sonnet 4.6")
 
 BASE_DIR = Path(__file__).parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
@@ -53,7 +65,7 @@ VENDOR_C = "vendor_c_campusvoice.txt"
 
 
 def load_index() -> VectorStoreIndex:
-    embed_model = GeminiEmbedding(
+    embed_model = GoogleGenAIEmbedding(
         model_name="models/gemini-embedding-001",
         api_key=os.environ["GOOGLE_API_KEY"],
     )
@@ -75,7 +87,7 @@ def run_checks():
             f"  Details: {e}"
         )
 
-    agent = ExtractionAgent(index)
+    agent = AgentClass(index)
     failures = []
 
     # ------------------------------------------------------------------

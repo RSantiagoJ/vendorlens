@@ -27,6 +27,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from langchain_anthropic import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from llama_index.core import Settings, VectorStoreIndex
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
@@ -51,12 +52,23 @@ def _load_prompt(role: str) -> str:
 class ExtractionAgent:
     def __init__(self, index: VectorStoreIndex):
         self.index = index
-        self.llm = ChatAnthropic(
-            model="claude-sonnet-4-6",
-            max_tokens=2048,
-            api_key=os.environ["ANTHROPIC_API_KEY"],
-        )
         self.system_prompt = _load_prompt("extraction_agent")
+
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        if anthropic_key:
+            self.llm = ChatAnthropic(
+                model="claude-sonnet-4-6",
+                max_tokens=2048,
+                api_key=anthropic_key,
+            )
+        else:
+            google_key = os.getenv("GOOGLE_API_KEY")
+            if not google_key:
+                raise ValueError("Neither ANTHROPIC_API_KEY nor GOOGLE_API_KEY is set in environment.")
+            self.llm = ChatGoogleGenerativeAI(
+                model="gemini-3.5-flash",
+                google_api_key=google_key,
+            )
 
     def _retrieve_chunks(self, filename: str) -> str:
         """Run three targeted RAG queries for one vendor doc.
@@ -106,7 +118,14 @@ class ExtractionAgent:
             ),
         ]
         response = self.llm.invoke(messages)
-        raw: str = response.content  # type: ignore[assignment]
+        content = response.content
+        if isinstance(content, list):
+            raw = "".join(
+                part["text"] if isinstance(part, dict) else str(part)
+                for part in content
+            )
+        else:
+            raw = content
 
         # Strip markdown fences in case the model adds them despite instructions
         raw = raw.strip()
