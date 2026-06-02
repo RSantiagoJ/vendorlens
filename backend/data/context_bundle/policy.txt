@@ -1,20 +1,20 @@
-UMPO VENDOR EVALUATION POLICY — DISTILLED RULES FOR VENDORLENS RISK AGENT
-Derived from: UMPO Security Vendor Management Policy SVM-01 (Rev. 10.2023)
-and UMass President's Office standard Contract for Services (Version 6-2016)
-Additional context: 2025-2026 Social Media Platform RFP requirements
+HIGHER EDUCATION VENDOR EVALUATION POLICY — DISTILLED RULES FOR VENDORLENS RISK AGENT
+Derived from: Institution Security Vendor Management Policy
+and Institution standard Contract for Services
+Additional context: Enterprise Social Media Platform RFP requirements
 
-SECTION 1: SECURITY VENDOR MANAGEMENT (SVM-01)
+SECTION 1: SECURITY VENDOR MANAGEMENT
 
 Vendor review process:
 All technology vendors must complete a security risk questionnaire before
-contract execution. The UMPO Security Team reviews each vendor to confirm:
+contract execution. The University Security Team reviews each vendor to confirm:
 
-- No duplication of existing UMPO tool functionality
-- Fits within the current UMPO technology ecosystem
+- No duplication of existing University tool functionality
+- Fits within the current University technology ecosystem
 - Supports centralized management where possible
-- Allows UMPO to scale use without excessive friction or cost
+- Allows the University to scale use without excessive friction or cost
 
-The President's Office CISO reviews:
+The University CISO reviews:
 
 - Security certification type and current status
 - Data Processing Agreement and potential legal issues
@@ -24,9 +24,9 @@ The President's Office CISO reviews:
 
 All of the following teams must provide final approval before contract execution:
 
-- UMPO Legal Team: contract documentation and Massachusetts data privacy compliance
-- UMPO Finance Team: spend against budget
-- President's Office CISO: security posture
+- University Legal Team: contract documentation and applicable state data privacy compliance
+- University Finance Team: spend against budget
+- University CISO: security posture
 
 SECTION 2: SECURITY CERTIFICATION REQUIREMENTS
 
@@ -60,38 +60,38 @@ SECTION 5: SERVICE LEVEL REQUIREMENTS
 - Minimum uptime guarantee: 99.5% with financial penalties for breach
 - Support response times must be defined in the contract
 
-SECTION 6: INTELLECTUAL PROPERTY (Contract for Services, Section 15)
+SECTION 6: INTELLECTUAL PROPERTY
 
 All data, reports, programs, software, equipment, and documentation paid for
 with university funds vests with the university at termination. If contractor
 publishes work related to contract performance, university retains a
 royalty-free non-exclusive irrevocable license.
 
-SECTION 7: CONFIDENTIALITY AND PRIVACY (Contract for Services, Section 16)
+SECTION 7: CONFIDENTIALITY AND PRIVACY
 
 - Must comply with Massachusetts General Laws Ch. 66A (personal data)
   and Ch. 93H (security breach notification)
 - Contractor implements feasible safeguards for Personal Information
 - Contractor must inform its employees of confidentiality obligations
 
-SECTION 8: ASSIGNMENT AND DELEGATION (Contract for Services, Section 17)
+SECTION 8: ASSIGNMENT AND DELEGATION
 
 - Contractor may not assign or transfer contract without prior written
   university consent
 - Contractor may not subcontract without prior written university approval
 - Unauthorized assignments are void
 
-SECTION 9: CHOICE OF LAW (Contract for Services, Section 20)
+SECTION 9: CHOICE OF LAW
 
 - Governed by laws of the Commonwealth of Massachusetts
 - Without giving effect to conflicts of law principles
 
-SECTION 10: FORUM SELECTION (Contract for Services, Section 21)
+SECTION 10: FORUM SELECTION
 
 - State courts of the Commonwealth of Massachusetts have exclusive jurisdiction
 - Contractor expressly consents to Massachusetts jurisdiction
 
-SECTION 11: HIGH SEVERITY RISK TRIGGERS (SVM-01 + Contract for Services)
+SECTION 11: HIGH SEVERITY RISK TRIGGERS
 
 The following conditions require CISO or VP approval and are contract blockers:
 
@@ -110,3 +110,4 @@ The following conditions require CISO or VP approval and are contract blockers:
 - Termination penalty or early termination fee present
 - Governing law not Commonwealth of Massachusetts
 - Dispute resolution not in Massachusetts courts
+

@@ -1,5 +1,5 @@
 VENDORLENS SCORING RUBRIC
-Source: Derived from UMass 2025-2026 Enterprise Social Media Platform RFP evaluation criteria
+Source: Derived from Higher Education Enterprise Social Media Platform RFP evaluation criteria
 Scale: 0-10 per dimension. All scores rounded to one decimal place.
 
 Overall score = weighted average of all dimensions per weights in rfp_criteria.txt
@@ -36,8 +36,8 @@ ACCESSIBILITY COMPLIANCE (weight: 0.15)
 Evaluate: VPAT currency (within 1 year of proposal date), WCAG 2.1 AA compliance,
 alt text support across all platforms, .srt caption file support
 
-Federal deadline: April 24, 2026 — non-compliance is a material risk.
-Proposal date is November/December 2025. VPAT tested within last year = after Dec 2024.
+Federal deadline applies — non-compliance is a material risk.
+VPAT must have been tested within the last year of the proposal date.
 
 10 = Current VPAT (tested within 1 year), full WCAG 2.1 AA documented via third-party
      audit, alt text supported on all platforms where API permits (with honest disclosure
@@ -61,7 +61,7 @@ PRICING TRANSPARENCY (weight: 0.20)
 Evaluate: licensing clarity, all-in pricing for all campuses, per-campus/user/feature
 costs disclosed, multi-year cost predictability, billing by unit availability
 
-10 = Fixed transparent pricing locked for full contract term. All five campuses
+10 = Fixed transparent pricing locked for full contract term. All campuses
      and all modules included in base price. No per-campus fees, no user overages,
      no undisclosed add-on costs. Billing by campus/unit at no additional cost.
      No year-over-year price escalation.
@@ -87,9 +87,9 @@ IR/DR docs provided, university data ownership explicit, no vendor data use
 beyond service delivery
 
 10 = SOC 2 Type II AND/OR ISO 27001 current certificates provided with proposal.
-     DPA provided as standard (not on request), addresses FERPA/GLBA/Ch.93H/Ch.66A.
-     IR plan and DR documentation provided with proposal. University data exclusively
-     owned by university. No vendor use of data for any purpose beyond service delivery.
+     DPA provided as standard (not on request), addresses FERPA/GLBA/Ch.93H/Ch.66A. IR plan and DR documentation
+     provided with proposal. University data exclusively owned by university.
+     No vendor use of data for any purpose beyond service delivery.
 
 7-9 = Strong security posture. Certifications current. Minor documentation gaps
       (e.g., DR summary but not full doc, or DPA on request but standard template).
@@ -161,3 +161,4 @@ RISK LEVEL (weight: 0.05 — INVERTED: higher score = fewer HIGH severity risk f
 
 Note: This dimension is directly derived from the Risk Agent output.
 MEDIUM and LOW severity flags do not affect this score but are reported separately.
+
