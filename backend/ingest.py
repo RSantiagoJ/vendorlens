@@ -35,7 +35,7 @@ from llama_index.core import (
     Settings,
 )
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.google import GeminiEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 
@@ -70,7 +70,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
             # Still return a usable index
             chroma_collection = chroma_client.get_collection(COLLECTION_NAME)
             vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-            embed_model = GeminiEmbedding(
+            embed_model = GoogleGenAIEmbedding(
                 model_name="models/gemini-embedding-001",
                 api_key=os.environ["GOOGLE_API_KEY"],
             )
@@ -87,7 +87,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
           f"{[d.metadata.get('file_name') for d in documents]}")
 
     # Configure embedding model globally for LlamaIndex
-    embed_model = GeminiEmbedding(
+    embed_model = GoogleGenAIEmbedding(
         model_name="models/gemini-embedding-001",
         api_key=os.environ["GOOGLE_API_KEY"],
     )

@@ -29,7 +29,7 @@ if not os.getenv("GOOGLE_API_KEY"):
 
 from llama_index.core import Settings
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
-from llama_index.embeddings.google import GeminiEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import VectorStoreIndex
 import chromadb
@@ -44,7 +44,7 @@ VENDOR_C = "vendor_c_campusvoice.txt"
 
 
 def load_index() -> VectorStoreIndex:
-    embed_model = GeminiEmbedding(
+    embed_model = GoogleGenAIEmbedding(
         model_name="models/gemini-embedding-001",
         api_key=os.environ["GOOGLE_API_KEY"],
     )
