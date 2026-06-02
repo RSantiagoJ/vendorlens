@@ -32,11 +32,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# for key in ("ANTHROPIC_API_KEY", "GOOGLE_API_KEY"):
-#     if not os.getenv(key):
-#         sys.exit(f"ERROR: {key} is not set in backend/.env")
-
-# True when ANTHROPIC_API_KEY is absent — falls back to Gemini 1.5 Pro.
+# True when ANTHROPIC_API_KEY is absent — falls back to Gemini 3.5 Flash.
 # Remove this block and restore the commented check above once Claude is available.
 USE_GEMINI = not os.getenv("ANTHROPIC_API_KEY")
 
