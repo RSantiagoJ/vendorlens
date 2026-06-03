@@ -3,7 +3,7 @@ ExtractionAgent — Day 2
 
 Extracts structured ProposalData from a vendor proposal document using:
   - LlamaIndex retriever (targeted RAG queries filtered to one vendor file)
-  - Claude Sonnet 4.6 via LangChain (auto-traced to LangSmith)
+  - LLM via make_llm() — Gemini 3.5 Flash primary, Claude Sonnet 4.6 fallback
 
 Three query groups cover all ProposalData fields. Chunks are deduplicated
 and assembled before the LLM call. Claude returns JSON only; the response
@@ -16,20 +16,15 @@ query groups to ensure full document coverage within context limits.
 """
 
 import json
-import os
-import sys
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_anthropic import ChatAnthropic
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
-from llama_index.core import Settings, VectorStoreIndex
+from llama_index.core import VectorStoreIndex
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 
 BASE_DIR = Path(__file__).parent.parent
@@ -54,21 +49,8 @@ class ExtractionAgent:
         self.index = index
         self.system_prompt = _load_prompt("extraction_agent")
 
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        if anthropic_key:
-            self.llm = ChatAnthropic(
-                model="claude-sonnet-4-6",
-                max_tokens=2048,
-                api_key=anthropic_key,
-            )
-        else:
-            google_key = os.getenv("GOOGLE_API_KEY")
-            if not google_key:
-                raise ValueError("Neither ANTHROPIC_API_KEY nor GOOGLE_API_KEY is set in environment.")
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-3.5-flash",
-                google_api_key=google_key,
-            )
+        from tools.llm_factory import make_llm  # noqa: PLC0415
+        self.llm, self.llm_name = make_llm()
 
     def _retrieve_chunks(self, filename: str) -> str:
         """Run three targeted RAG queries for one vendor doc.

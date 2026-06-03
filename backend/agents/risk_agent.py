@@ -1,35 +1,29 @@
 """
 RiskAgent — Day 3
 
-Evaluates extracted ProposalData against UMPO security policy and standard
-contract terms using:
+Evaluates extracted ProposalData against procurement policy using:
   - _policy_lookup from tools/mcp_server.py (keyword-scored policy search)
-  - Claude Sonnet 4.6 via LangChain (auto-traced to LangSmith)
+  - LLM via make_llm() — Gemini 3.5 Flash primary, Claude Sonnet 4.6 fallback
 
 How it works:
   1. Run five targeted policy_lookup queries to pull the most relevant policy
      sections for each risk category (security, data, contract terms, SLA, IP).
-  2. Pass the extracted proposal JSON + policy context to Claude.
-  3. Claude returns a JSON array of risk flags.
+  2. Pass the extracted proposal JSON + policy context to the LLM.
+  3. LLM returns a JSON array of risk flags.
   4. Parse into list[RiskFlag].
 
 policy_excerpt is populated by the LLM when the policy context contains
-a verbatim passage that triggered the flag. If Claude cannot identify a
-specific excerpt, it returns null — never fabricated.
+a verbatim passage that triggered the flag. Null if no specific text found.
 """
 
 import json
-import os
-import sys
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
 BASE_DIR = Path(__file__).parent.parent
@@ -59,14 +53,8 @@ class RiskAgent:
         from tools.mcp_server import _policy_lookup  # noqa: PLC0415
         self._policy_lookup = _policy_lookup
 
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-        if not anthropic_key:
-            raise ValueError("ANTHROPIC_API_KEY is required for RiskAgent (Claude Sonnet 4.6)")
-        self.llm = ChatAnthropic(
-            model="claude-sonnet-4-6",
-            max_tokens=4096,
-            api_key=anthropic_key,
-        )
+        from tools.llm_factory import make_llm  # noqa: PLC0415
+        self.llm, self.llm_name = make_llm()
 
     def _gather_policy_context(self) -> str:
         """Run targeted policy_lookup queries and deduplicate the results.
