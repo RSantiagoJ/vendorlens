@@ -185,7 +185,7 @@ All tasks complete. Checkpoint passed. Canvas recommended with score 10.0.
 
 ---
 
-## Day 5 — FastAPI backend
+## Day 5 — FastAPI backend ✅ COMPLETE
 
 Goal: REST API wrapping the pipeline. Frontend can connect.
 
@@ -221,6 +221,20 @@ Note: All Python commands use docker compose — never run python3 directly on t
       Docker requires sudo on this machine:
       sudo docker compose run backend python3 -m pytest   ← for tests
       sudo docker compose exec backend bash               ← interactive shell
+
+--- SESSION NOTES (Day 5, complete) ---
+
+All tasks complete. Checkpoint passed via scripts/test_api.sh.
+
+- api/models.py: AnalyzeResponse, ProposalResult, AnalysisResult — thin wrappers reusing graph/state types
+- api/main.py: pipeline singleton initialized on first request; pipeline runs in ThreadPoolExecutor
+  via loop.run_in_executor so the event loop stays unblocked; SSE uses plain StreamingResponse
+  (no sse-starlette dependency); stream() with stream_mode="updates" drives progress events
+- POST /analyze returns job_id immediately; GET /stream/{job_id} replays all buffered events
+  then live-polls until done/error — handles clients that connect after job starts
+- scripts/test_api.sh: starts server in Docker, health check, POST, SSE stream; no jq or python needed
+
+Ready for Day 6.
 
 ---
 
