@@ -9,8 +9,7 @@ Usage:
     python test_extraction.py
 
 Prerequisites:
-    - GOOGLE_API_KEY set in backend/.env (always required for embeddings)
-    - ANTHROPIC_API_KEY set in backend/.env (optional — uses Gemini if missing)
+    - GOOGLE_API_KEY set in backend/.env (required — embeddings + Gemini 3.5 Flash)
     - ChromaDB index built (run python ingest.py first)
 
 Expected output:
@@ -32,10 +31,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# True when ANTHROPIC_API_KEY is absent — falls back to Gemini 3.5 Flash.
-# Remove this block and restore the commented check above once Claude is available.
-USE_GEMINI = not os.getenv("ANTHROPIC_API_KEY")
-
 if not os.getenv("GOOGLE_API_KEY"):
     sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
 
@@ -46,10 +41,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 
 from agents.extraction_agent import ExtractionAgent as AgentClass
 
-if USE_GEMINI:
-    print("Using Gemini 3.5 Flash (ANTHROPIC_API_KEY not set)")
-else:
-    print("Using Claude Sonnet 4.6")
+print("Using Gemini 3.5 Flash")
 
 BASE_DIR = Path(__file__).parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"

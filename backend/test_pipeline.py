@@ -23,6 +23,7 @@ Expected output:
 import argparse
 import os
 import sys
+from collections import Counter
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -111,11 +112,10 @@ def run_pipeline():
     for p in state.proposals:
         vendor = (p.extracted.vendor_name if p.extracted else None) or p.filename
         overall = p.scores.overall if p.scores else "N/A"
-        high_count = sum(1 for f in (p.risks or []) if f.severity == "HIGH")
-        med_count = sum(1 for f in (p.risks or []) if f.severity == "MEDIUM")
+        risk_counts = Counter(f.severity for f in (p.risks or []))
         print(f"  {vendor}")
         print(f"    Overall score : {overall}")
-        print(f"    Risk flags    : HIGH={high_count}  MEDIUM={med_count}")
+        print(f"    Risk flags    : HIGH={risk_counts['HIGH']}  MEDIUM={risk_counts['MEDIUM']}")
 
     # Print memo excerpt
     print("\nMemo excerpt (first 600 chars):")
@@ -124,20 +124,13 @@ def run_pipeline():
     print("-" * 60)
 
     # Checkpoint assertion
-    failures = []
     memo_lower = (state.memo or "").lower()
     if "canvas" in memo_lower or "vendor b" in memo_lower:
         print("\n[PASS] Memo recommends Vendor B / Canvas")
     else:
-        failures.append("Memo FAILED: does not mention Canvas or Vendor B as recommended vendor")
+        sys.exit("\nFAIL: Memo does not mention Canvas or Vendor B as recommended vendor")
 
-    print()
-    if failures:
-        for f in failures:
-            print(f"  FAIL: {f}")
-        sys.exit(1)
-
-    print("Day 4 checkpoint complete.")
+    print("\nDay 4 checkpoint complete.")
     if os.getenv("LANGCHAIN_API_KEY"):
         print("LangSmith trace visible at: https://smith.langchain.com")
         print(f"Project: {os.getenv('LANGCHAIN_PROJECT', 'vendorlens')}")

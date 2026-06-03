@@ -12,8 +12,7 @@ Usage:
     python test_agents.py
 
 Prerequisites:
-    - GOOGLE_API_KEY set in backend/.env  (Gemini 3.5 Flash for scoring + extraction)
-    - ANTHROPIC_API_KEY set in backend/.env  (Claude for risk agent; fallback for scoring)
+    - GOOGLE_API_KEY set in backend/.env  (required — embeddings + Gemini 3.5 Flash for all agents)
     - ChromaDB index built: python ingest.py
 """
 
@@ -25,8 +24,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if not os.getenv("GOOGLE_API_KEY") and not os.getenv("ANTHROPIC_API_KEY"):
-    sys.exit("ERROR: Set at least GOOGLE_API_KEY or ANTHROPIC_API_KEY in backend/.env")
+if not os.getenv("GOOGLE_API_KEY"):
+    sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
 
 import chromadb
 from llama_index.core import Settings, VectorStoreIndex
