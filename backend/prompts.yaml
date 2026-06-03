@@ -82,7 +82,7 @@ scoring_agent:
     Dimensions and weights are provided in the scoring rubric context below.
     Do not hardcode weights or rubric descriptions — use what is provided.
 
-    Return format:
+    Return format — 8 dimensions only, no overall (computed in Python):
     {
       "platform_functionality": {"score": 8.0, "rationale": "One sentence."},
       "accessibility_compliance": {"score": 7.0, "rationale": "One sentence."},
@@ -91,8 +91,7 @@ scoring_agent:
       "security_and_compliance": {"score": 8.0, "rationale": "One sentence."},
       "support_and_training": {"score": 7.0, "rationale": "One sentence."},
       "enterprise_readiness": {"score": 8.0, "rationale": "One sentence."},
-      "risk_level": {"score": 10.0, "rationale": "One sentence."},
-      "overall": 8.2
+      "risk_level": {"score": 10.0, "rationale": "One sentence."}
     }
 
     Return JSON only.
