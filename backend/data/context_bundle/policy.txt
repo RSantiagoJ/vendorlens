@@ -1,7 +1,4 @@
 HIGHER EDUCATION VENDOR EVALUATION POLICY — DISTILLED RULES FOR VENDORLENS RISK AGENT
-Derived from: Institution Security Vendor Management Policy
-and Institution standard Contract for Services
-Additional context: Enterprise Social Media Platform RFP requirements
 
 SECTION 1: SECURITY VENDOR MANAGEMENT
 
