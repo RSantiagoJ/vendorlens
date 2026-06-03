@@ -1,8 +1,10 @@
 VENDORLENS SCORING RUBRIC
 Source: Derived from Higher Education Enterprise Learning Management System (LMS) RFP
-Scale: 0-10 per dimension. All scores rounded to one decimal place.
+Scale: 0–10 per dimension. All scores rounded to one decimal place.
+Weights sum to 1.00. Maximum possible overall score is 10.0.
 
-Overall score = weighted average of all dimensions per weights in rfp_criteria_lms.txt
+Overall score = weighted sum of all dimension scores × their weights (defined in rfp_criteria_lms.txt).
+A perfect vendor scores 10.0. No vendor can score above 10.0.
 
 ---
 
@@ -86,7 +88,7 @@ Microsoft Teams and Zoom integration, data export formats and portability
 
 ---
 
-PRICING AND LICENSING (weight: 0.15)
+PRICING AND LICENSING (weight: 0.10)
 
 Evaluate: per-student FTE pricing, all-campus total cost of ownership,
 migration and implementation costs disclosed, multi-year escalation clause,
