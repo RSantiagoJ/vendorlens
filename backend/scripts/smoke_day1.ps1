@@ -18,7 +18,7 @@ function Run-Compose {
     }
 }
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Push-Location $repoRoot
 
 try {
@@ -27,10 +27,10 @@ try {
     }
 
     if (-not $SkipReindex) {
-        Run-Compose -Label "Rebuilding vector index" -Args @("compose", "run", "--rm", "backend", "python", "ingest.py", "--force")
+        Run-Compose -Label "Rebuilding vector index" -Args @("compose", "run", "--rm", "backend", "python", "scripts/ingest.py", "--force")
     }
 
-    Run-Compose -Label "Running Day 1 RAG checkpoint" -Args @("compose", "run", "--rm", "backend", "python", "test_rag.py")
+    Run-Compose -Label "Running Day 1 RAG checkpoint" -Args @("compose", "run", "--rm", "backend", "python", "tests/test_rag.py")
     Write-Host "Day 1 smoke check passed."
 }
 finally {

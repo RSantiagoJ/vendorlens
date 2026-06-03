@@ -7,7 +7,7 @@ so agents can filter retrieval to a specific vendor document.
 
 Run once before starting the pipeline:
     cd backend
-    python ingest.py
+    python scripts/ingest.py
 
 Re-run if dummy_docs/ changes. ChromaDB is persisted to data/chroma_db/
 and skipped on subsequent runs unless --force is passed.
@@ -42,7 +42,7 @@ import chromadb
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent.parent
 DOCS_DIR = BASE_DIR / "data" / "dummy_docs"
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"

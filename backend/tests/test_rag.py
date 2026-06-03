@@ -7,7 +7,7 @@ the expected values.
 
 Usage:
     cd backend
-    python test_rag.py
+    python tests/test_rag.py
 
 Expected output:
     [PASS] renewal terms query returned chunks from vendor_b_socialbridge.txt
@@ -34,7 +34,7 @@ from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import VectorStoreIndex
 import chromadb
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent.parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"
 

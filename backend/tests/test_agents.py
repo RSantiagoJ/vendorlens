@@ -9,7 +9,7 @@ dummy proposals and asserts the expected ordering:
 
 Usage:
     cd backend
-    python test_agents.py
+    python tests/test_agents.py
 
 Prerequisites:
     - GOOGLE_API_KEY set in backend/.env  (required — embeddings + Gemini 3.5 Flash for all agents)
@@ -36,7 +36,7 @@ from agents.extraction_agent import ExtractionAgent
 from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent.parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"
 

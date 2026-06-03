@@ -17,7 +17,7 @@ for arg in "$@"; do
   esac
 done
 
-REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO_ROOT"
 
 run_step() {
@@ -31,10 +31,10 @@ if [ "$SKIP_BUILD" -eq 0 ]; then
 fi
 
 if [ "$SKIP_REINDEX" -eq 0 ]; then
-  run_step "Rebuilding vector index" docker compose run --rm backend python ingest.py --force
+  run_step "Rebuilding vector index" docker compose run --rm backend python scripts/ingest.py --force
 fi
 
-run_step "Running Day 1 RAG checkpoint" docker compose run --rm backend python test_rag.py
+run_step "Running Day 1 RAG checkpoint" docker compose run --rm backend python tests/test_rag.py
 
 echo ""
 echo "Day 1 smoke check passed."

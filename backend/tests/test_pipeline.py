@@ -6,7 +6,7 @@ end to end and verifies the memo recommends Vendor B (Canvas by Instructure).
 
 Usage:
     cd backend
-    python test_pipeline.py
+    python tests/test_pipeline.py
 
 Prerequisites:
     - GOOGLE_API_KEY set in backend/.env  (embeddings + Gemini for extraction/risk/scoring)
@@ -43,7 +43,7 @@ if not os.getenv("ANTHROPIC_API_KEY"):
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState, VendorLensState
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data" / "dummy_docs"
 
 VENDORS = [

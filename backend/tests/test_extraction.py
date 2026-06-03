@@ -6,7 +6,7 @@ key field values against the expected data in dummy_data.md.
 
 Usage:
     cd backend
-    python test_extraction.py
+    python tests/test_extraction.py
 
 Prerequisites:
     - GOOGLE_API_KEY set in backend/.env (required — embeddings + Gemini 3.5 Flash)
@@ -43,7 +43,7 @@ from agents.extraction_agent import ExtractionAgent as AgentClass
 
 print("Using Gemini 3.5 Flash")
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent.parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"
 
