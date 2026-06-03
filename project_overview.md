@@ -23,8 +23,8 @@ Do not silently deviate from the plan — flag better approaches and explain why
 
 VendorLens automates the vendor proposal evaluation process for the UMass
 President's Office. It is grounded in a real procurement the office ran:
-the 2025-2026 Enterprise Social Media Posting and Listening Platform RFP
-(issued November 6, 2025, proposals due December 1, 2025).
+the 2025-2026 Enterprise Learning Management System (LMS) RFP
+(issued November 2025, proposals due December 1, 2025).
 
 A staff member uploads 2-3 vendor proposal PDFs. VendorLens:
 
@@ -42,7 +42,7 @@ like something they could use tomorrow, because it is.
 
 ## Why this is the right demo
 
-The Social Media Platform RFP is the perfect demo anchor because:
+The LMS RFP is the perfect demo anchor because:
 
 - Leadership issued it — they know the criteria, the pain points, the vendors
 - It involved multiple campuses and complex evaluation criteria
@@ -51,8 +51,8 @@ The Social Media Platform RFP is the perfect demo anchor because:
 
 Demo narrative:
 "This is the RFP your committee issued in November 2025. These are three
-fictional vendor responses. Watch VendorLens evaluate them against your
-actual criteria and policy in 15 seconds."
+fictional vendor responses from real LMS companies. Watch VendorLens evaluate
+them against your actual criteria and policy in 15 seconds."
 
 That is not a hypothetical. That is their work.
 

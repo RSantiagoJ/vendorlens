@@ -9,7 +9,7 @@ pipeline, four agents, clear handoffs — buildable in a sprint while
 demonstrating production-grade patterns.
 
 The agents are grounded in real UMPO policy. See context/ folder (local
-only, not in repo) for the policy notes and RFP criteria that inform
+only, not in repo) for the policy notes and LMS RFP criteria that inform
 agent prompts. If context/ is not present, refer to agent_prompts.md
 which contains the distilled rules.
 
@@ -30,21 +30,21 @@ api/
 main.py
 models.py
 data/
-dummy_docs/        <- vendor proposal text files
-chroma_db/         <- auto-created on first run
-context_bundle/    <- UMPO context (swappable without code changes)
-policy.txt         <- SVM-01 + UMass Contract for Services rules
-rfp_criteria.txt   <- RFP evaluation dimensions and weights
-scoring_rubric.txt <- per-dimension rubric descriptions, 0-10 scale
+dummy_docs/ <- vendor proposal text files
+chroma_db/ <- auto-created on first run
+context_bundle/ <- UMPO context (swappable without code changes)
+policy.txt <- procurement and security policy rules
+rfp_criteria_lms.txt <- LMS RFP evaluation dimensions and weights
+scoring_rubric_lms.txt <- per-dimension rubric descriptions, 0-10 scale
 graph/
-pipeline.py        <- LangGraph graph definition
-state.py           <- VendorLensState + Pydantic models
+pipeline.py <- LangGraph graph definition
+state.py <- VendorLensState + Pydantic models
 tools/
-mcp_server.py      <- MCP tool server
-.env               <- API keys, never commit
+mcp_server.py <- MCP tool server
+.env <- API keys, never commit
 requirements.txt
-frontend/          <- Next.js app
-context/           <- LOCAL ONLY, in .gitignore
+frontend/ <- Next.js app
+context/ <- LOCAL ONLY, in .gitignore
 real_policy_notes.md
 real_rfp_criteria.md
 real_contract_terms.md
@@ -75,7 +75,7 @@ proposals: [
 filename: str,
 raw_text: str,
 extracted: ProposalData | None,
-risks: list[RiskFlag] | None,  # RiskFlag includes policy_excerpt field
+risks: list[RiskFlag] | None, # RiskFlag includes policy_excerpt field
 scores: ScoreCard | None
 }
 ],
@@ -164,7 +164,7 @@ Endpoints:
 POST /analyze — multipart PDF upload, runs pipeline, returns JSON
 GET /health — {"status":"ok"} for Railway health check
 GET /stream/{job_id} — SSE progress updates (required)
-    Events: extracting | risk | scoring | memo | done | error
+Events: extracting | risk | scoring | memo | done | error
 CORS: localhost:3000 + Railway URL
 
 ---

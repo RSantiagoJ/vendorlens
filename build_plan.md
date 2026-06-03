@@ -45,11 +45,11 @@ Tasks:
 
 5. Copy dummy doc content from dummy_data.md into backend/data/dummy_docs/
    Create backend/data/context_bundle/ with three files:
-   - policy.txt         (UMPO SVM-01 + UMass Contract for Services rules)
-   - rfp_criteria.txt   (scoring dimensions and weights from the real RFP)
-   - scoring_rubric.txt (rubric descriptions per dimension, 0-10 scale)
-   Content sourced from dummy_data.md and context/ folder notes.
-   Agents read these files directly. No wrapper needed.
+   - policy.txt (UMPO SVM-01 + UMass Contract for Services rules)
+   - rfp_criteria.txt (scoring dimensions and weights from the real RFP)
+   - scoring_rubric_lms.txt (rubric descriptions per dimension, 0-10 scale)
+     Content sourced from dummy_data.md and context/ folder notes.
+     Agents read these files directly. No wrapper needed.
 
 6. Write backend/ingest.py:
    - SimpleDirectoryReader on data/dummy_docs/
@@ -86,8 +86,8 @@ Tasks:
    - Null for missing fields, never hallucinate
 
 3. Write test_extraction.py — run against all three proposals
-   Verify: Vendor B shows $158,000 fixed price, no auto-renewal, $3M liability
-   Verify: Vendor A shows $195,000, 30-day opt-out, $16,250 liability cap
+   Verify: Vendor B (Canvas) shows $2,280,000/year fixed, no auto-renewal, $5M liability
+   Verify: Vendor A (Blackboard) shows escalating pricing, 30-day opt-out, $50,000 liability cap
 
 Checkpoint: All three return valid ProposalData with no hallucinated fields.
 
@@ -99,10 +99,10 @@ Goal: Risk flags and scores populated for all three proposals.
 Scoring Agent using Gemini Pro independently of Claude.
 
 Risk Agent expected output:
-Vendor A: multiple HIGH flags (30-day opt-out, SOC2 Type I only,
-no DPA, data use violation, Texas governing law, IP transfer)
-Vendor B: zero HIGH flags
-Vendor C: one HIGH flag (Illinois governing law, data use for benchmarking)
+Vendor A (Blackboard): multiple HIGH flags (30-day opt-out, SOC2 Type I only,
+no DPA standard, data use violation, North Carolina governing law, low liability cap)
+Vendor B (Canvas): zero HIGH flags
+Vendor C (D2L Brightspace): one to two HIGH flags (Ontario/Delaware governing law)
 
 Tasks:
 
@@ -138,7 +138,7 @@ Tasks:
 1. Write agents/memo_agent.py
    - Claude Sonnet 4.6
    - System prompt from agent_prompts.md
-   - Returns markdown memo recommending Vendor B (SocialBridge)
+   - Returns markdown memo recommending Vendor B (Canvas by Instructure)
 
 2. Write graph/pipeline.py
    - LangGraph StateGraph with VendorLensState
@@ -155,7 +155,7 @@ Tasks:
 
 4. Write test_pipeline.py
    - Run full pipeline against all three dummy proposals
-   - Memo should recommend Vendor B (SocialBridge Solutions)
+   - Memo should recommend Vendor B (Canvas by Instructure)
 
 Checkpoint: graph.run() returns complete state with memo.
 Full trace visible in LangSmith.
@@ -174,15 +174,15 @@ Tasks:
    POST /analyze — multipart upload, runs pipeline, returns JSON
    GET /health — {"status":"ok"}
    GET /stream/{job_id} — SSE progress updates (required, not optional)
-     Emit events: extracting | risk | scoring | memo | done | error
-     Each event carries the job_id and current status string
+   Emit events: extracting | risk | scoring | memo | done | error
+   Each event carries the job_id and current status string
    CORS for localhost:3000
 
 3. Test with curl:
    curl -X POST http://localhost:8000/analyze \
-    -F "files=@vendor_a_pulsemedia.txt" \
-    -F "files=@vendor_b_socialbridge.txt" \
-    -F "files=@vendor_c_campusvoice.txt"
+    -F "files=@vendor_a_blackboard.txt" \
+    -F "files=@vendor_b_canvas.txt" \
+    -F "files=@vendor_c_brightspace.txt"
 
 Checkpoint: curl returns valid JSON with proposals, risks, scores, memo.
 
@@ -252,16 +252,16 @@ Let me show you what that looks like with agentic AI."
 
 [Upload three dummy proposal files. Hit analyze.]
 
-"This is the RFP your committee issued in November 2025. These are three
-fictional vendor responses. VendorLens is running four AI agents — extracting
-structured data, flagging risks against our actual SVM-01 policy, scoring
-against our real RFP criteria, and writing the memo."
+"This is the LMS RFP your committee issued in November 2025. These are three
+fictional proposals from real vendors. VendorLens is running four AI agents —
+extracting structured data, flagging risks against our actual procurement policy,
+scoring against our real RFP criteria, and writing the memo."
 
 [Cards appear.]
 
 "Three vendors, scored and compared. Vendor A has multiple high-severity
-risk flags including a SOC 2 Type I certification, no Data Processing
-Agreement, and Texas governing law — none of which meet our standards.
+risk flags including a SOC 2 Type I certification, no standard Data Processing
+Agreement, and North Carolina governing law — none of which meet our standards.
 Vendor B scores highest across every dimension."
 
 [Scroll to memo.]
