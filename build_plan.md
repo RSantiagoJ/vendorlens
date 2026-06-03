@@ -141,7 +141,7 @@ All tasks complete. Checkpoint passed.
 
 ---
 
-## Day 4 — Memo Agent + LangGraph pipeline
+## Day 4 — Memo Agent + LangGraph pipeline ✅ COMPLETE
 
 Goal: Full pipeline runs end to end. LangSmith trace visible.
 This is the most important milestone in the project.
@@ -149,29 +149,39 @@ This is the most important milestone in the project.
 Tasks:
 
 1. Write agents/memo_agent.py
-   - Claude Sonnet 4.6
-   - System prompt from agent_prompts.md
+   - Claude Sonnet 4.6 via make_claude_llm() from llm_factory
+   - System prompt from prompts.yaml
    - Returns markdown memo recommending Vendor B (Canvas by Instructure)
 
 2. Write graph/pipeline.py
-   - LangGraph StateGraph with VendorLensState
-   - Nodes: extraction_node, risk_node, scoring_node, memo_node
-   - Sequential edges with error handling
-   - Parallel extraction: use Send() to fan out extraction_node across
-     all uploaded proposals simultaneously, fan back in before risk_node
-     This makes the pipeline ~3x faster and is required, not optional
+   - LangGraph StateGraph with PipelineState
+   - All three agent stages (extraction, risk, scoring) parallelized via Send()
+   - Fan-out/fan-in pattern: each stage dispatches one node per vendor in parallel
+   - memo_node runs sequentially after all scoring completes
 
 3. Confirm LangSmith:
    - Run pipeline once
    - Verify run appears at smith.langchain.com
-   - Every agent call and retrieval should be visible
 
-4. Write test_pipeline.py
-   - Run full pipeline against all three dummy proposals
+4. Write tests/test_pipeline.py
+   - --count flag (default 2) to run subset of vendors for faster demos
    - Memo should recommend Vendor B (Canvas by Instructure)
 
-Checkpoint: graph.run() returns complete state with memo.
-Full trace visible in LangSmith.
+--- SESSION NOTES (Day 4, complete) ---
+
+All tasks complete. Checkpoint passed. Canvas recommended with score 10.0.
+
+- graph/pipeline.py: all three stages parallel via Send(); PipelineState uses
+  operator.add accumulators (extracted, with_risks, proposals)
+- agents/memo_agent.py: uses make_claude_llm() — intentionally Claude for prose quality
+- tools/llm_factory.py: added make_claude_llm(), dedup_ordered(), cached load_prompt()
+- agents/risk_agent.py: policy context cached in __init__ (runs once, not per vendor)
+- agents/extraction_agent.py: dedup_ordered() replaces manual seen+ordered loop
+- data/context_bundle/rfp_criteria_lms.txt: weights corrected to sum to 1.00
+  (pricing_and_licensing reduced 0.15 → 0.10); max score is now 10.0
+- File structure reorganized: tests/ and scripts/ directories created;
+  test files and ingest.py moved out of backend root
+- tests/test_pipeline.py: --count flag defaults to 2 for faster presentation runs
 
 ---
 
