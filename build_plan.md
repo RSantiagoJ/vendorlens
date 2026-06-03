@@ -75,7 +75,7 @@ Tasks:
 
 1. Write tools/mcp_server.py
    - document_reader tool: reads file, returns full text
-   - policy_lookup tool: semantic search against policy_doc.txt
+   - policy_lookup tool: semantic search against policy.txt
    - Use official MCP Python SDK (pip install mcp), stdio transport
    - See architecture.md note on fallback approach if needed
 

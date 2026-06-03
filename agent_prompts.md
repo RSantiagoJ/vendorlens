@@ -2,13 +2,11 @@
 
 ## Note for Claude Code
 
-These prompts are grounded in real UMPO documents:
+These prompts are grounded in real UMPO documents distilled into
+`backend/data/context_bundle/`. The authoritative runtime files are:
 
-- Scoring rubric reflects the 2025-2026 Enterprise Learning Management
-  System (LMS) RFP evaluation criteria (context/rfp_criteria.md)
-- Risk flags reflect UMPO SVM-01 Security Vendor Management Policy and
-  UMass standard Contract for Services terms (context/policy_notes.md,
-  context/contract_terms.md)
+- Scoring rubric: `context_bundle/rfp_criteria_lms.txt` and `scoring_rubric_lms.txt`
+- Risk flags: `context_bundle/policy.txt` (SVM-01 + UMass Contract for Services rules)
 
 Load prompts from a config file (YAML or JSON) so Ricardo can tune them
 without modifying Python code. Suggest this pattern when scaffolding agents.
@@ -216,14 +214,6 @@ Multi-campus sub-tenant architecture, role-based admin controls, campus-specific
 content and branding, scalable onboarding, sandbox included, migration support
 10 = fully documented multi-campus architecture, sandbox at no cost, migration plan
 0 = single-tenant, no admin controls, no sandbox, no migration support
-
-risk_level (weight: 0.05 — inverted)
-10 = zero HIGH severity flags
-7 = one HIGH flag
-4 = two HIGH flags
-0 = three or more HIGH flags
-10 = fully documented multi-campus architecture, sandbox at no cost
-0 = single-tenant, no admin controls, no test environment
 
 risk_level (weight: 0.05 — inverted)
 10 = zero HIGH severity flags

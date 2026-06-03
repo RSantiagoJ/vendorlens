@@ -44,12 +44,6 @@ mcp_server.py <- MCP tool server
 .env <- API keys, never commit
 requirements.txt
 frontend/ <- Next.js app
-context/ <- LOCAL ONLY, in .gitignore
-real_policy_notes.md
-real_rfp_criteria.md
-real_contract_terms.md
-.gitignore
-README.md
 
 ---
 
@@ -259,3 +253,60 @@ enterprise data pipelines — a meaningful differentiator.
 Additional .env keys needed:
 DROPBOX_ACCESS_TOKEN=
 DROPBOX_VENDOR_PROPOSALS_PATH=/VendorLens/Proposals
+
+---
+
+## Making VendorLens generic
+
+VendorLens is designed so that the AI pipeline — agents, RAG, scoring,
+risk flagging, and memo writing — contains no hardcoded knowledge about
+any specific procurement. All domain knowledge lives in three files in
+`data/context_bundle/`. Swapping those files is the only change required
+to evaluate vendors for a completely different RFP.
+
+### What is configurable (no code changes needed)
+
+| File                                  | What it controls                                               |
+| ------------------------------------- | -------------------------------------------------------------- |
+| `context_bundle/policy.txt`           | Risk thresholds, HIGH/MEDIUM/LOW triggers, legal requirements  |
+| `context_bundle/rfp_criteria_*.txt`   | Scoring dimensions, weights, and what each dimension evaluates |
+| `context_bundle/scoring_rubric_*.txt` | 0-10 scale descriptions per dimension                          |
+| `prompts.yaml`                        | Agent personas, org name, RFP title, tone of the memo          |
+
+To retarget for a new procurement:
+
+1. Replace or add context bundle files for the new domain.
+2. Update `prompts.yaml`: change the org name, RFP title, and any
+   domain-specific language in the agent personas.
+3. Re-run `ingest.py --force` to rebuild ChromaDB with the new context.
+4. No Python code changes. No agent code changes. No pipeline changes.
+
+### What needs to change for a different extraction schema
+
+The extraction agent uses a fixed JSON schema defined in `prompts.yaml`.
+That schema is currently LMS-specific (fields like `lti_support`,
+`sis_integration`, `gradebook_passback`). For a different domain:
+
+- Replace the field list in the extraction prompt with domain-appropriate fields.
+- Update `graph/state.py` ProposalData model to match.
+- Update the Scoring Agent dimensions in `prompts.yaml` to match the new rubric.
+
+This is a ~30-minute configuration change, not a rewrite.
+
+### Example: retargeting for a cybersecurity services RFP
+
+| File                       | Change                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------- |
+| `policy.txt`               | Swap FERPA/GLBA risk rules for NIST CSF or FedRAMP requirements                                 |
+| `rfp_criteria_cyber.txt`   | Dimensions: incident response capability, pen test frequency, zero-trust posture, staff vetting |
+| `scoring_rubric_cyber.txt` | 0-10 rubric for each cyber dimension                                                            |
+| `prompts.yaml`             | Change org name, RFP title, extraction fields to match cyber contract terms                     |
+
+### The demo talking point
+
+"This is running against our LMS RFP today. To run it against our
+cybersecurity vendor RFP next month, we replace three text files and
+update the prompt config. The pipeline, the agents, and all the AI
+infrastructure stay exactly the same."
+
+That is the architectural decision that makes this a platform, not a one-off tool.

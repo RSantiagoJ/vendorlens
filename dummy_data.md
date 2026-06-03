@@ -5,7 +5,7 @@
 These three vendor proposals are **fictional** responses to the UMass
 2025-2026 Enterprise Learning Management System (LMS) RFP
 (issued November 2025, proposals due December 1, 2025).
-The RFP details are in context/rfp_criteria.md.
+The RFP details are distilled in backend/data/context_bundle/rfp_criteria_lms.txt.
 
 Vendor names are real LMS companies. All pricing, contract specifics,
 and individual proposal details are entirely fictional and invented for
@@ -571,4 +571,3 @@ MWBE-certified subcontractors for on-site implementation services.
 ADDITIONAL TERMS
 D2L may deprecate features with 90 days notice. Pricing escalation is capped
 at 4% per year as stated; no unilateral adjustments outside this cap.
-

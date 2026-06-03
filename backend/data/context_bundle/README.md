@@ -12,9 +12,15 @@ Using one normalized bundle prevents prompt drift across agents.
 
 ## Source mapping
 
-- Upstream policy/contract notes -> `policy.txt`
-- Upstream LMS RFP criteria notes -> `rfp_criteria_lms.txt`
-- LMS scoring standards -> `scoring_rubric_lms.txt`
+The files here are the authoritative source for agent context. The upstream
+source notes (policy_notes.md, rfp_criteria.md, contract_terms.md) are kept
+by Ricardo outside the repo. The `_lms` suffix on criteria and rubric files
+signals which procurement they belong to — this naming pattern allows multiple
+procurement bundles to coexist in the folder.
+
+To add a new procurement context, add a new `rfp_criteria_<domain>.txt` and
+`scoring_rubric_<domain>.txt` pair, then update `prompts.yaml` to point agents
+at the new files. See `architecture.md` — Making VendorLens Generic.
 
 ## Update protocol
 
