@@ -1,14 +1,15 @@
 """
-llm_factory — LLM selection, prompt loading, and shared JSON parsing utilities.
+llm_factory — LLM selection, prompt loading, and shared utilities.
 
 Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
 Raises ValueError if neither key is set.
 
 Usage:
-    from tools.llm_factory import load_prompt, make_llm, parse_llm_json
+    from tools.llm_factory import load_prompt, make_llm, make_claude_llm, parse_llm_json
 
     system_prompt = load_prompt("extraction_agent")
     llm, llm_name = make_llm()
+    llm = make_claude_llm()          # always Claude, used by MemoAgent
     data = parse_llm_json(response.content)
 """
 
@@ -19,19 +20,32 @@ from pathlib import Path
 import yaml
 
 _PROMPTS_PATH = Path(__file__).parent.parent / "prompts.yaml"
+_PROMPTS: dict | None = None
 
 
 def load_prompt(role: str) -> str:
     """Return the system prompt for a given agent role from prompts.yaml."""
-    with open(_PROMPTS_PATH, "r") as f:
-        return yaml.safe_load(f)[role]["system"]
+    global _PROMPTS
+    if _PROMPTS is None:
+        with open(_PROMPTS_PATH, "r") as f:
+            _PROMPTS = yaml.safe_load(f)
+    return _PROMPTS[role]["system"]
+
+
+def make_claude_llm():
+    """Return ChatAnthropic(claude-sonnet-4-6). Raises ValueError if key not set."""
+    key = os.getenv("ANTHROPIC_API_KEY")
+    if not key:
+        raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
+    from langchain_anthropic import ChatAnthropic
+    return ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key)
 
 
 def make_llm():
     """Return (llm, model_name) using the best available API key.
 
     Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
-    Note: memo_agent uses Claude directly and is unaffected by this priority.
+    Note: MemoAgent calls make_claude_llm() directly and is unaffected by this priority.
     Google API key is also required for embeddings regardless of which LLM is used here.
 
     Returns:
@@ -41,7 +55,6 @@ def make_llm():
         ValueError: If neither GOOGLE_API_KEY nor ANTHROPIC_API_KEY is set.
     """
     google_key = os.getenv("GOOGLE_API_KEY")
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 
     if google_key:
         from langchain_google_genai import ChatGoogleGenerativeAI
@@ -54,21 +67,27 @@ def make_llm():
             "Gemini 3.5 Flash",
         )
 
-    if anthropic_key:
-        from langchain_anthropic import ChatAnthropic
-        return (
-            ChatAnthropic(
-                model="claude-sonnet-4-6",
-                max_tokens=4096,
-                api_key=anthropic_key,
-            ),
-            "Claude Sonnet 4.6",
-        )
+    if os.getenv("ANTHROPIC_API_KEY"):
+        return make_claude_llm(), "Claude Sonnet 4.6"
 
     raise ValueError(
         "No LLM API key found. Set GOOGLE_API_KEY (Gemini 3.5 Flash, primary) "
         "or ANTHROPIC_API_KEY (Claude Sonnet 4.6, fallback) in backend/.env"
     )
+
+
+def dedup_ordered(items: list[str]) -> list[str]:
+    """Return items with duplicates removed, preserving first-seen order.
+
+    Empty strings are also filtered out.
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        if item and item not in seen:
+            seen.add(item)
+            out.append(item)
+    return out
 
 
 def parse_llm_json(raw: str):

@@ -9,27 +9,21 @@ Returns a markdown string ready to display or download.
 """
 
 import json
-import os
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from graph.state import ProposalState
-from tools.llm_factory import load_prompt
+from tools.llm_factory import load_prompt, make_claude_llm
 
 
 class MemoAgent:
     def __init__(self):
         self.system_prompt = load_prompt("memo_agent")
-        self.llm = ChatAnthropic(
-            model="claude-sonnet-4-6",
-            max_tokens=4096,
-            api_key=os.environ["ANTHROPIC_API_KEY"],
-        )
+        self.llm = make_claude_llm()
 
     def write(self, proposals: list[ProposalState]) -> str:
         """Write the recommendation memo from fully-processed proposals.

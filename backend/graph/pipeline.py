@@ -64,8 +64,7 @@ COLLECTION_NAME = "vendor_proposals"
 # Graph state
 # ---------------------------------------------------------------------------
 
-def _last(a, b):
-    """Reducer that keeps the most recent write — used for status and error."""
+def _last(_, b):
     return b
 
 

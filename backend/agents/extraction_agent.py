@@ -21,7 +21,7 @@ from llama_index.core import VectorStoreIndex
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 
 from graph.state import ProposalData
-from tools.llm_factory import load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import dedup_ordered, load_prompt, make_llm, parse_llm_json
 
 # Three query groups cover all 30 ProposalData fields without redundant
 # embedding API calls. top_k=8 per query captures all chunks in short docs.
@@ -36,7 +36,7 @@ class ExtractionAgent:
     def __init__(self, index: VectorStoreIndex):
         self.index = index
         self.system_prompt = load_prompt("extraction_agent")
-        self.llm, self.llm_name = make_llm()
+        self.llm, _ = make_llm()
 
     def _retrieve_chunks(self, filename: str) -> str:
         """Run three targeted RAG queries for one vendor doc.
@@ -51,15 +51,12 @@ class ExtractionAgent:
             filters=filters,
             similarity_top_k=8,
         )
-        seen: set[str] = set()
-        ordered: list[str] = []
-        for query in _RETRIEVAL_QUERIES:
-            for node in retriever.retrieve(query):
-                text = node.get_content()
-                if text not in seen:
-                    seen.add(text)
-                    ordered.append(text)
-        return "\n\n---\n\n".join(ordered)
+        chunks = [
+            node.get_content()
+            for query in _RETRIEVAL_QUERIES
+            for node in retriever.retrieve(query)
+        ]
+        return "\n\n---\n\n".join(dedup_ordered(chunks))
 
     def extract(self, filename: str) -> ProposalData:
         """Extract structured data from a vendor proposal.

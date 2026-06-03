@@ -6,8 +6,10 @@ Evaluates extracted ProposalData against procurement policy using:
   - LLM via make_llm() — Gemini 3.5 Flash primary, Claude Sonnet 4.6 fallback
 
 How it works:
-  1. Run five targeted policy_lookup queries to pull the most relevant policy
-     sections for each risk category (security, data, contract terms, SLA, IP).
+  1. Run five targeted policy_lookup queries at init time to pull the most
+     relevant policy sections for each risk category (security, data,
+     contract terms, SLA, IP). Policy context is constant across all
+     proposals, so it is built once and reused.
   2. Pass the extracted proposal JSON + policy context to the LLM.
   3. LLM returns a JSON array of risk flags.
   4. Parse into list[RiskFlag].
@@ -23,7 +25,7 @@ load_dotenv()
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from graph.state import ProposalData, RiskFlag
-from tools.llm_factory import load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import dedup_ordered, load_prompt, make_llm, parse_llm_json
 
 # Policy query groups that cover all HIGH/MEDIUM risk categories.
 # Each query targets the keyword-scoring logic in _policy_lookup.
@@ -39,23 +41,20 @@ _POLICY_QUERIES = [
 class RiskAgent:
     def __init__(self):
         self.system_prompt = load_prompt("risk_agent")
-        self.llm, self.llm_name = make_llm()
+        self.llm, _ = make_llm()
 
         # Deferred to avoid importing MCP server at module load time
         from tools.mcp_server import _policy_lookup
-        self._policy_lookup = _policy_lookup
+        self._policy_context = self._gather_policy_context(_policy_lookup)
 
-    def _gather_policy_context(self) -> str:
-        """Run targeted policy_lookup queries and deduplicate the results."""
-        seen: set[str] = set()
-        ordered: list[str] = []
-        for query in _POLICY_QUERIES:
-            for section in self._policy_lookup(query).split("\n\n"):
-                section = section.strip()
-                if section and section not in seen:
-                    seen.add(section)
-                    ordered.append(section)
-        return "\n\n".join(ordered)
+    def _gather_policy_context(self, policy_lookup) -> str:
+        """Run targeted policy_lookup queries once and deduplicate the results."""
+        sections = [
+            section.strip()
+            for query in _POLICY_QUERIES
+            for section in policy_lookup(query).split("\n\n")
+        ]
+        return "\n\n".join(dedup_ordered(sections))
 
     def analyze(self, proposal_data: ProposalData) -> list[RiskFlag]:
         """Identify risk flags in a vendor proposal.
@@ -66,13 +65,12 @@ class RiskAgent:
         Returns:
             list[RiskFlag] — may be empty if no risks are found.
         """
-        policy_context = self._gather_policy_context()
         messages = [
             SystemMessage(content=self.system_prompt),
             HumanMessage(
                 content=(
                     f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
-                    f"Relevant policy context:\n{policy_context}\n\n"
+                    f"Relevant policy context:\n{self._policy_context}\n\n"
                     "Identify all risks. Return JSON array only."
                 )
             ),
