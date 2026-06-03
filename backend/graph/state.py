@@ -72,6 +72,7 @@ class DimensionScore(BaseModel):
 class ScoreCard(BaseModel):
     platform_functionality: DimensionScore
     accessibility_compliance: DimensionScore
+    integration_capability: DimensionScore
     pricing_transparency: DimensionScore
     security_and_compliance: DimensionScore
     support_and_training: DimensionScore
