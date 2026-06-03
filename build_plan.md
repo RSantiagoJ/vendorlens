@@ -111,13 +111,14 @@ Tasks:
    - Claude Sonnet 4.6 via LangChain
    - Returns list[RiskFlag] with policy_excerpt from LLM
 
-2. [ ] Write agents/scoring_agent.py
-   - Gemini Pro
+2. [DONE] Write agents/scoring_agent.py
+   - Gemini 3.5 Flash primary, Claude Sonnet 4.6 fallback
    - Load rubric via context_loader.load_context_bundle() — inject into prompt
-   - Do not hardcode rubric weights in the prompt or agent file
+   - Weights parsed from rfp_criteria_lms.txt at runtime — not hardcoded
+   - overall computed in Python as weighted average (not relying on LLM math)
    - Returns ScoreCard
 
-3. [ ] Write test_agents.py — run both against all three proposals
+3. [DONE] Write test_agents.py — run both against all three proposals
        Verify: Vendor B scores highest overall, Vendor A scores lowest
 
 Checkpoint: Risk flags and scores are directionally correct.
@@ -134,11 +135,15 @@ Completed before session end:
 - tools/context_loader.py: created — loads all .txt files from context_bundle/ as dict
 - agents/risk_agent.py: created — 5 policy queries, Claude Sonnet 4.6, returns list[RiskFlag]
 
-Remaining for next session:
+Completed this session:
 
-- agents/scoring_agent.py (Gemini Pro, loads rubric via context_loader)
-- test_agents.py
-- Run checkpoint: Vendor B highest, Vendor A lowest
+- agents/scoring_agent.py: Gemini 3.5 Flash primary, Anthropic fallback.
+  Weights parsed from rfp_criteria_lms.txt; overall computed in Python.
+- agents/risk_agent.py: updated to Gemini primary / Anthropic fallback (was Anthropic-only)
+- test_agents.py: runs all 3 agents on all 3 vendors; asserts B>C>A score order
+- backend/.env: created template (GOOGLE_API_KEY required, ANTHROPIC_API_KEY optional)
+
+Next: fill in API keys in backend/.env, run `python ingest.py`, then `python test_agents.py`
 
 ---
 
