@@ -44,6 +44,20 @@ Expected final line:
 
 `All checks passed. Day 1 checkpoint complete.`
 
+## Day 2 / Day 3 checkpoint
+
+Run all three agents (extraction, risk, scoring) against all three dummy proposals:
+
+```bash
+docker compose run --rm backend python test_agents.py
+```
+
+Prerequisites: `GOOGLE_API_KEY` set in `backend/.env`, ChromaDB index built via `ingest.py`.
+
+Expected final line:
+
+`All checks passed. Day 3 checkpoint complete.`
+
 ## Run arbitrary backend script
 
 ```bash
