@@ -201,13 +201,26 @@ Tasks:
    Each event carries the job_id and current status string
    CORS for localhost:3000
 
-3. Test with curl:
-   curl -X POST http://localhost:8000/analyze \
-    -F "files=@vendor_a_blackboard.txt" \
-    -F "files=@vendor_b_canvas.txt" \
-    -F "files=@vendor_c_brightspace.txt"
+3. Start the server (all Python runs inside Docker):
+   docker compose run --service-ports backend \
+     uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 
-Checkpoint: curl returns valid JSON with proposals, risks, scores, memo.
+4. Test with curl:
+   # POST returns job_id immediately
+   curl -X POST http://localhost:8000/analyze \
+     -F "files=@data/dummy_docs/vendor_a_blackboard.txt" \
+     -F "files=@data/dummy_docs/vendor_b_canvas.txt" \
+     -F "files=@data/dummy_docs/vendor_c_brightspace.txt"
+
+   # Stream progress + final result (paste job_id from above)
+   curl -N http://localhost:8000/stream/{job_id}
+
+Checkpoint: SSE stream ends with a "done" event containing proposals, risks, scores, memo.
+
+Note: All Python commands use docker compose — never run python3 directly on the host.
+      Docker requires sudo on this machine:
+      sudo docker compose run backend python3 -m pytest   ← for tests
+      sudo docker compose exec backend bash               ← interactive shell
 
 ---
 
