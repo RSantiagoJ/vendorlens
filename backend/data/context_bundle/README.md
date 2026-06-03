@@ -13,8 +13,8 @@ Using one normalized bundle prevents prompt drift across agents.
 ## Source mapping
 
 - Upstream policy/contract notes -> `policy.txt`
-- Upstream RFP criteria notes -> `rfp_criteria.txt`
-- RFP criteria + scoring standards -> `scoring_rubric.txt`
+- Upstream LMS RFP criteria notes -> `rfp_criteria_lms.txt`
+- LMS scoring standards -> `scoring_rubric_lms.txt`
 
 ## Update protocol
 
@@ -29,7 +29,7 @@ When source notes change:
 ## Agent usage
 
 - Risk logic reads `policy.txt`.
-- Scoring logic reads `rfp_criteria.txt` and `scoring_rubric.txt`.
+- Scoring logic reads `rfp_criteria_lms.txt` and `scoring_rubric_lms.txt`.
 - Any policy-aware extraction should reference these files instead of hardcoded text.
 
 ## Verification (Docker-first)
