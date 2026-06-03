@@ -98,14 +98,13 @@ class ScoringAgent:
         high_count = sum(1 for f in risk_flags if f.severity == "HIGH")
         risk_summary = json.dumps(
             [{"clause": f.clause, "severity": f.severity} for f in risk_flags],
-            indent=2,
         )
 
         messages = [
             SystemMessage(content=self.system_prompt),
             HumanMessage(
                 content=(
-                    f"Extracted contract data:\n{proposal_data.model_dump_json(indent=2)}\n\n"
+                    f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
                     f"Risk flags from Risk Agent:\n{risk_summary}\n\n"
                     f"HIGH severity risk count: {high_count}\n\n"
                     "Score this proposal on all 8 dimensions. Return JSON only."

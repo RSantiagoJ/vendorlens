@@ -30,6 +30,10 @@ def load_prompt(role: str) -> str:
 def make_llm():
     """Return (llm, model_name) using the best available API key.
 
+    Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
+    Note: memo_agent uses Claude directly and is unaffected by this priority.
+    Google API key is also required for embeddings regardless of which LLM is used here.
+
     Returns:
         Tuple of (LangChain chat model, human-readable model name string).
 

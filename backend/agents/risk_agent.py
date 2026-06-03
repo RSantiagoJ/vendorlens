@@ -71,7 +71,7 @@ class RiskAgent:
             SystemMessage(content=self.system_prompt),
             HumanMessage(
                 content=(
-                    f"Extracted contract data:\n{proposal_data.model_dump_json(indent=2)}\n\n"
+                    f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
                     f"Relevant policy context:\n{policy_context}\n\n"
                     "Identify all risks. Return JSON array only."
                 )
