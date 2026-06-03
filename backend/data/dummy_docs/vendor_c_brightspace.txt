@@ -1,0 +1,173 @@
+VENDOR PROPOSAL — D2L Brightspace
+Submitted to: University of Massachusetts System
+In Response to: Enterprise Learning Management System RFP
+Date: November 30, 2025
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+D2L (Desire2Learn) is a global EdTech company and developer of Brightspace,
+an LMS serving over 15 million learners at more than 1,000 institutions globally.
+D2L has significant presence in public university systems in North America.
+Headquarters: Kitchener, Ontario, Canada.
+US corporate entity: D2L Ltd., incorporated in Delaware.
+Employees: 950+.
+
+PRICING
+Base platform fee: $36 per enrolled FTE student per year
+Estimated total Year 1 (60,000 FTE): $2,160,000
+Year 2: $2,246,400 (4% escalation)
+Year 3: $2,336,256 (4% escalation)
+Per-campus onboarding fee: $8,000 per campus (first three included)
+Migration: Professional services, estimated $55,000 (not included in base price)
+Add-on modules (priced separately, annual):
+  - Brightspace AI (AI-assisted grading, intelligent agents): $6/FTE/year
+  - Advanced Analytics (Brightspace Insights): $4/FTE/year
+  - ePortfolio Premium: $2/FTE/year
+  - Proctoring (Honorlock): $9/FTE/year
+Payment terms: Net 30, invoiced quarterly in advance
+
+CONTRACT TERMS
+Contract length: 3 years
+Auto-renewal: Automatically renews for successive 2-year terms
+Opt-out notice required: 45 days prior to renewal date
+Termination for convenience: 90 days written notice plus 15% early
+termination fee on remaining contract value
+Governing law: Province of Ontario, Canada; or State of Delaware for
+US-entity disputes — university selects at time of signing
+
+LIABILITY
+Maximum liability: $500,000 or total fees paid in prior 6 months, whichever
+is greater. FERPA-related claims capped separately at $100,000.
+
+CORE LMS FUNCTIONALITY
+Brightspace is a modern, cloud-native LMS with strong higher education adoption.
+
+Course management:
+- Course creation, copying, archiving, and cross-listing for all modalities
+- Course templates with locked and unlocked content controls
+- Bulk course creation via CSV or SIS integration
+
+Assignment and assessment:
+- Assignment submission with inline annotation and rubric grading
+- Competency-based education (CBE) framework built-in
+- Gradebook with weighted and calculated grades
+- Grade passback to SIS: Banner native; Workday native; PeopleSoft via
+  D2L-supported connector (included, no additional cost); Ellucian to be
+  scoped in discovery phase
+
+Collaboration:
+- Discussion boards with threading and media embedding
+- Group projects and peer review tools included
+- Announcements with email and push delivery
+- Virtual Classroom (D2L-native) included; Zoom and Teams also supported
+
+Content standards:
+- SCORM 1.2 and 2004 natively supported
+- xAPI: supported via LRS integration (D2L partners with Watershed)
+- LTI 1.3: certified (certification documentation provided with proposal)
+
+Video:
+- Integration with Panopto and Kaltura (LTI 1.3); lecture capture setup
+  included in implementation services
+- Automated captioning: available via Panopto or Kaltura only; not native
+- Manual caption upload: .srt and .vtt supported for all video
+
+Mobile application:
+- Brightspace Pulse: iOS app — full content access, notifications, due dates
+- Android app: available; some advanced grading features web-only on Android
+- Offline access: content download available on iOS; Android offline in roadmap Q3 2026
+
+Learning analytics:
+- Brightspace Insights: system-wide analytics dashboard (requires add-on)
+- Instructor dashboard: engagement and access frequency — included in base
+- At-risk flagging: Intelligent Agents tool — configurable automated alerts included
+- Predictive analytics: available in Brightspace Insights add-on only
+
+Plagiarism detection:
+- Turnitin integration: LTI 1.3, setup included; Turnitin licensing separate
+- iThenticate: available
+
+ACCESSIBILITY
+VPAT: Available upon request. Last third-party audit: September 2024.
+WCAG 2.1 AA: Claimed for core platform. Full third-party audit documentation
+not included with proposal; available under NDA.
+Section 508: Conformance documented, available upon request.
+Caption support: .srt and .vtt upload supported. Automated captioning requires
+Panopto or Kaltura integration; not native to the platform.
+Screen reader testing: JAWS and NVDA tested. VoiceOver: partial testing documented.
+Known gaps: Mobile app (Android) has documented screen reader limitations.
+Accessibility roadmap: Available on request.
+
+SECURITY AND COMPLIANCE
+Security certifications: SOC 2 Type II — certificate available upon request
+ISO 27001: Certified — certificate available upon request
+Data Processing Agreement: Available upon request, not provided as standard.
+DPA covers: FERPA, PIPEDA (Canada), GDPR. Massachusetts Ch. 93H and Ch. 66A
+can be added as an addendum upon request.
+Incident Response: Summary plan provided with proposal; full plan requires NDA.
+Disaster Recovery: RTO 4 hours, RPO 1 hour. Summary provided; full plan requires NDA.
+University data: D2L uses anonymized and aggregated usage data for platform
+benchmarking and product improvement. Individual institution data is not shared.
+Opt-out of benchmarking: Available upon written request.
+Data ownership: University retains ownership of all course content and student records.
+D2L retains analytics metadata derived from usage patterns.
+Data portability: Full export in IMS Common Cartridge and CSV within 30 days
+of termination at no charge.
+Encryption: TLS 1.3 in transit, AES-256 at rest.
+Penetration testing: Annual third-party test; executive summary available upon request.
+
+INTELLECTUAL PROPERTY
+University retains ownership of all course content, student data, and custom
+configurations. Jointly developed workflows are owned by the university.
+D2L retains IP in any proprietary tools or services provided under the agreement.
+
+INTEGRATIONS
+SSO: SAML 2.0 supported; tested with Shibboleth and Azure AD
+SIS: Banner and Workday (native); PeopleSoft (D2L connector, included);
+Ellucian: compatibility to be confirmed in discovery phase
+Microsoft Teams: Integration available; meeting scheduling embedded in courses
+Zoom: Integration available; included in base price
+Open API: REST API with read/write access; documentation published; partner
+registration required for write access (complimentary for university customers)
+LTI 1.3: Certified; documentation provided with proposal
+ePortfolio: Brightspace ePortfolio included natively (premium version is add-on)
+
+SERVICE LEVEL AGREEMENT
+Uptime target: 99.9%
+Critical issue response: 1 hour
+High priority response: 4 hours
+Standard response: 1 business day
+SLA penalty: Credits available; financial penalties capped at 5% of monthly fee.
+
+SUPPORT AND TRAINING
+Support hours: 24/7 for critical issues; business hours for standard
+Contact methods: Phone, email, and ticketing system
+Dedicated D2L Success Manager: Assigned for first year at no cost; renewal optional
+Onboarding: Four live virtual training sessions included (additional at $1,800 each)
+Faculty training: Self-paced LMS included; on-site workshops $2,500/day plus travel
+Training portal: D2L Community with guides, videos, and user forums — included
+
+MIGRATION SERVICES
+Migration from existing LMS: Professional services required, $55,000 estimated.
+Timeline: 14-18 weeks for full migration.
+Data migrated: Course content, gradebook, and enrollment records.
+Discussion archives and media: Best-effort; may require additional scoping.
+
+CUSTOMER REFERENCES
+Six references provided. Four from higher education, two from multi-campus
+public university systems.
+
+SANDBOX ENVIRONMENT
+Available for 30 days prior to contract signing.
+Post-signing sandbox: Available for first 90 days at no charge; thereafter
+$5,000/year or included in premium support tier.
+
+SUPPLIER DIVERSITY
+D2L does not hold US supplier diversity certifications. D2L commits to
+MWBE-certified subcontractors for on-site implementation services.
+
+ADDITIONAL TERMS
+D2L may deprecate features with 90 days notice. Pricing escalation is capped
+at 4% per year as stated; no unilateral adjustments outside this cap.
