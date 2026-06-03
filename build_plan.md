@@ -236,33 +236,78 @@ Checkpoint: Upload 3 files, watch progress, see cards and memo, download works.
 
 ---
 
-## Day 7 — Deploy + polish
+## Day 7 — Terraform + Deploy (Friday)
 
-Goal: Public URL on Railway. Demo-ready. Resume-ready.
+Goal: Infrastructure provisioned via Terraform on AWS. Public URL. Demo-ready. Resume-ready.
+
+Ricardo has S3 privileges and can obtain ECR/App Runner access Friday morning.
 
 Tasks:
 
-1. Add error handling (frontend + backend + pipeline)
+1. Write Dockerfile for FastAPI backend
+   FROM python:3.11-slim
+   COPY requirements.txt + install
+   CMD uvicorn api.main:app --host 0.0.0.0 --port $PORT
 
-2. Write README.md:
+2. Write terraform/ directory:
+   terraform/
+     main.tf        — AWS provider config, region variable
+     ecr.tf         — ECR repository for the backend Docker image
+     s3.tf          — S3 bucket for uploaded vendor docs (replaces /tmp)
+     ssm.tf         — SSM Parameter Store for all API keys (ANTHROPIC, GOOGLE, LANGCHAIN)
+     apprunner.tf   — App Runner service pulling image from ECR
+     variables.tf   — region, app_name, environment
+     outputs.tf     — app_runner_url (becomes the live demo URL)
+
+3. Build and push Docker image to ECR:
+   aws ecr get-login-password | docker login ...
+   docker build -t vendorlens-backend .
+   docker tag + push to ECR URI
+
+4. terraform init → terraform plan → terraform apply
+   Output: App Runner public URL
+
+5. Update FastAPI /analyze to write uploads to S3 instead of /tmp
+   (one targeted change to the upload handler)
+
+6. Update frontend API base URL to App Runner URL
+   Deploy frontend to Vercel: vercel deploy
+
+7. Add error handling (frontend + backend + pipeline)
+
+8. Write README.md:
    - What it does (2-3 sentences)
    - Screenshot or GIF
-   - Tech stack with all keywords
+   - Tech stack with all keywords (LangGraph, LlamaIndex, Claude, Gemini, Terraform, AWS)
    - How to run locally
    - Live demo URL
 
-3. Deploy backend to Railway:
-   Procfile: web: uvicorn api.main:app --host 0.0.0.0 --port $PORT
-   railway login && railway init && railway up
-   Set env vars in Railway dashboard
+9. Add to resume and LinkedIn:
+   "Provisioned on AWS via Terraform (App Runner, S3, ECR, SSM Parameter Store)"
 
-4. Deploy frontend to Vercel:
-   vercel deploy
-   Update API base URL to Railway backend URL
+Checkpoint: terraform output returns live App Runner URL. App works end-to-end in prod.
 
-5. Add to resume and LinkedIn
+---
 
-Checkpoint: Public URL works. Paste it into resume. Sprint complete.
+## Terraform learning reference
+
+Core concepts covered in this project:
+
+| Concept           | Where it appears                                      |
+|-------------------|-------------------------------------------------------|
+| Provider config   | aws provider block in main.tf                         |
+| Resources         | aws_ecr_repository, aws_s3_bucket, aws_ssm_parameter, aws_apprunner_service |
+| Data sources      | aws_iam_policy_document for bucket/role policies      |
+| Variables         | variables.tf — region, app_name passed via .tfvars    |
+| Outputs           | outputs.tf — app_runner_url printed after apply       |
+| Remote state      | S3 backend for terraform.tfstate (meta: S3 for state + S3 for app uploads) |
+
+Commands:
+  terraform init      — download AWS provider
+  terraform plan      — preview what will be created
+  terraform apply     — provision infrastructure
+  terraform output    — print the live URL
+  terraform destroy   — tear down everything (cost control)
 
 ---
 
