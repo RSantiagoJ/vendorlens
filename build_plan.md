@@ -106,25 +106,39 @@ Vendor C (D2L Brightspace): one to two HIGH flags (Ontario/Delaware governing la
 
 Tasks:
 
-1. Write agents/risk_agent.py
-   - Uses policy_lookup MCP tool
-   - Claude Sonnet 4.6 with system prompt from agent_prompts.md
-   - Returns list[RiskFlag]
-   - RiskFlag must include policy_excerpt field: the exact retrieved
-     policy chunk that triggered the flag (already in RAG context,
-     just surface it). Never fabricate — null if chunk not retrievable.
+1. [DONE] Write agents/risk_agent.py
+   - Uses \_policy_lookup from tools/mcp_server.py (5 targeted queries, deduplicated)
+   - Claude Sonnet 4.6 via LangChain
+   - Returns list[RiskFlag] with policy_excerpt from LLM
 
-2. Write agents/scoring_agent.py
+2. [ ] Write agents/scoring_agent.py
    - Gemini Pro
    - Load rubric via context_loader.load_context_bundle() — inject into prompt
    - Do not hardcode rubric weights in the prompt or agent file
    - Returns ScoreCard
 
-3. Write test_agents.py — run both against all three proposals
-   Verify: Vendor B scores highest overall, Vendor A scores lowest
+3. [ ] Write test_agents.py — run both against all three proposals
+       Verify: Vendor B scores highest overall, Vendor A scores lowest
 
 Checkpoint: Risk flags and scores are directionally correct.
 Gemini Pro scoring agent works independently.
+
+--- SESSION NOTES (Day 3, partial) ---
+
+Completed before session end:
+
+- state.py: ScoreCard fields renamed to generic names (platform_functionality,
+  integration_capability, pricing_transparency, etc.) — LMS names only in context_bundle/
+- prompts.yaml: stripped all institution-specific text from all four agent prompts;
+  removed hardcoded HIGH/MEDIUM/LOW risk rules from risk_agent (they live in policy.txt)
+- tools/context_loader.py: created — loads all .txt files from context_bundle/ as dict
+- agents/risk_agent.py: created — 5 policy queries, Claude Sonnet 4.6, returns list[RiskFlag]
+
+Remaining for next session:
+
+- agents/scoring_agent.py (Gemini Pro, loads rubric via context_loader)
+- test_agents.py
+- Run checkpoint: Vendor B highest, Vendor A lowest
 
 ---
 
