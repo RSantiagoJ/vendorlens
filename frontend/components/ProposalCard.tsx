@@ -206,7 +206,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                         <Text size="xs" fw={600}>{risk.clause}</Text>
                         <Text size="xs">{risk.explanation}</Text>
                         {risk.recommendation && (
-                          <Text size="xs" c="dimmed" style={{ fontStyle: "italic" }}>
+                          <Text size="xs" style={{ fontStyle: "italic", opacity: 0.75 }}>
                             → {risk.recommendation}
                           </Text>
                         )}
