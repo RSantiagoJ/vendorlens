@@ -306,6 +306,68 @@ Key files: ProposalCard.tsx (radar chart, animations, PDF), ThinkingLog.tsx
 
 ---
 
+## Pre-Day 8: Remove Google Dependency
+
+Google free tier is exhausted. Switch to Claude-only LLMs and local embeddings.
+No new API keys needed. Re-ingest ChromaDB once after the embedding switch.
+
+### Why this model split
+
+| Agent           | Model                  | Reason                                                    |
+| --------------- | ---------------------- | --------------------------------------------------------- |
+| Extraction      | Claude Sonnet 4.6      | Structured but nuanced — needs to not hallucinate fields  |
+| Risk            | Claude Sonnet 4.6      | Policy reasoning requires careful reading                 |
+| Scoring         | Claude Haiku 3.5       | Mechanical: rubric → 9 numbers. 4× faster, 4× cheaper    |
+| Memo            | Claude Sonnet 4.6      | Prose quality matters                                     |
+| Negotiation     | Claude Sonnet 4.6      | Strategic reasoning, Day 8 new agent                      |
+
+### Why this embedding model
+
+`BAAI/bge-small-en-v1.5` via `sentence-transformers`:
+- 91MB, top-ranked on MTEB retrieval benchmarks for its size class
+- Runs on CPU in Docker with no API key
+- Bake into the Docker image at build time → zero cold-start download penalty in App Runner
+- Re-ingest once; vectors stored in ChromaDB persist across restarts
+
+### Tasks
+
+1. **`backend/requirements.txt`**:
+   - Remove `langchain-google-genai`, `llama-index-embeddings-google`
+   - Add `llama-index-embeddings-huggingface`, `sentence-transformers`
+
+2. **`tools/llm_factory.py`**:
+   - Remove `_make_google_llm()` and all Google imports/key handling
+   - Rename `make_claude_llm()` → stays as-is (Sonnet 4.6)
+   - Add `make_haiku_llm()` returning `claude-haiku-4-5` with retry
+   - `make_llm()` simplified: just returns `make_claude_llm()` — no more Google logic
+   - Update docstring to reflect Claude-only
+
+3. **`agents/scoring_agent.py`**:
+   - Change `make_llm()` call → `make_haiku_llm()`
+   - Update `llm_name` string to `"Claude Haiku 3.5"`
+
+4. **`tools/chroma.py`** and **`scripts/ingest.py`**:
+   - Replace `GoogleGenAIEmbedding` → `HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")`
+   - Remove `GOOGLE_API_KEY` usage from both files
+
+5. **`backend/Dockerfile`** (create if not present):
+   - Add model pre-download step so weights are baked in at build time:
+     ```dockerfile
+     RUN python -c "from llama_index.embeddings.huggingface import HuggingFaceEmbedding; \
+         HuggingFaceEmbedding(model_name='BAAI/bge-small-en-v1.5')"
+     ```
+
+6. **`backend/.env`**: comment out `GOOGLE_API_KEY` and `GOOGLE_FALLBACK_API_KEY`
+
+7. **Re-ingest**: `sudo docker compose run backend python3 -m scripts.ingest`
+
+8. **Smoke test**: run a quick analysis to confirm RAG queries return results
+   and live feed shows "Claude Haiku 3.5" for the scoring stage
+
+Checkpoint: full pipeline runs with no Google keys set. Scoring stage shows Haiku in live feed.
+
+---
+
 ## Day 8 — Negotiation Playbook Agent + Terraform Deploy 🎯
 
 ### The story for leadership
