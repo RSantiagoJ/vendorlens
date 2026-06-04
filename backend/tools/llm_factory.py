@@ -42,10 +42,21 @@ def make_claude_llm():
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
 
+def _make_google_llm(api_key: str):
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    return ChatGoogleGenerativeAI(
+        model="gemini-3.5-flash",
+        google_api_key=api_key,
+        max_output_tokens=8192,
+    )
+
+
 def make_llm():
-    """Return (llm, model_name) using the best available API key, with retry.
+    """Return (llm, model_name) using the best available API key.
 
     Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
+    If both GOOGLE_API_KEY and GOOGLE_FALLBACK_API_KEY are set, the fallback key is used
+    automatically when the primary hits a rate limit (HTTP 429 / ResourceExhausted).
     Note: MemoAgent calls make_claude_llm() directly and is unaffected by this priority.
     Google API key is also required for embeddings regardless of which LLM is used here.
 
@@ -55,19 +66,23 @@ def make_llm():
     Raises:
         ValueError: If neither GOOGLE_API_KEY nor ANTHROPIC_API_KEY is set.
     """
-    google_key = os.getenv("GOOGLE_API_KEY")
+    primary_key = os.getenv("GOOGLE_API_KEY")
+    fallback_key = os.getenv("GOOGLE_FALLBACK_API_KEY")
 
-    if google_key:
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-3.5-flash",
-            google_api_key=google_key,
-            max_output_tokens=8192,
-        )
-        return (
-            llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True),
-            "Gemini 3.5 Flash",
-        )
+    if primary_key or fallback_key:
+        primary = _make_google_llm(primary_key or fallback_key)
+
+        if primary_key and fallback_key:
+            from google.api_core.exceptions import ResourceExhausted
+            fallback = _make_google_llm(fallback_key)
+            llm = primary.with_fallbacks(
+                [fallback],
+                exceptions_to_handle=(ResourceExhausted,),
+            )
+        else:
+            llm = primary.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
+
+        return llm, "Gemini 3.5 Flash"
 
     if os.getenv("ANTHROPIC_API_KEY"):
         return make_claude_llm(), "Claude Sonnet 4.6"
