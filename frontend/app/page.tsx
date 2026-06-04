@@ -35,26 +35,13 @@ export default function Home() {
   const [result, setResult] = useState<AnalysisResult | null>(isDemo ? DEMO_RESULT : null);
   const [selectedBundleId, setSelectedBundleId] = useState<string | null>(isDemo ? DEMO_RESULT.bundle_id : null);
   const [error, setError] = useState<string | null>(null);
-  const [bundles, setBundles] = useState<Bundle[]>([
-    {
-      id: "lms",
-      label: "LMS Platform RFP",
-      description:
-        "Learning Management System evaluation for multi-campus university",
-    },
-    {
-      id: "cyber",
-      label: "Cybersecurity Services RFP",
-      description:
-        "Managed security services evaluation against NIST/FedRAMP standards",
-    },
-  ]);
+  const [bundles, setBundles] = useState<Bundle[]>([]);
 
   useEffect(() => {
     fetch(`${API_BASE}/bundles`)
       .then((r) => r.json())
       .then(setBundles)
-      .catch(() => {}); // fall back to defaults above if backend unreachable
+      .catch(() => {});
   }, []);
 
   function reset() {

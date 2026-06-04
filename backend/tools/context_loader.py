@@ -5,8 +5,10 @@ Usage:
     from tools.context_loader import load_context_bundle, BUNDLES
 
     bundle = load_context_bundle()                 # default LMS bundle
-    bundle = load_context_bundle("cyber")          # cybersecurity bundle
+    bundle = load_context_bundle("payroll")        # payroll bundle
 """
+
+from pathlib import Path
 
 from tools.chroma import BASE_DIR
 
@@ -40,7 +42,7 @@ def load_context_bundle(bundle_id: str = DEFAULT_BUNDLE) -> dict[str, str]:
     Returns a dict keyed by file stem, e.g.:
         "policy"                → policy.txt
         "rfp_criteria_lms"      → rfp_criteria_lms.txt
-        "scoring_rubric_cyber"  → scoring_rubric_cyber.txt
+        "scoring_rubric_lms"    → scoring_rubric_lms.txt
 
     Raises:
         KeyError: If bundle_id is not registered in BUNDLES.

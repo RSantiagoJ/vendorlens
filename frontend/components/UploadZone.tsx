@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Paper, Text, Stack, Group, Button, ActionIcon, ThemeIcon,
-  SegmentedControl, Box,
+  SegmentedControl, Box, Skeleton,
 } from "@mantine/core";
 import {
   IconUpload, IconFile, IconX, IconFileAnalytics,
@@ -26,8 +26,12 @@ interface Props {
 export function UploadZone({ onSubmit, loading, bundles }: Props) {
   const [files, setFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
-  const [bundle, setBundle] = useState(bundles[0]?.id ?? "lms");
+  const [bundle, setBundle] = useState(bundles[0]?.id ?? "");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (bundles.length > 0 && !bundle) setBundle(bundles[0].id);
+  }, [bundles, bundle]);
 
   function addFiles(incoming: FileList | null) {
     if (!incoming) return;
@@ -55,22 +59,26 @@ export function UploadZone({ onSubmit, loading, bundles }: Props) {
       <Paper p="md" radius="md" withBorder bg="white">
         <Stack gap="xs">
           <Text size="sm" fw={600} c="dark">Evaluation Framework</Text>
-          <SegmentedControl
-            value={bundle}
-            onChange={setBundle}
-            data={bundles.map((b) => ({
-              value: b.id,
-              label: (
-                <Group gap={6} justify="center" wrap="nowrap">
-                  {BUNDLE_ICONS[b.id]}
-                  <span>{b.label}</span>
-                </Group>
-              ),
-            }))}
-            color="umgreen"
-            radius="md"
-            fullWidth
-          />
+          {bundles.length === 0 ? (
+            <Skeleton height={36} radius="md" />
+          ) : (
+            <SegmentedControl
+              value={bundle}
+              onChange={setBundle}
+              data={bundles.map((b) => ({
+                value: b.id,
+                label: (
+                  <Group gap={6} justify="center" wrap="nowrap">
+                    {BUNDLE_ICONS[b.id]}
+                    <span>{b.label}</span>
+                  </Group>
+                ),
+              }))}
+              color="umgreen"
+              radius="md"
+              fullWidth
+            />
+          )}
           {selectedBundle && (
             <Text size="xs" c="dimmed">{selectedBundle.description}</Text>
           )}
