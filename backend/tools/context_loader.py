@@ -17,7 +17,7 @@ BUNDLES: dict[str, dict] = {
         "id": "lms",
         "label": "LMS Platform RFP",
         "description": "Learning Management System evaluation for multi-campus university",
-        "dir": "context_bundle",
+        "dir": "context_bundle_lms",
     },
     "payroll": {
         "id": "payroll",

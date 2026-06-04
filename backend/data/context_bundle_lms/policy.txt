@@ -1,0 +1,110 @@
+HIGHER EDUCATION VENDOR EVALUATION POLICY — DISTILLED RULES FOR VENDORLENS RISK AGENT
+
+SECTION 1: SECURITY VENDOR MANAGEMENT
+
+Vendor review process:
+All technology vendors must complete a security risk questionnaire before
+contract execution. The University Security Team reviews each vendor to confirm:
+
+- No duplication of existing University tool functionality
+- Fits within the current University technology ecosystem
+- Supports centralized management where possible
+- Allows the University to scale use without excessive friction or cost
+
+The University CISO reviews:
+
+- Security certification type and current status
+- Data Processing Agreement and potential legal issues
+- Incident Response and Disaster Recovery documentation
+- Integration of security best practices
+- Open issues or remediation items with the vendor
+
+All of the following teams must provide final approval before contract execution:
+
+- University Legal Team: contract documentation and applicable state data privacy compliance
+- University Finance Team: spend against budget
+- University CISO: security posture
+
+SECTION 2: SECURITY CERTIFICATION REQUIREMENTS
+
+- SOC 2 Type II (current) OR ISO 27001 certification required
+- SOC 2 Type I does not satisfy this requirement
+- Certifications in progress do not satisfy this requirement
+
+SECTION 3: DATA PROCESSING AND GOVERNANCE
+
+- A Data Processing Agreement (DPA) is required before contract execution
+- DPA must address: Massachusetts Ch. 66A, Ch. 93H, FERPA, GLBA
+- University retains full ownership of all institutional data at all times
+- Vendor may not use university data for any purpose beyond direct service
+  delivery without explicit CIO approval
+- University data must be exportable in standard formats at no cost within
+  10 business days of termination
+
+SECTION 4: CONTRACT TERM REQUIREMENTS
+
+- Termination for convenience: maximum 90 days notice, no financial penalty
+- Early termination fees not permitted
+- Liability cap minimum: $500,000
+- IP ownership of configurations and work product must remain with university
+- Vendors may not modify terms or pricing unilaterally
+- Governing law: Commonwealth of Massachusetts
+- Disputes: Massachusetts state courts
+- Auto-renewal opt-out: minimum 60 days notice required
+
+SECTION 5: SERVICE LEVEL REQUIREMENTS
+
+- Minimum uptime guarantee: 99.5% with financial penalties for breach
+- Support response times must be defined in the contract
+
+SECTION 6: INTELLECTUAL PROPERTY
+
+All data, reports, programs, software, equipment, and documentation paid for
+with university funds vests with the university at termination. If contractor
+publishes work related to contract performance, university retains a
+royalty-free non-exclusive irrevocable license.
+
+SECTION 7: CONFIDENTIALITY AND PRIVACY
+
+- Must comply with Massachusetts General Laws Ch. 66A (personal data)
+  and Ch. 93H (security breach notification)
+- Contractor implements feasible safeguards for Personal Information
+- Contractor must inform its employees of confidentiality obligations
+
+SECTION 8: ASSIGNMENT AND DELEGATION
+
+- Contractor may not assign or transfer contract without prior written
+  university consent
+- Contractor may not subcontract without prior written university approval
+- Unauthorized assignments are void
+
+SECTION 9: CHOICE OF LAW
+
+- Governed by laws of the Commonwealth of Massachusetts
+- Without giving effect to conflicts of law principles
+
+SECTION 10: FORUM SELECTION
+
+- State courts of the Commonwealth of Massachusetts have exclusive jurisdiction
+- Contractor expressly consents to Massachusetts jurisdiction
+
+SECTION 11: HIGH SEVERITY RISK TRIGGERS
+
+The following conditions require CISO or VP approval and are contract blockers:
+
+- No Data Processing Agreement (DPA) provided or mentioned
+- No current SOC 2 Type II or ISO 27001 certification
+  (SOC 2 Type I or "in progress" does NOT satisfy this requirement)
+- No Incident Response or Disaster Recovery documentation provided
+- Vendor use of university data beyond service delivery (product improvement,
+  benchmarking, AI training, anonymized studies) without CIO approval
+- University data not explicitly owned by the university
+- Data not exportable in standard formats at no cost upon termination
+- IP ownership of configurations or work product transferred to vendor
+- Vendor right to modify pricing or terms unilaterally
+- Liability cap below $500,000 or not specified
+- Auto-renewal opt-out window shorter than 60 days
+- Termination penalty or early termination fee present
+- Governing law not Commonwealth of Massachusetts
+- Dispute resolution not in Massachusetts courts
+

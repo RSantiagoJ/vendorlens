@@ -22,7 +22,7 @@ from mcp.server.fastmcp import FastMCP
 
 BASE_DIR = Path(__file__).parent.parent
 DOCS_DIR = BASE_DIR / "data" / "vendor_proposals"
-POLICY_PATH = BASE_DIR / "data" / "context_bundle" / "policy.txt"
+POLICY_PATH = BASE_DIR / "data" / "context_bundle_lms" / "policy.txt"
 
 
 def make_policy_lookup(policy_path: Path):
