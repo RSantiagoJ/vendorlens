@@ -280,114 +280,229 @@ All tasks complete. Checkpoint passed.
 
 ---
 
-## Day 7 — Terraform + Deploy (Friday)
+## Day 7 — UI Polish + Intelligence Enhancements ✅ COMPLETE
 
-Goal: Infrastructure provisioned via Terraform on AWS. Public URL. Demo-ready. Resume-ready.
+Goal: Elevate the demo experience with richer visualizations, live-feed intelligence,
+and a polished results presentation ahead of the innovation sprint.
+(Terraform deferred to Day 8 where it pairs with a new agent for maximum impact.)
 
-Ricardo has S3 privileges and can obtain ECR/App Runner access Friday morning.
+Tasks completed:
 
-Tasks:
+1. Radar chart — multi-dimensional score visualization, all vendors overlaid
+2. Score animations — bars animate in on load
+3. PDF export — one-click export of vendor cards + memo
+4. Confetti — winner celebration burst when Best Choice banner appears
+5. Typewriter effect — completion summaries in the live feed stream character-by-character
+6. Elapsed timers — each stage shows live wall-clock time
+7. Richer completion summaries — per-stage outcome lines with counts (e.g., "Found 6 risk flags")
+8. Real vendor names in activity log — uses actual company names throughout
+9. Risk flag counts in activity log — HIGH/MEDIUM/LOW counts surfaced in live feed
+10. Head-to-head vendor comparison table — dimension-by-dimension structured table below cards
+11. Google API key rotation — cycles through fallback keys before failing on rate limit
 
-1. Write Dockerfile for FastAPI backend
-   FROM python:3.11-slim
-   COPY requirements.txt + install
-   CMD uvicorn api.main:app --host 0.0.0.0 --port $PORT
-
-2. Write terraform/ directory:
-   terraform/
-   main.tf — AWS provider config, region variable
-   ecr.tf — ECR repository for the backend Docker image
-   s3.tf — S3 bucket for uploaded vendor docs (replaces /tmp)
-   ssm.tf — SSM Parameter Store for all API keys (ANTHROPIC, GOOGLE, LANGCHAIN)
-   apprunner.tf — App Runner service pulling image from ECR
-   variables.tf — region, app_name, environment
-   outputs.tf — app_runner_url (becomes the live demo URL)
-
-3. Build and push Docker image to ECR:
-   aws ecr get-login-password | docker login ...
-   docker build -t vendorlens-backend .
-   docker tag + push to ECR URI
-
-4. terraform init → terraform plan → terraform apply
-   Output: App Runner public URL
-
-5. Update FastAPI /analyze to write uploads to S3 instead of /tmp
-   (one targeted change to the upload handler)
-
-6. Update frontend API base URL to App Runner URL
-   Deploy frontend to Vercel: vercel deploy
-
-7. Add error handling (frontend + backend + pipeline)
-
-8. Write README.md:
-   - What it does (2-3 sentences)
-   - Screenshot or GIF
-   - Tech stack with all keywords (LangGraph, LlamaIndex, Claude, Gemini, Terraform, AWS)
-   - How to run locally
-   - Live demo URL
-
-9. Add to resume and LinkedIn:
-   "Provisioned on AWS via Terraform (App Runner, S3, ECR, SSM Parameter Store)"
-
-Checkpoint: terraform output returns live App Runner URL. App works end-to-end in prod.
+Dropbox connector abandoned entirely. All Day 7 work was UI/intelligence enhancements.
+Key files: ProposalCard.tsx (radar chart, animations, PDF), ThinkingLog.tsx
+(typewriter, timers, summaries), VendorComparisonTable.tsx (new component).
 
 ---
 
-## Terraform learning reference
+## Day 8 — Negotiation Playbook Agent + Terraform Deploy 🎯
 
-Core concepts covered in this project:
+### The story for leadership
 
-| Concept         | Where it appears                                                            |
-| --------------- | --------------------------------------------------------------------------- |
-| Provider config | aws provider block in main.tf                                               |
-| Resources       | aws_ecr_repository, aws_s3_bucket, aws_ssm_parameter, aws_apprunner_service |
-| Data sources    | aws_iam_policy_document for bucket/role policies                            |
-| Variables       | variables.tf — region, app_name passed via .tfvars                          |
-| Outputs         | outputs.tf — app_runner_url printed after apply                             |
-| Remote state    | S3 backend for terraform.tfstate (meta: S3 for state + S3 for app uploads)  |
+> "VendorLens doesn't just tell you who won. It tells you how to negotiate
+> with them — using the other vendors' scores as leverage."
+
+Four agents already run: extract → risk → score → memo.
+Day 8 adds a fifth: the **Negotiation Playbook Agent**.
+
+After scoring completes, a new agent reads all vendor scorecards and generates:
+- Which dimensions are weaknesses for the recommended vendor (negotiation targets)
+- Where competing vendors score higher (pressure points to cite in the vendor call)
+- Specific contract asks: DPA language, liability cap adjustments, pricing flexibility
+- A concise "walk-in brief" the procurement director reads before the vendor call
+
+This is the innovation sprint "wow" moment: the system goes from analysis to action.
+Terraform provisions a live AWS URL so the demo runs on real production infrastructure.
+
+AWS account: personal account — no work access dependencies.
+All resources provisioned under Ricardo's own account with full admin control.
+
+---
+
+### Part 1 — Negotiation Playbook Agent (the new AI capability)
+
+**New files:**
+- `backend/agents/negotiation_agent.py` — 5th agent using Claude Sonnet 4.6
+  - Receives all scored proposals (same input shape as memo_agent)
+  - System prompt: analyze competitive gaps, identify leverage, generate tactical brief
+  - Returns `NegotiationBrief`: `{ recommended_vendor, leverage_points: [], key_asks: [], walk_in_summary }`
+- `backend/graph/state.py` — add `NegotiationBrief` Pydantic model; add field to `ProposalState`
+- `backend/graph/pipeline.py` — add `negotiation_node` after memo_node (sequential, same pattern)
+- `backend/api/main.py` — emit `negotiating` SSE event; include `negotiation` in done payload
+- `frontend/lib/types.ts` — add `NegotiationBrief` type mirroring backend model
+- `frontend/components/NegotiationPanel.tsx` — new component, same card style as MemoPanel
+  - Leverage points as a bulleted list with vendor name callouts
+  - Key asks as a visual checklist
+  - Walk-in summary in a highlighted blockquote
+- `frontend/app/page.tsx` — render NegotiationPanel below MemoPanel when data arrives
+
+**Agent prompt guidance (add to `prompts.yaml`):**
+```
+You are a procurement strategist advising a university negotiating team.
+You have scored multiple vendor proposals. Your job:
+1. Identify 3-5 dimensions where the recommended vendor scored below 8.
+   For each, note if a competitor scored higher — that is negotiation leverage.
+2. List 3-5 specific contract asks that address the identified gaps.
+3. Write a 2-sentence walk-in summary the director reads before the vendor call.
+Return JSON only. No preamble.
+```
+
+**Checkpoint:** After analysis, a "Negotiation Playbook" panel appears below the memo
+with leverage points, key asks, and walk-in summary for the winning vendor.
+
+---
+
+### Part 2 — Terraform: infrastructure as code (deploy + learn)
+
+Goal: provision the full AWS stack in one command; get a live URL for the demo.
+Secondary goal: understand Terraform core concepts hands-on.
+
+**Prerequisites:**
+- Log in at aws.amazon.com with personal account (full admin, no work dependency)
+- `aws configure` with personal account access keys
+- `terraform` CLI installed locally (`brew install terraform` or tfenv)
+
+**Dockerfile** (`backend/Dockerfile`):
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}
+```
+
+**terraform/ directory:**
+```
+terraform/
+  main.tf        — AWS provider; S3 remote state backend
+  variables.tf   — region, app_name, environment
+  outputs.tf     — app_runner_url (the live demo URL)
+  ecr.tf         — ECR repository for the backend Docker image
+  s3.tf          — upload bucket (replaces /tmp in the API)
+  ssm.tf         — SSM Parameter Store: ANTHROPIC_API_KEY, GOOGLE_API_KEY, LANGCHAIN_API_KEY
+  iam.tf         — App Runner task role with SSM read permission
+  apprunner.tf   — App Runner service: pulls from ECR, reads secrets from SSM, auto-scales to zero
+```
+
+**Deploy sequence:**
+```bash
+# 1. Build and push image to ECR
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin <ECR_URI>
+docker build -t vendorlens-backend backend/
+docker tag vendorlens-backend:latest <ECR_URI>:latest
+docker push <ECR_URI>:latest
+
+# 2. Provision all infrastructure
+cd terraform && terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+
+# 3. Print the live URL
+terraform output app_runner_url
+```
+
+**One backend change for S3 uploads:**
+`api/main.py`: if `S3_BUCKET` env var is set, write uploaded files to S3 instead of `/tmp`.
+Graceful fallback to `/tmp` when running locally — no Docker config changes for local dev.
+
+**Frontend deploy:**
+```bash
+echo "NEXT_PUBLIC_API_URL=$(terraform output -raw app_runner_url)" > frontend/.env.production
+cd frontend && vercel deploy --prod
+```
+
+**Cost estimate (personal account):**
+- App Runner scales to zero at idle — ~$0.005/request when not running
+- Active analysis runs: ~$0.064/vCPU-hour
+- S3 + SSM: negligible at demo volume
+- Realistic monthly total: $3–10 for occasional demo use
+- `terraform destroy` after the presentation tears everything down to $0
+
+**Terraform concepts touched hands-on:**
+
+| Concept         | Where it appears                                                               |
+| --------------- | ------------------------------------------------------------------------------ |
+| Provider config | `aws` provider block in `main.tf`                                              |
+| Remote state    | S3 backend in `main.tf` — keeps `.tfstate` out of git                         |
+| Resources       | `aws_ecr_repository`, `aws_s3_bucket`, `aws_ssm_parameter`,                   |
+|                 | `aws_apprunner_service`, `aws_iam_role`, `aws_iam_role_policy`                 |
+| Data sources    | `aws_iam_policy_document` for generating trust + permission policies           |
+| Variables       | `variables.tf` — region, app_name, environment; passed via `terraform.tfvars` |
+| Outputs         | `outputs.tf` — `app_runner_url` printed after apply; consumed by frontend      |
 
 Commands:
-terraform init — download AWS provider
-terraform plan — preview what will be created
-terraform apply — provision infrastructure
-terraform output — print the live URL
-terraform destroy — tear down everything (cost control)
+```
+terraform init     — download AWS provider, initialize S3 backend
+terraform plan     — preview what will be created/changed/destroyed
+terraform apply    — provision infrastructure
+terraform output   — print app_runner_url after apply
+terraform destroy  — tear everything down (cost control after demo)
+```
+
+**Checkpoint:** `terraform output app_runner_url` returns a live HTTPS URL. App works
+end-to-end in prod including the new Negotiation Playbook panel.
 
 ---
 
-## Demo script (5 minutes)
+### Innovation sprint demo script (8 minutes)
 
-"Right now, reviewing vendor proposals requires someone to read every
-document, extract the key terms, compare them, check them against our
-procurement policy, and write a summary memo. That takes hours.
-Let me show you what that looks like with agentic AI."
+**Opening (30 sec):**
+> "Vendor proposal review today is hours of analyst time per RFP cycle.
+> I want to show you what happens when you automate the full analysis —
+> and push it one step further."
 
-[Upload three dummy proposal files. Hit analyze.]
+**Part 1 — The analysis (3 min):**
+> [Open live URL. Switch to LMS bundle.]
+> "Four AI agents — extract, risk, score, memo — running in parallel on three proposals."
+> [Show vendor cards with radar chart and comparison table.]
+> "Canvas scores highest. Blackboard has six high-severity policy violations.
+> Here's the recommendation memo."
 
-"This is the LMS RFP your committee issued in November 2025. These are three
-fictional proposals from real vendors. VendorLens is running four AI agents —
-extracting structured data, flagging risks against our actual procurement policy,
-scoring against our real RFP criteria, and writing the memo."
+**Part 2 — The negotiation playbook (2 min):**
+> [Scroll to Negotiation Playbook panel.]
+> "But here's what's new. The system didn't stop at 'Canvas wins.'
+> It read Canvas's weaker dimensions and turned them into negotiation leverage.
+> These are the talking points your procurement director walks into the vendor
+> call with. The AI went from analysis to action."
 
-[Cards appear.]
+**Part 3 — The infrastructure story (2 min):**
+> [Open terraform/ in editor — show the 8 files.]
+> "This entire system — API, storage, secrets, auto-scaling — is defined in
+> 8 Terraform files. One command to provision it from zero. App Runner scales
+> to zero at idle so the monthly cost is essentially nothing when not in use."
+> [Show `terraform output app_runner_url` pointing at the live URL.]
+> "Any institution can fork this repo and have it running in 10 minutes."
 
-"Three vendors, scored and compared. Vendor A has multiple high-severity
-risk flags including a SOC 2 Type I certification, no standard Data Processing
-Agreement, and North Carolina governing law — none of which meet our standards.
-Vendor B scores highest across every dimension."
+**Closing (30 sec):**
+> "Ten days. Five AI agents. Cloud-deployed. Fully auditable in LangSmith.
+> The policy, criteria, and rubric are plain text files — any team can swap
+> them for their own RFP in an afternoon."
 
-[Scroll to memo.]
+---
 
-"Here is the recommendation memo, ready to hand to a director."
+### Resume bullet
 
-[Switch to LangSmith.]
+```
+Built VendorLens — an agentic AI procurement platform using LangGraph, Claude, and Gemini.
+Five AI agents (extract, risk, score, memo, negotiation) analyze vendor proposals against
+institutional policy and RFP criteria, producing scored comparisons and negotiation strategy.
+Provisioned full AWS stack (App Runner, ECR, S3, SSM Parameter Store) via Terraform.
+```
 
-"Every decision the AI made is fully auditable here."
-
-"And the policy, criteria, and rubric are all configurable — any procurement
-team could drop in their own documents and run this against their RFP."
-
-"This took 15 seconds. It would have taken a contracts analyst half a day."
+---
 
 ## Post-Day 6 enhancements (completed)
 
@@ -464,46 +579,3 @@ team could drop in their own documents and run this against their RFP."
 
 - **`backend/README.md`** updated: Docker restart reference table added, stale SSE event list
   corrected (`extracting → memo → done`), bundle path corrected to `context_bundles/<id>/`.
-
----
-
-## Day 7 optional: Dropbox connector
-
-Prerequisite: Core sprint (Days 1-7) complete and deployed.
-Time estimate: 2-3 hours if the pipeline is working cleanly.
-
-Goal: Staff can drop PDFs into a Dropbox folder and trigger analysis
-from the UI instead of uploading manually.
-
-Tasks:
-
-1. Create a Dropbox app at dropbox.com/developers
-   - Set permissions: files.content.read, files.content.write
-   - Generate an access token
-   - Add to backend/.env
-
-2. Write tools/dropbox_connector.py per architecture.md spec
-   - list_new_proposals()
-   - download_proposal()
-   - mark_processed()
-
-3. Add POST /analyze/dropbox endpoint to api/main.py
-   - Calls connector, passes files to existing pipeline
-   - Returns same response shape as /analyze
-
-4. Add "Analyze from Dropbox" button to frontend
-   - Calls /analyze/dropbox
-   - Same progress bar and results rendering
-
-5. Test end-to-end:
-   - Drop a dummy proposal PDF into the Dropbox folder
-   - Hit the button in the UI
-   - Confirm pipeline runs and results render
-
-6. Update README.md to mention Dropbox integration
-
-7. Update resume bullet to include:
-   "enterprise document pipeline integration via Dropbox API"
-
-Checkpoint: Drop file into Dropbox, click button, see results.
-No manual upload needed.
