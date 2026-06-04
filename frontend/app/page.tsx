@@ -21,13 +21,24 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  ThemeIcon,
 } from "@mantine/core";
-import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
+import {
+  IconAlertCircle, IconRefresh,
+  IconSearch, IconShieldCheck, IconChartBar, IconFileText, IconArrowRight,
+} from "@tabler/icons-react";
 import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const API_BASE = "http://localhost:8000";
+
+const PIPELINE_STEPS = [
+  { label: "Extract",      Icon: IconSearch      },
+  { label: "Risk Analysis",Icon: IconShieldCheck  },
+  { label: "Scoring",      Icon: IconChartBar     },
+  { label: "Recommendation",Icon: IconFileText    },
+];
 
 type AppState = "idle" | "uploading" | "processing" | "done" | "error";
 
@@ -201,6 +212,28 @@ export default function Home() {
                   flags, scoring, and a recommendation memo in under a minute.
                 </Text>
               </Stack>
+
+              {/* Pipeline steps visual */}
+              <Group justify="center" gap={0} wrap="nowrap">
+                {PIPELINE_STEPS.map(({ label, Icon }, i) => (
+                  <Group key={label} gap={0} align="flex-start" wrap="nowrap">
+                    <Stack align="center" gap={8} style={{ width: 104 }}>
+                      <ThemeIcon size={48} radius="xl" variant="light" color="umblue">
+                        <Icon size={22} />
+                      </ThemeIcon>
+                      <Text size="xs" fw={600} ta="center" c="dimmed" style={{ lineHeight: 1.3 }}>
+                        {label}
+                      </Text>
+                    </Stack>
+                    {i < PIPELINE_STEPS.length - 1 && (
+                      <Box style={{ paddingTop: 14, color: "var(--mantine-color-gray-4)", flexShrink: 0 }}>
+                        <IconArrowRight size={16} />
+                      </Box>
+                    )}
+                  </Group>
+                ))}
+              </Group>
+
               <UploadZone
                 onSubmit={handleSubmit}
                 loading={false}
@@ -255,6 +288,7 @@ export default function Home() {
                   <SimpleGrid
                     cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
                     spacing="md"
+                    style={{ overflow: "visible" }}
                   >
                     {sortedProposals.map((p) => (
                       <ProposalCard

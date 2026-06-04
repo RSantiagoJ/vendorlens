@@ -19,14 +19,56 @@ function useCountUp(target: number, duration = 900): number {
 }
 
 import {
-  Paper, Text, Group, Stack, Badge, Progress, Collapse,
-  Button, Divider, Box, ThemeIcon, Tooltip, Popover,
+  Paper, Text, Group, Stack, Badge, Collapse,
+  Button, Divider, Box, ThemeIcon, Tooltip, Popover, Progress,
 } from "@mantine/core";
 import {
   IconBuilding, IconChevronDown, IconChevronUp, IconAlertTriangle,
   IconAward, IconInfoCircle, IconArrowUp,
 } from "@tabler/icons-react";
 import type { ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
+
+const RING_R = 40;
+const RING_C = 2 * Math.PI * RING_R;
+
+function ScoreRing({ overall, animated, tier }: {
+  overall: number;
+  animated: number;
+  tier: typeof SCORE_TIERS[number];
+}) {
+  const offset = RING_C - (animated / 100) * RING_C;
+  return (
+    <Stack align="center" gap={4} style={{ flexShrink: 0 }}>
+      <Box style={{ position: "relative", width: 96, height: 96 }}>
+        <svg width="96" height="96" viewBox="0 0 96 96" style={{ transform: "rotate(-90deg)" }}>
+          <circle cx="48" cy="48" r={RING_R} fill="none" stroke="var(--mantine-color-gray-2)" strokeWidth="8" />
+          <circle
+            cx="48" cy="48" r={RING_R} fill="none"
+            stroke={`var(--mantine-color-${tier.color}-5)`}
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={RING_C}
+            strokeDashoffset={offset}
+            style={{ transition: "stroke-dashoffset 0.05s linear" }}
+          />
+        </svg>
+        <Box style={{
+          position: "absolute", inset: 0,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center", gap: 1,
+        }}>
+          <Text fw={900} style={{ color: tier.textColor, fontSize: "1.5rem", lineHeight: 1 }}>
+            {animated}
+          </Text>
+          <Text size="xs" c="dimmed" fw={500} style={{ lineHeight: 1 }}>/100</Text>
+        </Box>
+      </Box>
+      <Badge size="xs" radius="sm" variant="light" color={tier.color}>
+        {overall >= 70 ? "Meets" : overall >= 40 ? "Review" : "Fails"}
+      </Badge>
+    </Stack>
+  );
+}
 
 const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string }[] = [
   { key: "platform_functionality",  label: "Platform Functionality" },
@@ -117,7 +159,13 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
         height: "100%",
         borderColor: recommended ? "var(--mantine-color-umgreen-5)" : undefined,
         borderWidth: recommended ? 2 : 1,
-        boxShadow: recommended ? "0 0 0 4px var(--mantine-color-umgreen-1)" : undefined,
+        boxShadow: recommended
+          ? "0 0 0 4px var(--mantine-color-umgreen-1), 0 8px 32px rgba(0,0,0,0.10)"
+          : "0 1px 4px rgba(0,0,0,0.04)",
+        transform: recommended ? "scale(1.018)" : undefined,
+        position: "relative",
+        zIndex: recommended ? 1 : undefined,
+        transition: "box-shadow 200ms ease, transform 200ms ease",
       }}
     >
       <Stack gap="md">
@@ -143,36 +191,10 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
             </Box>
           </Group>
           {overall !== null && (
-            <Stack align="center" gap={4} style={{ minWidth: 72 }}>
-              <Text
-                size="2rem"
-                fw={800}
-                style={{ color: scoreTier(overall / 10).textColor, lineHeight: 1 }}
-              >
-                {animatedScore}
-              </Text>
-              <Text size="xs" c="dimmed" fw={500}>/ 100</Text>
-              <Badge size="xs" radius="sm" variant="outline" color={scoreTier(overall / 10).color}>
-                {overall >= 70 ? "Meets" : overall >= 40 ? "Review" : "Fails"}
-              </Badge>
-            </Stack>
+            <ScoreRing overall={overall} animated={animatedScore} tier={scoreTier(overall / 10)} />
           )}
         </Group>
 
-        {/* Overall score bar */}
-        {overall !== null && (
-          <>
-            <Progress value={animatedScore} color={scoreTier(overall / 10).color} size="lg" radius="xl" />
-            <Group gap="xs">
-              {(["umgreen", "umyellow", "ummaroon"] as const).map((color, i) => (
-                <Group key={color} gap={4} align="center">
-                  <Box w={8} h={8} style={{ borderRadius: "50%", background: `var(--mantine-color-${color}-6)` }} />
-                  <Text size="xs" c="dimmed">{["≥ 7 Strong", "4–6 Fair", "< 4 Weak"][i]}</Text>
-                </Group>
-              ))}
-            </Group>
-          </>
-        )}
 
         {/* Gap to win — only shown on non-recommended vendors */}
         {gapToWin.length > 0 && (
