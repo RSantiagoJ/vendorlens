@@ -435,6 +435,38 @@ team could drop in their own documents and run this against their RFP."
 - `frontend/components/ProposalCard.tsx`: unified `scoreColor`/`scoreTextColor`/`riskColor` into `SCORE_TIERS` lookup + `scoreTier()` helper and `RISK_COLORS` map; replaced 3-pass filter-spread for risk sorting with a single `.sort()` using `SEVERITY_ORDER`
 - `frontend/components/ThinkingLog.tsx`: replaced 4-condition `||` chain in `isActiveStage` with a `Set.has()` lookup
 
+### Post-Day 6 session 2 (bug fixes + cleanup)
+
+- **Pipeline refactor**: collapsed three-stage fan-out (`extraction_node → risk_node → scoring_node`)
+  into a single `vendor_node` that runs extract → risk → score sequentially per vendor.
+  All vendors still process in parallel. Eliminates barrier-synchronized waves that caused
+  duplicate LLM calls. `_NODE_EVENT` in `api/main.py` updated to match.
+
+- **ChromaDB race condition fixed**: `load_index()` converted to a thread-safe singleton using
+  double-checked locking (`threading.Lock`). Startup warmup fires all bundle pipelines concurrently;
+  previously they all tried to create `PersistentClient` at the same path simultaneously, causing
+  a crash on every boot.
+
+- **Cybersecurity bundle fully removed**: bundle was already deleted from the backend `BUNDLES` dict
+  but the hardcoded frontend default list in `page.tsx` still included it, causing it to flash on
+  every page load before the `/bundles` fetch resolved. Frontend now initializes `bundles` as `[]`
+  and shows a Mantine `Skeleton` placeholder until the backend responds — backend is the single
+  source of truth for available bundles.
+
+- **`pathlib.Path` import added** to `context_loader.py` — missing import was silently crashing
+  the API on startup (only caught when the Docker image was rebuilt clean).
+
+- **Risk tooltip readability**: recommendation text inside Mantine `Tooltip` changed from
+  `c="dimmed"` (gray, unreadable on dark background) to `opacity: 0.75` (white-tinted, readable).
+
+- **`scripts/setup.sh`** added — all-in-one first-time setup: build image, ingest proposals,
+  start API, install frontend deps, launch Next.js.
+
+- **`backend/README.md`** updated: Docker restart reference table added, stale SSE event list
+  corrected (`extracting → memo → done`), bundle path corrected to `context_bundles/<id>/`.
+
+---
+
 ## Day 7 optional: Dropbox connector
 
 Prerequisite: Core sprint (Days 1-7) complete and deployed.

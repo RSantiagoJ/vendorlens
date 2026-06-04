@@ -18,6 +18,18 @@ docker compose up api -d && cd frontend && npm run dev
 
 ---
 
+## All-in-one first-time setup
+
+```bash
+bash scripts/setup.sh
+```
+
+Runs all four setup steps in order: builds the Docker image, ingests proposals into ChromaDB,
+starts the API on port 8000, installs frontend dependencies, and launches Next.js on port 3000.
+Requires `backend/.env` to be populated before running.
+
+---
+
 ## First-time setup (do these once, in order)
 
 ### Step 1 — Build the Docker image
@@ -107,7 +119,27 @@ Select the bundle in the UI before uploading proposals.
 | `payroll` | Payroll Processing RFP    | Full-service payroll processor         |
 | `erp`     | Finance & HR Platform RFP | Enterprise ERP (finance + HR)          |
 
-Bundle context files live in `backend/data/context_bundle_<id>/`.
+Bundle context files live in `backend/data/context_bundles/<id>/`.
+
+---
+
+## Docker restart reference
+
+The `./backend` directory is mounted as a volume, so **Python file edits are picked up
+immediately** — no rebuild needed. You only need `--build` when `requirements.txt` or
+the `Dockerfile` itself changes.
+
+| Situation | Command |
+|-----------|---------|
+| Python file changed (agent, tool, API route) | `docker compose restart api` |
+| `requirements.txt` or `Dockerfile` changed | `docker compose up --build api` |
+| App not running — start it | `docker compose up api -d` |
+| Something is broken and you want a clean slate | `docker compose down && docker compose up --build api -d` |
+| View live API logs | `docker compose logs api -f` |
+| Open a shell inside the container | `docker compose run --rm backend bash` |
+| Stop without removing the container | `docker compose stop api` |
+
+**Rule of thumb:** changed a `.py` file → `restart`. Changed `requirements.txt` or `Dockerfile` → `up --build`.
 
 ---
 
@@ -133,7 +165,7 @@ Bundle context files live in `backend/data/context_bundle_<id>/`.
 | GET    | `/health`          | Health check → `{"status": "ok"}`                        |
 | GET    | `/bundles`         | List available RFP bundles                               |
 | POST   | `/analyze`         | Upload proposals + bundle; returns `job_id`              |
-| GET    | `/stream/{job_id}` | SSE stream: `extracting → risk → scoring → memo → done`  |
+| GET    | `/stream/{job_id}` | SSE stream: `extracting → memo → done`                   |
 
 ---
 
