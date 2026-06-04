@@ -12,7 +12,8 @@ integration_interoperability   weight: 0.15
 pricing_and_licensing          weight: 0.10
 security_and_compliance        weight: 0.20
 support_and_training           weight: 0.10
-enterprise_readiness           weight: 0.10
+enterprise_readiness           weight: 0.05
+innovation_roadmap             weight: 0.05
 risk_level                     weight: 0.05 (inverted — higher score = fewer HIGH risk flags)
                                ────────────
 TOTAL WEIGHT:                             1.00  →  maximum overall score = 10.0

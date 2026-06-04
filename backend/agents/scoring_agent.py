@@ -37,6 +37,7 @@ _CRITERIA_TO_SCORECARD: dict[str, str] = {
     "security_and_compliance": "security_and_compliance",
     "support_and_training": "support_and_training",
     "enterprise_readiness": "enterprise_readiness",
+    "innovation_roadmap": "innovation_roadmap",
     "risk_level": "risk_level",
 }
 
@@ -74,9 +75,9 @@ class ScoringAgent:
         )
 
         self._weights = _parse_weights(criteria)
-        if len(self._weights) != 8:
+        if len(self._weights) != 9:
             raise RuntimeError(
-                f"Expected 8 dimension weights from rfp_criteria_lms.txt, "
+                f"Expected 9 dimension weights from rfp_criteria file, "
                 f"got {len(self._weights)}: {self._weights}"
             )
 
@@ -110,7 +111,7 @@ class ScoringAgent:
                     f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
                     f"Risk flags from Risk Agent:\n{risk_summary}\n\n"
                     f"HIGH severity risk count: {high_count}\n\n"
-                    "Score this proposal on all 8 dimensions. Return JSON only."
+                    "Score this proposal on all 9 dimensions. Return JSON only."
                 )
             ),
         ]

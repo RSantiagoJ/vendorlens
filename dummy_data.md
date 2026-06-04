@@ -12,7 +12,7 @@ and individual proposal details are entirely fictional and invented for
 demo purposes. They do not represent actual bids, terms, or statements
 made by these companies.
 
-Save vendor files to: backend/data/dummy_docs/
+Save vendor files to: backend/data/vendor_proposals/<bundle>/
 
 Expected pipeline outcome:
 

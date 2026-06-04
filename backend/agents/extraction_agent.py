@@ -69,7 +69,7 @@ class ExtractionAgent:
         """Extract structured data from a vendor proposal.
 
         Args:
-            filename: The bare filename, e.g. vendor_a_blackboard.txt
+            filename: The bare filename, e.g. blackboard.txt
 
         Returns:
             ProposalData with all extractable fields populated and

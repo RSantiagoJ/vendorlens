@@ -1,0 +1,174 @@
+VENDOR PROPOSAL — Unit4 ERP for Education (Financials + HCM)
+Submitted In Response to: Enterprise Finance & HR Platform (ERP) RFP
+Date: March 3, 2026
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+Unit4 is a global enterprise software company whose ERP and HCM products are
+purpose-built for people-centric industries: higher education, public sector, nonprofit,
+and professional services. Unlike Oracle and Workday, Unit4's product roadmap
+is focused almost exclusively on these verticals, making it a specialist alternative
+to the dominant general-enterprise platforms.
+Headquarters: Utrecht, Netherlands (US HQ: Atlanta, GA). Founded: 1980. Employees: 4,500+.
+Privately held (owned by Francisco Partners, PE). Annual revenue: ~$450M (FY2025).
+Unit4 serves 75+ North American higher education institutions including
+community colleges, regional universities, and multi-campus systems.
+
+PRICING
+Unit4 ERP for Education (Financials + HCM, combined): $92.00 per named user per month
+Includes: financials (GL, AP, AR, procurement, grants, budgeting), HCM (core HR,
+payroll, benefits, time), and all standard higher education configuration templates
+
+Module-level breakdown (for institutions purchasing separately):
+  - Unit4 Financials for Education: $54.00/named user/month
+  - Unit4 HCM for Education: $42.00/named user/month
+
+Estimated annual subscription (420 named users): $463,680
+
+Add-on modules:
+  - Unit4 FP&A (Adaptive Insights integration — budget planning and forecasting): $18/user/month
+  - Unit4 Student (SIS and student financial aid): separate product, separate quote
+  - Unit4 People Analytics (workforce reporting and dashboards): included from 2026 release
+  - Certified payroll (Davis-Bacon): included in US Payroll module, no add-on fee
+  - On-demand pay: not currently available; roadmap item, target 2027
+
+Implementation and migration:
+  - Implementation fee: $1,800,000 (fixed-fee; Unit4 delivers directly or with certified partner)
+  - Data migration: included for up to 7 years of financial history and full HR history
+  - Parallel payroll processing: three pay cycles included at no additional cost
+  - Higher education configuration template: pre-built GASB chart of accounts, NACUBO
+    financial statement templates, and 2 CFR 200 grant structure included at no cost
+Multi-year escalation: 2.5% annually (lowest of the three vendors)
+Payment terms: Net 30, invoiced annually; semi-annual invoicing available
+
+CONTRACT TERMS
+Contract length: 3 or 5 years
+Auto-renewal: Renews for successive 1-year terms
+Opt-out notice required: 60 days prior to renewal date
+Termination for convenience: 90 days written notice; annual subscription fees prepaid
+  non-refundable; no separate termination penalty
+Termination for cause: 15-day cure period for material payroll processing failure;
+  30 days for other material breach
+Governing law: Institution's home state (Unit4 accepts local governing law as standard)
+  Note: This is the only proposal that does not require California, Texas, or Minnesota law.
+Disputes: Institution's home state courts
+
+LIABILITY
+Maximum liability: 24 months of fees paid in prior contract year (highest cap of the three vendors)
+Tax filing penalties caused by Unit4 Payroll error: Unit4 bears full IRS and state
+  penalties without dollar cap, provided customer submitted accurate input data.
+  Penalty liability: unlimited for Unit4-caused filing errors (no aggregate cap).
+Data breach notification: Within 48 hours of Unit4's confirmed breach determination
+
+CORE ERP FUNCTIONALITY
+Unit4 ERP for Education is designed specifically for higher education, with pre-built
+configurations for GASB, 2 CFR 200, NACUBO, and multi-campus operations. The platform
+ships with a Higher Education Foundation layer — a set of pre-built financial structures,
+chart of accounts templates, and reporting packages tailored to the sector.
+
+Financial Management:
+- General ledger: purpose-built for higher education fund accounting (GASB 34, 87, 96)
+  Pre-built GASB financial statement templates included (no configuration required)
+  Unrestricted, restricted, and permanently restricted fund structures pre-configured
+- AP, AR, and expense management included
+- Budget management: position-based budgeting, project budgeting, encumbrance accounting
+- Federal grant management: 2 CFR 200 / Uniform Guidance natively built and
+  pre-configured; indirect cost rate management, effort reporting, and invoicing included
+  Unit4 has deployed at multiple NSF and NIH grant-intensive research universities
+- Fixed assets with depreciation and impairment
+- Procurement: purchase requisitions, POs, supplier management, three-way matching
+- Endowment: distribution calculation and spending policy management (pre-built)
+- NACUBO reporting: standard templates included; annual NACUBO survey export automated
+
+Human Resources and Payroll:
+- Core HR: employee records, position management, org hierarchy
+- US Payroll: all states, all employee types, all frequencies (no per-state surcharge)
+- Faculty-specific: appointment types (tenure track, adjunct, visiting), course load,
+  9/10/12-month spread pay, sabbatical leave management — all native, no add-on
+- Graduate assistant: stipend, tuition waiver, and fee remission tracking natively supported
+- Student workers: full support including I-9 management
+- Benefits: open enrollment, life events, ACA 1095-C (included, no add-on)
+- Time and attendance: Unit4 Time included; configurable for departmental overtime rules
+- Retroactive pay: fully automated for all employee types and pay periods
+- On-demand pay: not yet available; targeted for 2027 release
+
+REGULATORY COMPLIANCE
+GASB: Pre-configured GASB statements ship with the system; no configuration required
+  Unit4 publishes an annual GASB accounting update for new pronouncements
+2 CFR 200: Mature, purpose-built grants module; highest-rated in peer higher education surveys
+IRS: W-2, 1099-NEC/MISC, ACA 1095-C (all included; no add-on fees)
+Multi-state: All 50 states in US Payroll; no per-state charge
+Certified payroll (Davis-Bacon): Included in base US Payroll; no separate fee
+Foreign national payroll / 1042-S: Available via built-in Unit4 module; no third-party required
+FLSA: Full automation including fluctuating workweek and dual-rate calculations
+Accessibility (WCAG 2.1 AA): Current VPAT published; third-party audit Q4 2024;
+  known gap: advanced budget planning views — remediation committed Q2 2026
+
+SECURITY AND COMPLIANCE
+SOC 2 Type II: Current (issued August 2025); report available to prospects under NDA
+SOC 1 Type II (SSAE 18): Issued May 2025; payroll and financial controls documented
+ISO 27001: Certified (issued February 2025, valid through 2028)
+FedRAMP: Not authorized; not currently planned
+Data Processing Agreement: Provided as standard; Unit4 DPA is institution-friendly
+DPA covers: FERPA, GLBA, CCPA/CPRA, EU GDPR; explicitly includes Massachusetts
+  Chapter 93H and Chapter 66A by name; state-specific schedules included for all
+  50 states where applicable privacy laws exist
+Data ownership: Institution owns all data, configurations, reports, and workflows
+Unit4 use of data: Unit4 does not use customer data for AI training, benchmarking,
+  or product improvement without explicit written consent. No opt-out required;
+  opt-in is the default. This is explicitly stated in the standard DPA.
+Encryption: TLS 1.3 in transit; AES-256 at rest; customer-managed key option available
+Data portability: Full export in CSV, XML, and JSON within 10 business days of termination;
+  certified deletion within 30 days
+Penetration testing: Annual by external third party; executive summary shared with
+  all customers annually without requiring NDA
+
+INTEGRATIONS
+SIS: Unit4 Student is a separate SIS product. Integration with Banner, Ellucian Colleague,
+  PeopleSoft Campus Solutions, Workday Student: native connectors via Unit4 Integration Platform.
+  Banner integration: pre-built connector ($14,000/year); most widely tested by Unit4
+LMS: Integration with Canvas, Blackboard, Moodle via LTI 1.3 for payroll and scheduling
+Banking: ACH and positive pay for major US banks; NACHA file for all others;
+  direct bank connectivity certified with Bank of America, JPMorgan, Wells Fargo
+Benefits: EDI 834 with all major carriers; open enrollment via Unit4 HCM or supported third-party
+SSO: SAML 2.0; tested with Azure AD, Okta, Shibboleth, Ping Identity, Google Workspace
+Open API: REST API with full read/write; OpenAPI 3.0 specification published; free sandbox access
+
+ENTERPRISE READINESS
+Multiple entities: Full multi-entity and multi-campus support; separate ledgers, EINs,
+  and fund structures in a single tenant
+Admin controls: Role-based security at data, field, and transaction level;
+  campus admin isolation is a standard deployment pattern for Unit4
+Volume: Largest Unit4 North American higher education customer has 18,000 employees.
+  Note: This is smaller than Workday and Oracle's documented capacity — institutions
+  above 15,000 employees should ask for a capacity planning discussion.
+System availability: 99.9% uptime SLA; financial penalty equal to 15% of monthly fee per hour below SLA
+DR: RTO ≤4 hours; RPO ≤1 hour; Azure-hosted with geo-redundant failover
+Historical uptime: Published at status.unit4.com; 99.96% actual for prior 12 months
+
+Higher education references: Nine provided — two small state university systems
+(4,000–8,000 employees), four mid-size regional universities, two community college districts,
+one higher education nonprofit consortium. All references are North American institutions.
+Unit4 has not yet deployed at institutions with more than 18,000 employees in North America.
+
+IMPLEMENTATION & SUPPORT
+Implementation: Unit4 delivers directly via its Higher Education Professional Services team.
+  All lead consultants are Higher Education Center of Excellence certified; no offshore leads.
+  US-based project manager dedicated to this engagement throughout.
+Timeline: 14–20 months for combined Financials + HCM.
+Post go-live support:
+- Dedicated Customer Success Manager included for all contracts
+- Named payroll and financials specialist available via direct line (not queue)
+- Year-end support: Unit4 year-end team provides proactive outreach starting October;
+  extended support hours November–February for W-2, 1099, and ACA filing
+- Contractual SLA with 15% monthly service credit for payroll processing window breaches
+- 24/7 support for Severity 1 payroll or financial processing failures
+- Annual user conference (Unit4Connect) with dedicated higher education track
+
+INTELLECTUAL PROPERTY
+Institution owns all data, custom configurations, custom reports, and all integration
+specifications and deliverables created during and after implementation.
+Unit4 owns base platform code only. Unit4's DPA explicitly states this; no separate
+IP addendum required.

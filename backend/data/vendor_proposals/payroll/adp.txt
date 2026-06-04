@@ -1,0 +1,160 @@
+VENDOR PROPOSAL — ADP Workforce Now (Enterprise)
+Submitted In Response to: Full-Service Payroll Processing RFP
+Date: March 3, 2026
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+ADP (Automatic Data Processing, Inc.) is the world's largest payroll and HR services
+provider, processing payroll for over 1 million businesses and 41 million workers globally.
+Headquarters: Roseland, NJ. Founded: 1949. Employees: 60,000+.
+Publicly traded: ADP (NASDAQ). Annual revenue: ~$19B (FY2025).
+ADP Workforce Now is ADP's flagship cloud HCM platform for mid-market and enterprise,
+serving organizations from 50 to 100,000+ employees.
+
+PRICING (per employee per month — PEPM)
+Full-time exempt and non-exempt staff: $28.00 PEPM
+Part-time staff (scheduled < 20 hrs/week): $18.00 PEPM
+Faculty (9, 10, or 12-month salaried): $28.00 PEPM
+Graduate assistants: $22.00 PEPM (separate module required — see below)
+Student workers and casuals (hourly, variable): $14.00 PEPM
+Estimated annual cost (2,800 employees, blended rate): $748,800
+
+Add-on modules (annual, billed separately):
+  - Graduate assistant module (stipend processing, tuition waiver tracking): $8,500/year
+  - ACA 1095-C filing and management: $3.50 per employee per year
+  - Certified payroll reporting (Davis-Bacon): $4,200/year
+  - On-demand pay / earned wage access (DailyPay partnership): $1.50 PEPM surcharge
+  - Wage garnishment processing: $12.50 per garnishment processed
+  - Off-cycle payroll run (beyond 2 per month): $185 per run
+  - W-2 print and mail (per form): $2.10; electronic delivery included at no cost
+  - 1099-NEC/MISC filing: $3.25 per form (beyond 25 forms/year)
+  - Additional state tax filing (beyond 3 states): $650/state/year
+
+Implementation and migration:
+  - Implementation fee: $38,000 (one-time; fixed-fee)
+  - Data migration from legacy system: $12,000–$22,000 depending on data volume
+    (billed separately; estimated based on current system and years of history)
+  - Parallel payroll processing: two pay cycles included in implementation fee
+Payment terms: Net 30, invoiced monthly
+
+CONTRACT TERMS
+Contract length: 3 years (standard); 1-year available at 15% premium
+Auto-renewal: Renews automatically for 1-year terms at then-current pricing
+Opt-out notice required: 60 days prior to renewal date
+Termination for convenience: 90 days written notice; no termination penalty;
+  prepaid fees for unused months refunded on pro-rata basis
+Termination for cause: 30-day cure period for material breach
+Governing law: State of New Jersey
+Disputes: State courts of Morris County, New Jersey
+
+LIABILITY
+Maximum liability: Two times the fees paid in the prior 12 months
+Tax filing penalties caused by ADP error: ADP bears full cost of penalties,
+  interest, and associated amendment fees. Customer must notify ADP within 30 days
+  of receiving IRS or state notice. ADP's liability does not cover penalties caused
+  by customer-provided incorrect data (hours, rates, status changes).
+Payroll processing errors: ADP reprocesses at no charge; direct employee harm
+  (overdraft fees, etc.) compensated case-by-case, up to $500 per incident.
+Data breach notification: Within 72 hours of ADP's confirmed determination of breach.
+
+CORE PAYROLL FUNCTIONALITY
+ADP Workforce Now supports all standard payroll scenarios for higher education.
+
+Pay frequencies and employee types:
+- Weekly, biweekly, semi-monthly, and monthly pay schedules in a single run
+- Multiple pay rates and jobs per employee (unlimited)
+- Faculty 9, 10, and 12-month spread pay calculations
+- Graduate assistant stipend processing requires Graduate Assistant module (add-on)
+- Student workers and casuals supported in base platform
+- Retroactive pay calculation: automated for rate changes within same pay period;
+  cross-period retroactive requires manual calculation and off-cycle processing
+
+Garnishments:
+- Child support, tax levies, creditor garnishments, student loans, bankruptcy orders
+- Automated priority ordering and disposable income calculations
+- ADP Garnishment Processing Services: $12.50 per garnishment event (per-transaction fee)
+- State income withholding order registration: ADP manages on behalf of institution
+
+Tax filing:
+- Federal 940, 941, W-2, 1099-NEC, 1099-MISC, ACA 1095-C (1095-C requires add-on)
+- Multi-state tax filing: 3 states included; each additional state $650/year
+- New hire reporting: automated for all states
+- ADP assumes liability for penalties caused by ADP errors; excludes customer data errors
+
+Employee self-service (ADP Mobile / Workforce Now portal):
+- Pay stub access: current and 7-year history
+- W-2 and 1099 electronic delivery and download
+- Direct deposit enrollment: up to 4 accounts
+- Federal W-4 and state withholding updates
+- Address and personal information updates
+- Mobile app: iOS and Android; feature parity on pay stubs, W-2, direct deposit;
+  time-off requests and manager approvals require full ADP Time & Attendance module (not included)
+
+REGULATORY COMPLIANCE
+IRS compliance: ADP files and remits all included federal payroll taxes and forms
+Multi-state payroll: 3 states included in base; multi-state payroll tax expertise in all 50 states
+ACA: 1095-C generation and filing available as add-on ($3.50/employee/year)
+Certified payroll (Davis-Bacon): available as add-on ($4,200/year)
+Foreign national / tax treaty support: Available via ADP SmartCompliance module (separate quote)
+FLSA overtime calculations: Automated; regular rate of pay calculated per FLSA requirements
+
+SECURITY AND COMPLIANCE
+SOC 2 Type II: Current (issued October 2025); report available under NDA
+SOC 1 Type II (SSAE 18): Current (issued September 2025); payroll processing controls
+ISO 27001: Not currently certified; ADP Global Security program aligns with ISO framework
+FedRAMP: Not authorized for Workforce Now (ADP SmartCompliance is FedRAMP Moderate)
+Data Processing Agreement: Provided as standard with all contracts
+DPA covers: FERPA (for student employee data), CCPA/CPRA, applicable state privacy laws
+  Note: DPA does not explicitly address Massachusetts Ch. 93H or Ch. 66A by name;
+  state-specific addenda available on request (4-6 week legal review required)
+Data ownership: Institution owns all payroll and employee data
+ADP use of data: Aggregated, anonymized benchmarking data used in ADP compensation surveys.
+  Opt-out available on request; may affect access to ADP Benchmarking reports.
+Encryption: TLS 1.2 in transit; AES-256 at rest
+Data portability: Full export in CSV and XML within 10 business days of termination
+Penetration testing: Annual third-party; results not shared with customers
+
+INTEGRATIONS
+HRIS/HCM: Native with ADP HCM suite. Third-party HRIS integration via ADP Marketplace:
+  Workday (certified connector, $8,400/year), Oracle HCM (certified, $9,200/year),
+  SAP SuccessFactors (certified), UKG Pro (certified). Ellucian Banner requires
+  custom connector via ADP Professional Services ($22,000 one-time).
+Time and attendance: Native ADP Time & Attendance integration (separate module, add-on).
+  Third-party time systems (Kronos/UKG Dimensions, Paycom, Replicon): SFTP flat-file import.
+  Real-time API integration available for certified time-system partners only.
+GL/Accounting: GL file export in configurable format; native connectors for Workday Financials,
+  Oracle Financials, and SAP S/4HANA. Banner Finance: SFTP file transfer (manual mapping).
+Benefits: ADP Benefits Administration module (add-on); third-party carriers via EDI 834.
+SSO: SAML 2.0 supported; tested with Azure AD, Okta, and Ping Identity
+Open API: ADP Marketplace API; read/write access requires ADP partner enrollment
+
+ENTERPRISE READINESS
+Multiple EINs: Supported; separate payroll entities configurable in single tenant
+Admin controls: Role-based access at payroll, department, and data-field level
+Volume capacity: ADP processes payroll for institutions with 50,000+ employees;
+  no documented limit relevant to this scope
+System availability: 99.9% uptime SLA for payroll processing; 99.5% general availability
+DR: RTO 4 hours; RPO 1 hour; disaster recovery tested annually
+Historical uptime: Available at trust.adp.com (public)
+
+Higher education references: Five provided upon request. Includes two public university
+systems (15,000–40,000 employees), one community college district, and two private
+institutions. All contacts available.
+
+IMPLEMENTATION & SUPPORT
+Implementation: Dedicated implementation consultant (shared across 2 concurrent customers).
+Parallel processing: Two pay cycles included; additional cycles at $2,200/cycle.
+Go-live timeline: 12–18 weeks depending on data complexity.
+Post go-live support:
+- Standard support: phone and portal, Monday-Friday 8am-8pm ET
+- Dedicated payroll specialist: not included in base; available at $14,400/year
+- Year-end support: dedicated W-2 support line November–January (included)
+- Payroll processing SLA: contractual; financial penalty of 10% monthly credit for breach
+- 24/7 support: available for payroll processing window emergencies via escalation line
+
+INTELLECTUAL PROPERTY
+ADP retains ownership of all platform code, configurations, and report templates.
+Institution owns all data and may export at any time. Custom report configurations
+built by institution are considered institution work product and are exportable.

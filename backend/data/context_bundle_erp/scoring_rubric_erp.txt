@@ -1,0 +1,239 @@
+VENDORLENS SCORING RUBRIC
+Source: Higher Education Enterprise Finance & HR Platform (ERP) RFP
+Scale: 0–10 per dimension. All scores rounded to one decimal place.
+Weights sum to 1.00. Maximum possible overall score is 10.0.
+
+Overall score = weighted sum of all dimension scores × their weights (defined in rfp_criteria_erp.txt).
+
+---
+
+CORE ERP FUNCTIONALITY (weight: 0.25)
+Dimension identifier: core_lms_functionality
+
+Evaluate: financial management (GL, AP, AR, budgeting, grants, procurement),
+HR and payroll (full employee lifecycle, benefits, IRS reporting, time and attendance,
+faculty workflows), and required features documented vs. add-on or absent
+
+10 = All critical financial and HR/payroll functionality fully documented and included
+     in base price. Multi-fund accounting, GASB compliance, and 2 CFR 200 grant management
+     native. Full payroll for all employee types. IRS reporting (W-2, 1099, ACA) native.
+     Faculty-specific workflows (tenure, effort reporting) included. Self-service portal
+     and manager dashboards included. All required proposal deliverables present.
+
+7-9 = Core financials and payroll fully documented. Minor gaps in preferred features
+      (e.g., advanced grant pre-award as add-on, faculty effort reporting limited,
+      or endowment tracking requires configuration). Most required deliverables present.
+
+4-6 = Core GL and payroll documented. Notable gaps: grant management requires add-on
+      or professional services, benefits administration basic, faculty workflows absent,
+      or IRS reporting requires third-party integration. Several required deliverables missing.
+
+1-3 = Minimal functionality documented. Major modules (grants, benefits, time and attendance)
+      absent or vaguely described. No faculty-specific workflows. Limited reporting.
+
+0 = Core financial or payroll capability absent or critically underdocumented.
+
+---
+
+REGULATORY & STANDARDS COMPLIANCE (weight: 0.05)
+Dimension identifier: accessibility_compliance
+
+Evaluate: GASB accounting standards, 2 CFR 200 / Uniform Guidance grant compliance,
+IRS reporting obligations (W-2, 1099, ACA 1095-C), NACUBO reporting,
+WCAG 2.1 AA accessibility for employee-facing portals, Section 508 conformance
+
+10 = GASB compliance fully documented with reference implementation at comparable
+     institution. 2 CFR 200 compliance certified by auditor. All IRS forms native.
+     NACUBO reporting supported. WCAG 2.1 AA conformance for all employee-facing
+     interfaces with current VPAT. Known accessibility gaps disclosed.
+
+7-9 = GASB and IRS compliance documented. 2 CFR 200 supported with minor configuration
+      required. Accessibility documentation present; minor gaps disclosed.
+
+4-6 = GASB compliance claimed but not fully documented. Grant compliance requires
+      add-on module. IRS reporting native for most forms. VPAT present but aging.
+
+1-3 = Regulatory compliance vague or requires follow-up. Grant management does not
+      address 2 CFR 200. IRS reporting via third-party only. No accessibility documentation.
+
+0 = No regulatory compliance documentation. Core accounting standards not addressed.
+
+---
+
+INTEGRATION & INTEROPERABILITY (weight: 0.15)
+Dimension identifier: integration_interoperability
+
+Evaluate: SIS integration (Banner, Workday, PeopleSoft, Ellucian), LMS integration,
+banking and ACH/wire transfer connectivity, benefits carrier data exchange,
+identity management (SSO/SAML 2.0, Azure AD, Okta), open REST API,
+document management integration
+
+10 = Native certified integrations with all major SIS platforms. Banking integrations
+     (ACH, positive pay, wire) fully documented. Benefits carrier EDI exchange native.
+     SSO via SAML 2.0 with major IdPs (Azure AD, Okta, Shibboleth). Full open REST API
+     with read/write access and published documentation. LMS gradebook-to-payroll
+     integration for student payroll. All data exportable in standard formats.
+
+7-9 = Integrates with most major SIS platforms. Banking integration documented.
+      Benefits EDI supported. SSO present. API available with reasonable documentation.
+      Minor gaps (e.g., one SIS requires middleware, LMS integration via flat-file).
+
+4-6 = SIS integration via flat-file or basic API only. Banking integration limited
+      (manual upload for some transaction types). Benefits carrier integration manual.
+      SSO supported but limited IdP compatibility. API read-only or restricted scope.
+
+1-3 = SIS integration requires significant custom development. No banking integration.
+      Benefits carrier exchange manual. No published API. Data portability limited.
+
+0 = No documented integrations, no API, data portability not addressed.
+
+---
+
+PRICING & TOTAL COST OF OWNERSHIP (weight: 0.10)
+Dimension identifier: pricing_and_licensing
+
+Evaluate: implementation cost transparency (discovery, configuration, testing, go-live,
+data migration), SaaS subscription pricing per FTE or module, multi-year escalation,
+hypercare and post go-live support costs, add-on module pricing, offshore/subcontractor cost
+
+10 = Fully itemized implementation estimate with line-item costs per phase.
+     Fixed-fee implementation with capped overrun exposure. SaaS pricing per FTE
+     or module with all-campus total cost. Escalation ≤3% annually for full term.
+     Data migration included. Hypercare and Year 1 support included. No hidden costs.
+
+7-9 = Implementation estimate provided with major phases costed. Most costs disclosed.
+      Minor gaps (e.g., data migration quoted separately, hypercare at additional cost,
+      or escalation clause partially capped). Overall TCO picture reasonably clear.
+
+4-6 = Base subscription pricing provided. Implementation quoted as time-and-materials
+      without ceiling. Data migration costs not disclosed. Add-on module pricing absent.
+      Escalation clause present but not capped or above 5% annually.
+
+1-3 = Implementation costs not disclosed or described as "to be scoped post-award."
+      Subscription pricing opaque for multi-campus scenarios. Major hidden cost risk.
+
+0 = No pricing information. No implementation cost estimate. No TCO transparency.
+
+---
+
+SECURITY & DATA PRIVACY (weight: 0.15)
+Dimension identifier: security_and_compliance
+
+Evaluate: SOC 2 Type II or ISO 27001 (current), FERPA/GLBA/payroll data protection,
+DPA standard (not on request), payroll data encryption in transit and at rest,
+IR/DR documentation, PCI DSS for payment processing, data residency controls
+
+10 = SOC 2 Type II AND/OR ISO 27001 current certificates provided with proposal.
+     DPA provided as standard, explicitly addresses FERPA, GLBA, payroll confidentiality,
+     and applicable state data privacy law. Payroll and financial data encrypted in
+     transit and at rest (AES-256 documented). IR plan and DR documentation included.
+     Institution owns all data. Vendor does not use institutional data for product
+     improvement or AI training. PCI DSS certified if payment processing is in scope.
+     Penetration test summary available under NDA.
+
+7-9 = Strong security posture. Certifications current. DPA FERPA/GLBA-compliant.
+      Encryption documented. Minor gaps (e.g., DR summary only, pen test timing).
+
+4-6 = SOC 2 Type I only, or DPA available on request only. Encryption claimed but
+      not documented. FERPA compliance vague. IR/DR incomplete.
+
+1-3 = No current certifications. DPA not mentioned or non-compliant. Payroll data
+      security practices unclear. No IR/DR documentation.
+
+0 = No certifications, no DPA, data protection unaddressed.
+
+---
+
+IMPLEMENTATION & ONGOING SUPPORT (weight: 0.15)
+Dimension identifier: support_and_training
+
+Evaluate: implementation methodology and timeline realism, dedicated staffing model
+(on/offshore composition, named resources), hypercare period, post go-live support SLAs,
+payroll window support coverage, training and change management plan, references
+with successful go-live outcomes
+
+10 = Detailed implementation methodology with milestone schedule and dependencies.
+     Fixed-fee implementation with named senior resources and certified consultants.
+     On-shore or near-shore lead with offshore disclosed. Hypercare period ≥90 days
+     included at no cost. Post go-live SLAs with financial penalties. 24/7 payroll
+     window coverage contractually committed. Comprehensive training and change
+     management plan included. Three higher education go-live references at comparable
+     scope provided with verifiable contacts.
+
+7-9 = Implementation plan and timeline provided. Most staffing disclosed. Hypercare
+      included or at modest cost. Post go-live SLAs defined. References provided.
+      Training included but limited in scope or duration.
+
+4-6 = High-level implementation plan only. Staffing model not disclosed. Hypercare
+      not included. Support SLAs defined without financial penalties. Training
+      available at additional cost per session. References provided but limited scope.
+
+1-3 = No implementation methodology. No staffing model. No hypercare. SLAs
+      aspirational only. No training plan. References from non-comparable institutions.
+
+0 = No implementation plan, no support SLAs, no training, no references.
+
+---
+
+ENTERPRISE READINESS (weight: 0.05)
+Dimension identifier: enterprise_readiness
+
+Evaluate: multi-campus and multi-entity support, chart of accounts flexibility,
+role-based access control granularity, uptime SLA with published history,
+disaster recovery RTO/RPO, sandbox and testing environment availability
+
+10 = Full multi-entity accounting with separate and consolidated reporting.
+     Unlimited chart of accounts segments with inter-entity eliminations automated.
+     Granular RBAC at field and transaction level. 99.9%+ uptime SLA with published
+     incident history. DR with RTO ≤4 hours and RPO ≤1 hour documented.
+     Dedicated sandbox for configuration testing and year-end practice runs.
+
+7-9 = Multi-entity support documented. Chart of accounts flexible. RBAC present.
+      Uptime SLA at 99.5%+. DR documented. Sandbox available pre-contract.
+
+4-6 = Basic multi-entity support with manual consolidation. Chart of accounts limited.
+      RBAC present but coarse-grained. Uptime SLA without published history.
+      Sandbox available for short trial only.
+
+1-3 = Designed for single-entity use. Multi-campus requires custom development.
+      Limited RBAC. No published uptime history. No sandbox environment.
+
+0 = No multi-entity support, no RBAC documentation, no test environment.
+
+---
+
+INNOVATION & AUTOMATION ROADMAP (weight: 0.05)
+Dimension identifier: innovation_roadmap
+
+Evaluate: 18-24 month product roadmap, AI/ML automation plans (anomaly detection,
+spend analytics, payroll reconciliation), self-service and mobile capability roadmap,
+continuous delivery model, R&D investment evidence, higher education customer influence
+
+10 = Detailed 18-24 month roadmap with committed AI/automation feature timelines.
+     Explicit plans for: AI spend anomaly detection, automated payroll reconciliation,
+     intelligent budget forecasting, and enhanced self-service. Continuous delivery
+     model with regular release cadence documented. Higher education advisory council
+     influencing roadmap. R&D investment or headcount disclosed.
+
+7-9 = Roadmap provided for 12-18 months. AI/automation features identified with
+      near-term timelines. Regular releases evident. Customer feedback mechanisms exist.
+
+4-6 = High-level roadmap only. AI features mentioned but no committed timeline.
+      Release cadence infrequent or unclear. Minimal customer input to roadmap.
+
+1-3 = Vague or aspirational roadmap. No automation plan. Platform appears stable
+      but not actively innovating. No evidence of higher education focus in roadmap.
+
+0 = No roadmap provided. Platform appears legacy or approaching end of investment.
+
+---
+
+RISK LEVEL (weight: 0.05 — INVERTED: higher score = fewer HIGH severity risk flags)
+
+10 = Zero HIGH severity risk flags
+7  = One HIGH severity risk flag
+4  = Two HIGH severity risk flags
+0  = Three or more HIGH severity risk flags
+
+Note: This dimension is directly derived from the Risk Agent output.
+MEDIUM and LOW severity flags do not affect this score but are reported separately.

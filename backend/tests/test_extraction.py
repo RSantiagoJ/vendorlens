@@ -47,9 +47,9 @@ BASE_DIR = Path(__file__).parent.parent
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"
 
-VENDOR_A = "vendor_a_pulsemedia.txt"
-VENDOR_B = "vendor_b_socialbridge.txt"
-VENDOR_C = "vendor_c_campusvoice.txt"
+VENDOR_A = "blackboard.txt"
+VENDOR_B = "canvas.txt"
+VENDOR_C = "brightspace.txt"
 
 
 def load_index() -> VectorStoreIndex:

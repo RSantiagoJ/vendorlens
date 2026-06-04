@@ -1,0 +1,167 @@
+VENDOR PROPOSAL — Ceridian Dayforce HCM (Payroll & Workforce Management)
+Submitted In Response to: Full-Service Payroll Processing RFP
+Date: March 3, 2026
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+Ceridian is a global human capital management software company best known for
+Dayforce, its single-application HCM platform that unifies payroll, HR, time,
+scheduling, benefits, and talent in one continuous-calculation engine.
+Headquarters: Minneapolis, MN (US); Toronto, ON (Canada). Founded: 1932. Employees: 7,000+.
+Publicly traded: CDAY (NYSE). Annual revenue: ~$1.7B (FY2025).
+Dayforce is designed on a single database architecture — payroll is calculated
+continuously as time and HR data changes, eliminating batch processing delays.
+
+PRICING (per employee per month — PEPM)
+Dayforce Payroll base (all employee classifications, all pay frequencies): $34.00 PEPM
+  Includes: payroll processing, tax filing (all 50 states + federal + local where applicable),
+  W-2 and 1099-NEC/MISC, ACA 1095-C, garnishments, and employee self-service
+  No separate tiers for student workers, graduate assistants, or casuals
+Estimated annual cost (2,800 employees): $1,143,360
+
+Optional add-ons (annual):
+  - Dayforce On-Demand Pay (earned wage access, powered by Ceridian): $2.50 PEPM
+  - Dayforce Benefits module (benefits administration + open enrollment): $6.00 PEPM
+  - Dayforce Time & Attendance (scheduling, timeclocks): $8.50 PEPM
+  - Certified payroll (Davis-Bacon) module: $5,800/year
+  - Dayforce Wallet (employee financial wellness + on-demand pay card): included with On-Demand Pay
+  - Foreign national payroll (tax treaty management, 1042-S): $3.20 PEPM surcharge
+
+Implementation and migration:
+  - Implementation fee: $62,000 (fixed-fee; includes project management and all configuration)
+  - Data migration: included for up to 5 years of payroll history; additional history $4,200/year
+  - Parallel payroll processing: three pay cycles included at no additional cost
+Payment terms: Net 30, invoiced monthly; annual prepay option at 3% discount
+
+CONTRACT TERMS
+Contract length: 3 years (standard); 2-year available
+Auto-renewal: Renews for successive 1-year terms after initial term
+Opt-out notice required: 60 days prior to renewal date
+Termination for convenience: 60 days written notice; prepaid monthly fees refunded pro-rata;
+  no termination penalty
+Termination for cause: 15-day cure period for critical payroll failures;
+  30 days for other material breach
+Governing law: State of Minnesota
+Disputes: State courts of Hennepin County, Minnesota
+
+LIABILITY
+Maximum liability: 12 months of fees paid in the prior contract year
+Tax filing penalties caused by Ceridian error: Ceridian bears all IRS and state
+  penalties, interest, and amendment costs without dollar cap, provided:
+  (a) Customer provided accurate and timely input data,
+  (b) Customer notifies Ceridian within 45 days of receiving a government notice
+Payroll processing errors: Ceridian reprocesses same-day at no cost.
+  Consequential damages to employees (overdraft fees, etc.) reimbursed up to $1,000/employee/incident.
+Data breach notification: Within 48 hours of Ceridian's confirmed determination of breach
+
+CORE PAYROLL FUNCTIONALITY
+Dayforce is built on a single-database, continuous-calculation architecture. Payroll
+recalculates in real time as HR and time data changes — there is no "payroll run" batch;
+administrators review and approve the continuously updated payroll register.
+
+Pay frequencies and employee types:
+- All frequencies in a single tenant: weekly, biweekly, semi-monthly, monthly, and ad hoc
+- All employee classifications unified in single PEPM: exempt, non-exempt, faculty
+  (9/10/12-month), graduate assistants, student workers, casuals — no separate tiers or modules
+- Multiple pay rates and positions per employee, unlimited
+- Faculty spread pay (9-month salary spread over 12 months): natively supported
+- Graduate assistant stipend processing: supported without add-on module
+- Retroactive pay: fully automated across all pay periods and classifications
+- On-demand pay / earned wage access: available as add-on ($2.50 PEPM, Dayforce Wallet)
+
+Garnishments:
+- Child support, tax levies, creditor garnishments, student loans, bankruptcy
+- Automated priority calculation and disposable income limits
+- All garnishment types included in base PEPM; no per-transaction fee
+- Ceridian registers and manages state income withholding orders
+
+Tax filing (all 50 states + federal + local; included in base PEPM):
+- Federal: 940, 941, W-2, 1099-NEC, 1099-MISC, ACA 1095-C
+- Multi-state: all states included at no per-state surcharge
+- Local payroll tax: all applicable local jurisdictions filed automatically
+- New hire reporting: automated for all states
+- Ceridian bears full liability for penalties caused by Ceridian errors, no dollar cap
+
+Employee self-service (Dayforce Mobile + Web):
+- Pay stub access: current and full history (no year limit)
+- W-2 and 1099 electronic delivery; prior-year access from self-service
+- Direct deposit: unlimited accounts, instant update without payroll cycle delay
+- W-4 and state withholding: updates effective immediately in payroll
+- Full feature parity between iOS app, Android app, and web portal
+- Accessible via personal email for employees without institutional credentials
+- Dayforce Wallet (on-demand pay add-on): employees access earned wages before pay date
+
+REGULATORY COMPLIANCE
+Multi-state tax: All 50 states included in base PEPM; no add-on fee for any state
+ACA 1095-C: Included in base PEPM (not an add-on); Ceridian files with IRS
+Certified payroll (Davis-Bacon): Available as add-on ($5,800/year)
+Foreign national / tax treaty: Available as add-on ($3.20 PEPM surcharge); covers 1042-S filing
+FLSA overtime: Automated regular rate calculation including all remuneration types
+FMLA/state leave: Leave tracking included; Dayforce tracks FMLA hours automatically
+
+SECURITY AND COMPLIANCE
+SOC 2 Type II: Current (issued November 2025, covers FY2025); report available under NDA
+SOC 1 Type II (SSAE 18): Current (issued October 2025); payroll processing controls documented
+ISO 27001: Certified (issued January 2025, valid through 2028)
+FedRAMP: Not authorized
+Data Processing Agreement: Provided as standard with all contracts
+DPA covers: FERPA, GLBA, CCPA/CPRA, applicable state data privacy laws including
+  explicitly: New York SHIELD Act, Colorado CPA, Virginia VCDPA.
+  Note: Massachusetts Ch. 93H and Ch. 66A addressed by general state privacy clause;
+  explicit Massachusetts addendum available on request.
+Data ownership: Institution owns all payroll and employee data unconditionally
+Ceridian use of data: Anonymized, aggregated compensation benchmarking data is used
+  in Ceridian's annual compensation survey product. Opt-out is available in contract.
+  Individual payroll records never shared or used for AI training without explicit consent.
+Encryption: TLS 1.3 in transit; AES-256 at rest; tenant-level encryption key management
+Data portability: Full export in CSV, XML, and JSON within 10 business days of termination;
+  certified deletion within 30 days post-export confirmation
+Penetration testing: Annual third-party; executive summary available under NDA upon request
+
+INTEGRATIONS
+HRIS/HCM: Dayforce is a single platform (payroll + HR + time). Integration with external
+  HRIS (Workday HCM, Oracle HCM, SAP SuccessFactors) available via certified connectors
+  for organizations that wish to use Dayforce for payroll only.
+  Ellucian Banner integration: available via Ceridian Marketplace connector ($11,500/year)
+Time and attendance: Native Dayforce Time integrated; no separate time system required.
+  Third-party time (Kronos/UKG Dimensions): SFTP import; real-time API integration in roadmap.
+GL/Accounting: GL file export with configurable chart-of-accounts mapping.
+  Native connectors: Workday Financials, Oracle Cloud Financials, SAP S/4HANA.
+  Banner Finance: configured SFTP file (implementation included in scope).
+Benefits: Dayforce Benefits module (add-on); EDI 834 exchange with all major carriers.
+SSO: SAML 2.0; tested with Azure AD, Okta, Ping Identity, Shibboleth
+Open API: REST API with full read/write; OpenAPI 3.0 documentation published
+
+ENTERPRISE READINESS
+Multiple EINs: Fully supported in single tenant; separate payroll entities, EINs, and FEINs
+Admin controls: RBAC at data field and transaction level; campus-level admin isolation supported
+Volume capacity: Dayforce has processed payroll for single organizations exceeding 80,000 employees
+System availability: 99.9% uptime SLA for payroll processing windows (contractual, with penalty);
+  99.5% general availability SLA
+DR: RTO ≤2 hours; RPO ≤15 minutes (continuous replication to secondary region)
+Historical uptime: Published at trust.ceridian.com (public transparency report)
+
+Higher education references: Six provided — one large public research university (22,000 employees),
+two mid-size state universities, two community college districts, one private university.
+All references successfully migrated from legacy payroll systems within past 36 months.
+
+IMPLEMENTATION & SUPPORT
+Implementation: Dedicated Dayforce implementation consultant (full-time to this project).
+  Ceridian uses named, certified consultants; not offshore staff for primary implementation.
+Parallel processing: Three pay cycles included at no cost.
+Go-live timeline: 16–22 weeks (phased: configuration, parallel, cutover, stabilization).
+Post go-live support:
+- Dedicated Customer Success Manager included for all 3-year contracts
+- Named payroll specialist available during business hours (8am-8pm local)
+- Year-end (W-2, 1099, 1095-C): dedicated Ceridian year-end support team November–February
+  with extended evening hours; proactive outreach 10 weeks before year-end
+- Payroll SLA: contractual 99.9% for payroll processing windows; 10% monthly service credit per breach
+- 24/7 emergency line for payroll processing failures during pay window
+- Community: Dayforce Community portal for peer discussion and product updates
+
+INTELLECTUAL PROPERTY
+Institution owns all data, configurations, custom workflows, and custom reports.
+Ceridian owns base platform IP only. Custom integrations built during implementation
+using institution's specifications are owned by the institution.

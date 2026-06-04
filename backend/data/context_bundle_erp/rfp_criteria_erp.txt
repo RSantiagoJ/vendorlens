@@ -1,0 +1,99 @@
+VENDORLENS RFP EVALUATION CRITERIA
+Source: Higher Education Enterprise Finance & HR Platform (ERP) RFP
+Scope: Financial management, HR, payroll, procurement, and grant management
+
+EVALUATION DIMENSIONS AND WEIGHTS
+Scale: each dimension is scored 0–10. The weighted average is the overall score.
+Weights sum to exactly 1.00, so the maximum possible overall score is 10.0.
+
+core_lms_functionality         weight: 0.25   (Core ERP Functionality)
+accessibility_compliance       weight: 0.05   (Regulatory & Standards Compliance)
+integration_interoperability   weight: 0.15   (Integration & Interoperability)
+pricing_and_licensing          weight: 0.10   (Pricing & Total Cost of Ownership)
+security_and_compliance        weight: 0.15   (Security & Data Privacy)
+support_and_training           weight: 0.15   (Implementation & Ongoing Support)
+enterprise_readiness           weight: 0.05   (Enterprise Readiness)
+innovation_roadmap             weight: 0.05   (Innovation & Automation Roadmap)
+risk_level                     weight: 0.05   (Contractual Risk, inverted)
+                               ────────────
+TOTAL WEIGHT:                             1.00  →  maximum overall score = 10.0
+
+STATED PRIORITIES FROM RFP
+
+"The institution requires a modern, unified ERP platform capable of managing
+financial operations, human resources, payroll, and procurement across all
+campuses and administrative units in a single system of record."
+
+"Full transparency on total cost of ownership — including implementation,
+data migration, training, and integration — is required. Phased pricing
+and multi-year escalation clauses must be fully disclosed."
+
+"The selected platform must support federal grant management under 2 CFR 200,
+GASB accounting standards, and all applicable IRS reporting obligations."
+
+"Implementation methodology, timeline, and dedicated staffing must be fully
+documented. References from comparable higher education institutions with
+successful go-live outcomes are required."
+
+CRITICAL (REQUIRED) FUNCTIONALITY — RFP Section 4
+
+FINANCIAL MANAGEMENT:
+- General ledger with full chart of accounts flexibility
+- Accounts payable and accounts receivable
+- Budget planning, forecasting, and variance reporting
+- Multi-fund, multi-entity accounting (operating, capital, endowment, grants)
+- Federal grant and contract management compliant with 2 CFR 200 / Uniform Guidance
+- GASB-compliant financial reporting for public institutions
+- Fixed asset management and depreciation tracking
+- Cash management and treasury operations
+- Procurement: purchase orders, vendor management, contract tracking
+- Travel and expense management with policy enforcement
+
+HUMAN RESOURCES & PAYROLL:
+- Full employee lifecycle management (hire to retire)
+- Position management and organizational hierarchy
+- Payroll processing for all employee classifications (faculty, staff, student workers)
+- Benefits administration and open enrollment
+- Time and attendance tracking
+- IRS reporting: W-2, 1099, ACA 1095-C generation and filing
+- FMLA, ADA, and leave management tracking
+- Performance management and goal-setting framework
+- Compensation planning and salary administration
+- Faculty-specific workflows: tenure tracking, course load, effort reporting
+
+PREFERRED FUNCTIONALITY — RFP Section 4
+
+- AI-powered spend analytics and budget anomaly detection
+- Self-service portal for employees (pay stubs, W-2s, benefits enrollment, PTO requests)
+- Manager self-service for approvals and workforce reporting
+- Mobile app with approval workflows for managers and employees
+- Advanced workforce analytics and headcount planning
+- Research grant pre-award and post-award management
+- Endowment performance reporting and distribution tracking
+- Supplier diversity tracking and reporting
+- Automated workflow engine for multi-step approvals
+- Native document management for contracts and HR files
+
+REQUIRED PROPOSAL DELIVERABLES — RFP Section 6
+
+- Fully itemized implementation cost estimate (discovery, configuration, testing, go-live)
+- SaaS subscription pricing per FTE or module with all-campus total cost
+- Multi-year pricing with escalation clauses fully disclosed
+- Data migration plan from legacy system with timeline and cost
+- Integration documentation: SIS, LMS, banking, benefits carriers, identity providers
+- Go-live timeline with major milestones and dependencies
+- Implementation team org chart: roles, certifications, and on/offshore composition
+- Hypercare and post go-live support model
+- At least three higher education references with comparable scope and successful go-live
+- SOC 2 Type II or ISO 27001 certification and most recent penetration test summary
+- DPA template addressing FERPA, GLBA, payroll data, and applicable state law
+- Uptime SLAs for payroll windows and general availability with penalty structure
+- Roadmap for next 18–24 months including AI and automation features
+- Subcontractor and offshore staffing disclosure
+
+EVALUATION PROCESS CONTEXT
+
+VendorLens handles the written proposal evaluation phase. The committee
+also conducts: scripted demonstrations using institutional data scenarios,
+reference calls with peer institution CFOs and CHROs, and a parallel
+cost modeling exercise to validate disclosed TCO figures.

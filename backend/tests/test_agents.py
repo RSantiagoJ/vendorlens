@@ -41,9 +41,9 @@ CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"
 
 VENDORS = [
-    ("vendor_a_blackboard.txt", "Vendor A (Blackboard)"),
-    ("vendor_b_canvas.txt", "Vendor B (Canvas)"),
-    ("vendor_c_brightspace.txt", "Vendor C (Brightspace)"),
+    ("blackboard.txt", "Blackboard"),
+    ("canvas.txt", "Canvas"),
+    ("brightspace.txt", "Brightspace"),
 ]
 
 

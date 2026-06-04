@@ -193,6 +193,31 @@ disaster recovery uptime history, sandbox and pilot environment availability
 
 ---
 
+INNOVATION & AI ROADMAP (weight: 0.05)
+
+Evaluate: 18-24 month product roadmap transparency, AI/ML feature development plans,
+release cadence, R&D investment evidence, responsiveness to higher education community feedback
+
+10 = Detailed 18-24 month roadmap with committed feature timelines provided with proposal.
+     Explicit AI/ML capability plan (e.g., AI-assisted grading, early alert, auto-captioning,
+     adaptive learning). Clear release cadence with version history.
+     Documented higher education advisory board or user community influencing roadmap.
+     R&D investment percentage or dedicated headcount disclosed.
+
+7-9 = Roadmap provided for 12-18 months. AI features identified but timelines less specific.
+      Regular release cycle evident. Community feedback mechanisms documented.
+
+4-6 = High-level roadmap only. AI features mentioned but no committed timeline.
+      Release history shows infrequent major updates. Minimal detail on how customer
+      feedback influences development.
+
+1-3 = Vague or aspirational roadmap. No AI development plan. Unclear release cadence.
+      No evidence of active product investment.
+
+0 = No roadmap provided. Product appears stagnant or end-of-life status unclear.
+
+---
+
 RISK LEVEL (weight: 0.05 — INVERTED: higher score = fewer HIGH severity risk flags)
 
 10 = Zero HIGH severity risk flags

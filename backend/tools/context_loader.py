@@ -19,11 +19,17 @@ BUNDLES: dict[str, dict] = {
         "description": "Learning Management System evaluation for multi-campus university",
         "dir": "context_bundle",
     },
-    "cyber": {
-        "id": "cyber",
-        "label": "Cybersecurity Services RFP",
-        "description": "Managed security services evaluation against NIST/FedRAMP standards",
-        "dir": "context_bundle_cyber",
+    "payroll": {
+        "id": "payroll",
+        "label": "Payroll Processing RFP",
+        "description": "Full-service payroll processor evaluation for accuracy, compliance, and integration",
+        "dir": "context_bundle_payroll",
+    },
+    "erp": {
+        "id": "erp",
+        "label": "Finance & HR Platform RFP",
+        "description": "Enterprise ERP evaluation for financial management, HR, and payroll",
+        "dir": "context_bundle_erp",
     },
 }
 

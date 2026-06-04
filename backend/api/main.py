@@ -21,9 +21,10 @@ from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Pre-warm the default pipeline so the first request doesn't pay cold-start cost.
+    # Pre-warm all bundle pipelines so no request pays cold-start cost.
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(_executor, lambda: _get_pipeline(DEFAULT_BUNDLE))
+    for bundle_id in BUNDLES:
+        loop.run_in_executor(_executor, lambda b=bundle_id: _get_pipeline(b))
     yield
 
 
@@ -66,6 +67,10 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         job["events"].append({"type": event_type, "data": data})
 
     try:
+        # Emit extracting immediately so the UI shows activity before any LLM call.
+        emit("extracting", {"status": "extracting"})
+        seen_stages: set[str] = {"extracting"}
+
         pending = [
             {"filename": name, "raw_text": content.decode("utf-8", errors="replace")}
             for name, content in file_contents
@@ -82,7 +87,6 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         }
 
         final: dict = {k: v for k, v in initial_state.items()}
-        seen_stages: set[str] = set()
 
         for chunk in _get_pipeline(bundle_id).stream(initial_state, stream_mode="updates"):
             for node_name, updates in chunk.items():
@@ -134,6 +138,15 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.post("/reload")
+def reload() -> dict:
+    """Clear the in-memory pipeline cache so the next request loads a fresh ChromaDB index.
+    Call this after running scripts/ingest.py without restarting the API container.
+    """
+    _pipelines.clear()
+    return {"status": "ok", "message": "Pipeline cache cleared — fresh index loads on next request."}
 
 
 @app.get("/bundles")

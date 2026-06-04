@@ -375,11 +375,42 @@ team could drop in their own documents and run this against their RFP."
 
 "This took 15 seconds. It would have taken a contracts analyst half a day."
 
-## TODO - implement option to change rfp criteria dropdown
+## Post-Day 6 enhancements (completed)
 
-## TODO - Remove rfp label in results
+### RFP bundle system
+- Added multi-bundle support: LMS, Payroll Processing, Finance & HR (ERP)
+- Each bundle has its own `context_bundle_<id>/` directory with `policy.txt`,
+  `rfp_criteria_<id>.txt`, and `scoring_rubric_<id>.txt`
+- Bundle registered in `tools/context_loader.py` → `BUNDLES` dict
+- Frontend bundle selector uses icons per bundle (laptop / coins / bank)
+- Default bundle is `lms`
 
-## TODO - Check that extraction is done with gemini
+### Scoring dimensions
+- Added `innovation_roadmap` as a 9th scoring dimension across all bundles
+- LMS: `enterprise_readiness` reduced 0.10 → 0.05 to make room; new dimension at 0.05
+- All three bundles updated (rfp_criteria + scoring_rubric files)
+- `ScoreCard` in `graph/state.py` and `lib/types.ts` updated
+- `ScoringAgent` weight check updated from 8 → 9
+
+### Vendor proposals
+- `dummy_docs/` renamed to `vendor_proposals/` and organized into subfolders: `lms/`, `payroll/`, `erp/`
+- Filenames simplified: `vendor_a_blackboard.txt` → `lms/blackboard.txt` etc.
+- `scripts/ingest.py` updated: `recursive=True`, `file_metadata` override stores bare filename so ChromaDB filters still work
+- `tools/mcp_server.py` updated: `rglob()` to find files across subfolders
+- Real-company dummy proposals written for all three bundles:
+  - LMS: Blackboard (Anthology), Canvas (Instructure), Brightspace (D2L)
+  - Payroll: ADP Workforce Now, Ceridian Dayforce, Paylocity
+  - ERP: Workday Financials + HCM, Oracle Cloud ERP + HCM, Unit4 ERP for Education
+
+### UI improvements
+- **Winner banner**: recommended vendor name and score shown at the top of results before vendor cards
+- **Live view layout**: AgentProgressBar (left) and ThinkingLog (right) side by side during processing
+- **Risk flag tooltips**: hovering a risk badge shows explanation + recommendation in a Mantine Tooltip
+- **Score color legend**: ≥7 Strong · 4–6 Fair · <4 Weak shown below overall score bar
+- **Risk severity legend**: HIGH · MEDIUM · LOW color key inline with the "Risk Flags" heading
+- **RFP category badge**: moved from floating next to progress bar into the winner banner
+- **Live activity log**: updated to say "Gemini Flash" (not "Claude Sonnet") for extraction and risk stages
+- All institution-specific text (UMPO, UMass, SVM-01, LMS-specific labels) removed from frontend copy
 
 ## Day 7 optional: Dropbox connector
 

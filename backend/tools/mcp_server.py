@@ -21,7 +21,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 BASE_DIR = Path(__file__).parent.parent
-DOCS_DIR = BASE_DIR / "data" / "dummy_docs"
+DOCS_DIR = BASE_DIR / "data" / "vendor_proposals"
 POLICY_PATH = BASE_DIR / "data" / "context_bundle" / "policy.txt"
 
 
@@ -52,11 +52,11 @@ mcp = FastMCP("VendorLens Tools")
 # ---------------------------------------------------------------------------
 
 def _document_reader(filename: str) -> str:
-    """Return full text of a proposal document from data/dummy_docs/."""
-    path = DOCS_DIR / filename
-    if not path.exists():
+    """Return full text of a proposal document from data/vendor_proposals/."""
+    matches = list(DOCS_DIR.rglob(filename))
+    if not matches:
         return f"ERROR: file not found: {filename}"
-    return path.read_text(encoding="utf-8")
+    return matches[0].read_text(encoding="utf-8")
 
 
 def _policy_lookup(query: str) -> str:  # default bundle (LMS)
@@ -99,7 +99,7 @@ def document_reader(filename: str) -> str:
     """Return the full text of a vendor proposal document.
 
     Args:
-        filename: The file name only, e.g. vendor_a_pulsemedia.txt
+        filename: The file name only, e.g. blackboard.txt
     """
     return _document_reader(filename)
 

@@ -44,12 +44,12 @@ from graph.pipeline import build_pipeline
 from graph.state import ProposalState, VendorLensState
 
 BASE_DIR = Path(__file__).parent.parent
-DATA_DIR = BASE_DIR / "data" / "dummy_docs"
+DATA_DIR = BASE_DIR / "data" / "vendor_proposals" / "lms"
 
 VENDORS = [
-    "vendor_a_blackboard.txt",
-    "vendor_b_canvas.txt",
-    "vendor_c_brightspace.txt",
+    "blackboard.txt",
+    "canvas.txt",
+    "brightspace.txt",
 ]
 
 
@@ -69,7 +69,7 @@ def run_pipeline():
     for filename in VENDORS[: args.count]:
         path = DATA_DIR / filename
         if not path.exists():
-            sys.exit(f"ERROR: {path} not found. Check data/dummy_docs/")
+            sys.exit(f"ERROR: {path} not found. Check data/vendor_proposals/lms/")
         pending.append({"filename": filename, "raw_text": path.read_text()})
 
     initial_state = {

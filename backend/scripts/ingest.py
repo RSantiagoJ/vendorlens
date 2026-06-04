@@ -1,21 +1,24 @@
 """
 ingest.py — VendorLens RAG ingestion script.
 
-Loads vendor proposal text files from data/dummy_docs/ into ChromaDB
-using LlamaIndex with Google embeddings. Stores filename as metadata
-so agents can filter retrieval to a specific vendor document.
+Loads all vendor proposal text files from data/vendor_proposals/ (all bundle
+subfolders: lms/, payroll/, erp/) into ChromaDB using LlamaIndex with Google
+embeddings. Stores the bare filename as metadata so agents can filter retrieval
+to a specific vendor document regardless of which subfolder it lives in.
 
 Run once before starting the pipeline:
     cd backend
     python scripts/ingest.py
 
-Re-run if dummy_docs/ changes. ChromaDB is persisted to data/chroma_db/
-and skipped on subsequent runs unless --force is passed.
+Re-run with --force if vendor_proposals/ changes. ChromaDB is persisted to
+data/chroma_db/ and skipped on subsequent runs unless --force is passed.
 """
 
 import argparse
 import os
 import sys
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -43,7 +46,7 @@ import chromadb
 # Paths
 # ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).parent.parent
-DOCS_DIR = BASE_DIR / "data" / "dummy_docs"
+DOCS_DIR = BASE_DIR / "data" / "vendor_proposals"
 CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
 COLLECTION_NAME = "vendor_proposals"
 
@@ -82,6 +85,8 @@ def build_index(force: bool = False) -> VectorStoreIndex:
         input_dir=str(DOCS_DIR),
         required_exts=[".txt"],
         filename_as_id=True,
+        recursive=True,
+        file_metadata=lambda p: {"file_name": Path(p).name},
     ).load_data()
     print(f"  Loaded {len(documents)} document(s): "
           f"{[d.metadata.get('file_name') for d in documents]}")
@@ -131,3 +136,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
     build_index(force=args.force)
     print("Ingestion complete.")
+
+    # Signal the running API to reload its index cache.
+    # If the API isn't running yet, this step is skipped — the fresh index
+    # will be loaded automatically when the API starts.
+    try:
+        req = urllib.request.Request(
+            "http://localhost:8000/reload",
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            if resp.status == 200:
+                print("  API cache reloaded — new index is live immediately.")
+    except urllib.error.URLError:
+        print("  API not running — fresh index will load on next 'docker compose up api'.")

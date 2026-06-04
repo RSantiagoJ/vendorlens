@@ -77,6 +77,7 @@ class ScoreCard(BaseModel):
     security_and_compliance: DimensionScore
     support_and_training: DimensionScore
     enterprise_readiness: DimensionScore
+    innovation_roadmap: DimensionScore
     risk_level: DimensionScore
     overall: float
 

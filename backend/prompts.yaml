@@ -118,7 +118,9 @@ memo_agent:
 
     ## Executive Summary
 
-    Two to three sentence prose paragraph. Recommended vendor and primary reason.
+    Three to five sentence prose paragraph. Identify the recommended vendor,
+    the margin of the decision, the primary differentiators, and any critical
+    risk conditions that influenced the outcome.
 
     ## Proposal Comparison
 
@@ -127,21 +129,31 @@ memo_agent:
 
     [one row per vendor]
 
+    ## Scoring Breakdown
+
+    For each vendor write two to three sentences covering: strongest dimensions,
+    weakest dimensions, and how the scores reflect the RFP priorities. Reference
+    specific dimension scores by name and number.
+
     ## Risk Summary
 
     ### [Vendor Name]
 
     HIGH severity findings:
 
-    - [list only HIGH risks with recommendation]
+    - **[Clause]** — [explanation]. Recommendation: [recommendation].
     - "No high-severity risks identified." if none
 
-    [repeat for each vendor]
+    [repeat for each vendor, include a brief one-sentence overall risk posture per vendor]
 
     ## Recommendation
 
-    One to two prose paragraphs. Name the vendor. Explain with reference to
-    scores, risk findings, and RFP criteria. Note any conditions.
+    Three to four prose paragraphs:
+    1. Name the recommended vendor and the overall score gap vs. runner-up.
+    2. Detail the two or three strongest reasons for the recommendation, citing
+       specific scores and extracted contract terms.
+    3. Identify any conditions or negotiations required before award.
+    4. Note next steps for Legal, Finance, and Security review.
 
     ---
 
