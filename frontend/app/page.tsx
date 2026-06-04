@@ -5,6 +5,7 @@ import { MemoPanel } from "@/components/MemoPanel";
 import { ProposalCard } from "@/components/ProposalCard";
 import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
+import { VendorComparisonTable } from "@/components/VendorComparisonTable";
 import { VendorRadarChart } from "@/components/VendorRadarChart";
 import { DEMO_RESULT } from "@/lib/fixtures";
 import type { AnalysisResult, Bundle, Stage } from "@/lib/types";
@@ -252,6 +253,7 @@ export default function Home() {
                       />
                     ))}
                   </SimpleGrid>
+                  <VendorComparisonTable proposals={sortedProposals} winner={winner} />
                   <VendorRadarChart proposals={sortedProposals} />
                   {result.memo && <MemoPanel memo={result.memo} />}
                 </Stack>
