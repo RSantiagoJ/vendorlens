@@ -120,15 +120,12 @@ def build_pipeline(bundle_id: str = "lms"):
     # -----------------------------------------------------------------------
 
     def fan_out_extraction(state: PipelineState) -> List[Send]:
-        """Dispatch one extraction_node per pending proposal."""
         return [Send("extraction_node", p) for p in state["pending"]]
 
     def fan_out_risk(state: PipelineState) -> List[Send]:
-        """Dispatch one risk_node per extracted proposal."""
         return [Send("risk_node", p) for p in state["extracted"]]
 
     def fan_out_scoring(state: PipelineState) -> List[Send]:
-        """Dispatch one scoring_node per risk-analyzed proposal."""
         return [Send("scoring_node", p) for p in state["with_risks"]]
 
     # -----------------------------------------------------------------------
@@ -136,7 +133,6 @@ def build_pipeline(bundle_id: str = "lms"):
     # -----------------------------------------------------------------------
 
     def extraction_node(raw: dict) -> dict:
-        """Extract structured data from one raw proposal (runs in parallel)."""
         try:
             proposal_data = extraction_agent.extract(raw["filename"])
             proposal = ProposalState(
@@ -150,7 +146,6 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"extracted": [proposal.model_dump()], "error": str(e)}
 
     def risk_node(proposal_dict: dict) -> dict:
-        """Run risk analysis on one proposal (runs in parallel)."""
         try:
             p = ProposalState(**proposal_dict)
             if p.extracted:
@@ -161,7 +156,6 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"with_risks": [proposal_dict], "error": str(e)}
 
     def scoring_node(proposal_dict: dict) -> dict:
-        """Score one proposal (runs in parallel)."""
         try:
             p = ProposalState(**proposal_dict)
             if p.extracted:
@@ -172,7 +166,6 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"proposals": [proposal_dict], "error": str(e)}
 
     def memo_node(state: PipelineState) -> dict:
-        """Write the recommendation memo from all scored proposals."""
         try:
             proposals = [ProposalState(**p) for p in state["proposals"]]
             memo = memo_agent.write(proposals)

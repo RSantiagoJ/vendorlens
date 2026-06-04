@@ -3,7 +3,7 @@ import json
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator
 
 from dotenv import load_dotenv
 
@@ -22,7 +22,7 @@ from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Pre-warm all bundle pipelines so no request pays cold-start cost.
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     for bundle_id in BUNDLES:
         loop.run_in_executor(_executor, lambda b=bundle_id: _get_pipeline(b))
     yield
@@ -86,7 +86,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
             "error": None,
         }
 
-        final: dict = {k: v for k, v in initial_state.items()}
+        final = dict(initial_state)
 
         for chunk in _get_pipeline(bundle_id).stream(initial_state, stream_mode="updates"):
             for node_name, updates in chunk.items():
@@ -157,7 +157,7 @@ def list_bundles() -> list[dict]:
 @app.post("/analyze", response_model=AnalyzeResponse)
 async def analyze(
     files: list[UploadFile],
-    bundle: Optional[str] = Form(DEFAULT_BUNDLE),
+    bundle: str | None = Form(DEFAULT_BUNDLE),
 ) -> AnalyzeResponse:
     if not files:
         raise HTTPException(status_code=422, detail="At least one file is required.")
@@ -169,8 +169,7 @@ async def analyze(
 
     file_contents = [(f.filename or f"file_{i}", await f.read()) for i, f in enumerate(files)]
 
-    loop = asyncio.get_event_loop()
-    loop.run_in_executor(_executor, _run_pipeline, job_id, file_contents, bundle)
+    asyncio.get_running_loop().run_in_executor(_executor, _run_pipeline, job_id, file_contents, bundle)
 
     return AnalyzeResponse(job_id=job_id)
 

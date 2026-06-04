@@ -1,4 +1,3 @@
-from typing import Optional, List
 from pydantic import BaseModel
 
 from graph.state import ProposalData, RiskFlag, ScoreCard
@@ -10,16 +9,16 @@ class AnalyzeResponse(BaseModel):
 
 class ProposalResult(BaseModel):
     filename: str
-    vendor_name: Optional[str] = None
-    extracted: Optional[ProposalData] = None
-    risks: Optional[List[RiskFlag]] = None
-    scores: Optional[ScoreCard] = None
+    vendor_name: str | None = None
+    extracted: ProposalData | None = None
+    risks: list[RiskFlag] | None = None
+    scores: ScoreCard | None = None
 
 
 class AnalysisResult(BaseModel):
     job_id: str
     bundle_id: str = "lms"
-    proposals: List[ProposalResult]
-    memo: Optional[str] = None
+    proposals: list[ProposalResult]
+    memo: str | None = None
     status: str
-    error: Optional[str] = None
+    error: str | None = None
