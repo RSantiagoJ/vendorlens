@@ -14,25 +14,26 @@ const STAGE_LINES: Record<ActiveStage, string[]> = {
     "Running semantic search → security certifications, DPA",
     "Running semantic search → features, SLA, integrations",
     "Deduplicating retrieved context chunks",
-    "Calling Claude Sonnet to extract structured fields...",
+    "Calling Gemini Flash to extract structured fields...",
     "Parsing JSON response into ProposalData model",
   ],
   risk: [
-    "Loading UMPO procurement policy (SVM-01)...",
+    "Loading institutional procurement policy...",
     "Checking security certification requirements (SOC 2 Type II, ISO 27001)",
     "Checking renewal and auto-renewal clauses",
     "Checking data ownership and AI training provisions",
     "Checking governing law and jurisdiction",
     "Checking liability cap against policy minimums",
-    "Calling Claude Sonnet to classify risk severity (HIGH / MEDIUM / LOW)...",
+    "Calling Gemini Flash to classify risk severity (HIGH / MEDIUM / LOW)...",
   ],
   scoring: [
-    "Loading LMS RFP criteria and scoring rubric...",
+    "Loading RFP criteria and scoring rubric...",
     "Evaluating platform functionality (weight: 25%)",
     "Evaluating accessibility and WCAG compliance (15%)",
     "Evaluating integration capability (15%)",
     "Evaluating security and compliance (15%)",
     "Evaluating pricing transparency and support (10% each)",
+    "Evaluating innovation and AI product roadmap (5%)",
     "Calling Gemini Flash to score each dimension (0–10)...",
     "Computing weighted overall scores",
   ],
@@ -125,9 +126,16 @@ export function ThinkingLog({ stage }: Props) {
     });
   }, [entries]);
 
-  if (entries.length === 0) return null;
+  const allCompletionLines: Entry[] = stage === "done" && entries.length === 0
+    ? (["extracting", "risk", "scoring", "memo"] as ActiveStage[]).map((s) => ({
+        text: COMPLETION_LINES[s],
+        stage: s,
+        completion: true,
+      }))
+    : [];
 
-  const lastIndex = entries.length - 1;
+  const displayEntries = entries.length > 0 ? entries : allCompletionLines;
+  if (displayEntries.length === 0) return null;
 
   return (
     <Paper p="md" radius="md" withBorder bg="white" w="100%" maw={640} mx="auto" className="fadeIn">
@@ -142,8 +150,8 @@ export function ThinkingLog({ stage }: Props) {
 
       <ScrollArea h={180} viewportRef={viewportRef} scrollbarSize={4}>
         <Stack gap={3} pr="xs">
-          {entries.map((entry, i) => {
-            const isLast = i === lastIndex;
+          {displayEntries.map((entry, i) => {
+            const isLast = i === displayEntries.length - 1;
             const isDimmed = !isLast && !entry.completion;
 
             return (

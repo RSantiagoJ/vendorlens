@@ -1,34 +1,47 @@
 "use client";
 
-import { Paper, Group, Stack, Text, ThemeIcon, Loader, Box } from "@mantine/core";
-import {
-  IconSearch, IconShieldCheck, IconChartBar, IconFileText, IconCheck,
-} from "@tabler/icons-react";
 import type { Stage } from "@/lib/types";
+import { Group, Loader, Paper, Stack, Text, ThemeIcon } from "@mantine/core";
+import {
+  IconChartBar,
+  IconCheck,
+  IconFileText,
+  IconSearch,
+  IconShieldCheck,
+} from "@tabler/icons-react";
 
-const STAGES: { key: Stage; label: string; description: string; icon: React.ReactNode }[] = [
+const STAGES: {
+  key: Stage;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+}[] = [
   {
     key: "extracting",
     label: "Extracting",
-    description: "Reading each proposal and pulling out structured data — pricing, contract terms, SLA, certifications, and more.",
+    description:
+      "Reading each proposal and pulling out structured data such as pricing, contract terms, SLA, certifications, and more.",
     icon: <IconSearch size={18} />,
   },
   {
     key: "risk",
     label: "Risk Analysis",
-    description: "Checking contract clauses against UMPO procurement policy for compliance violations and red flags.",
+    description:
+      "Checking contract clauses against institutional procurement policy for compliance violations and red flags.",
     icon: <IconShieldCheck size={18} />,
   },
   {
     key: "scoring",
     label: "Scoring",
-    description: "Evaluating each vendor against the LMS RFP criteria — functionality, accessibility, integrations, support, and pricing.",
+    description:
+      "Evaluating each vendor against the RFP criteria such as functionality, accessibility, integrations, support, and pricing.",
     icon: <IconChartBar size={18} />,
   },
   {
     key: "memo",
     label: "Writing Memo",
-    description: "Synthesizing risk flags and scores into a recommendation memo for the procurement committee.",
+    description:
+      "Synthesizing risk flags and scores into a recommendation memo for the procurement committee.",
     icon: <IconFileText size={18} />,
   },
 ];
@@ -39,7 +52,10 @@ function stageIndex(stage: Stage): number {
   return STAGE_ORDER.indexOf(stage);
 }
 
-function getStageStatus(stageKey: Stage, currentStage: Stage): "done" | "active" | "pending" {
+function getStageStatus(
+  stageKey: Stage,
+  currentStage: Stage,
+): "done" | "active" | "pending" {
   if (currentStage === "done") return "done";
   const current = stageIndex(currentStage);
   const mine = stageIndex(stageKey);
@@ -54,8 +70,23 @@ interface Props {
 
 export function AgentProgressBar({ stage }: Props) {
   return (
-    <Paper p="lg" radius="md" withBorder bg="white" w="100%" maw={640} mx="auto">
-      <Text fw={600} size="sm" c="dimmed" mb="md" tt="uppercase" style={{ letterSpacing: "0.05em" }}>
+    <Paper
+      p="lg"
+      radius="md"
+      withBorder
+      bg="white"
+      w="100%"
+      maw={640}
+      mx="auto"
+    >
+      <Text
+        fw={600}
+        size="sm"
+        c="dimmed"
+        mb="md"
+        tt="uppercase"
+        style={{ letterSpacing: "0.05em" }}
+      >
         Analysis in progress
       </Text>
       <Stack gap="xs">
@@ -70,8 +101,12 @@ export function AgentProgressBar({ stage }: Props) {
               py="sm"
               radius="md"
               style={{
-                background: isActive ? "var(--mantine-color-umblue-0)" : "transparent",
-                border: isActive ? "1px solid var(--mantine-color-umblue-2)" : "1px solid transparent",
+                background: isActive
+                  ? "var(--mantine-color-umblue-0)"
+                  : "transparent",
+                border: isActive
+                  ? "1px solid var(--mantine-color-umblue-2)"
+                  : "1px solid transparent",
                 transition: "all 150ms ease",
               }}
             >

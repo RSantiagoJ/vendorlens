@@ -7,13 +7,14 @@ import {
 } from "@mantine/core";
 import {
   IconUpload, IconFile, IconX, IconFileAnalytics,
-  IconDeviceLaptop, IconShieldLock,
+  IconDeviceLaptop, IconCoins, IconBuildingBank,
 } from "@tabler/icons-react";
 import type { Bundle } from "@/lib/types";
 
 const BUNDLE_ICONS: Record<string, React.ReactNode> = {
   lms: <IconDeviceLaptop size={14} />,
-  cyber: <IconShieldLock size={14} />,
+  payroll: <IconCoins size={14} />,
+  erp: <IconBuildingBank size={14} />,
 };
 
 interface Props {

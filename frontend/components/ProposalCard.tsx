@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   Paper, Text, Group, Stack, Badge, Progress, Collapse,
-  Button, Divider, Box, ThemeIcon,
+  Button, Divider, Box, ThemeIcon, Tooltip,
 } from "@mantine/core";
 import {
   IconBuilding, IconChevronDown, IconChevronUp, IconAlertTriangle, IconAward,
@@ -18,6 +18,7 @@ const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string }[] = [
   { key: "security_and_compliance", label: "Security & Compliance" },
   { key: "support_and_training", label: "Support & Training" },
   { key: "enterprise_readiness", label: "Enterprise Readiness" },
+  { key: "innovation_roadmap", label: "Innovation Roadmap" },
   { key: "risk_level", label: "Risk Level" },
 ];
 
@@ -57,9 +58,10 @@ function riskColor(severity: RiskFlag["severity"]): string {
 interface Props {
   proposal: ProposalResult;
   recommended?: boolean;
+  showBadge?: boolean;
 }
 
-export function ProposalCard({ proposal, recommended = false }: Props) {
+export function ProposalCard({ proposal, recommended = false, showBadge = true }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const { vendor_name, scores, risks, extracted, filename } = proposal;
 
@@ -86,12 +88,12 @@ export function ProposalCard({ proposal, recommended = false }: Props) {
       }}
     >
       <Stack gap="md">
-        {/* Recommended banner */}
-        {recommended && (
+        {/* Best Choice banner */}
+        {recommended && showBadge && (
           <Group gap="xs" align="center">
             <IconAward size={16} color="var(--mantine-color-umgreen-6)" />
             <Text size="xs" fw={700} tt="uppercase" c="umgreen.6" style={{ letterSpacing: "0.06em" }}>
-              Recommended
+              Best Choice
             </Text>
           </Group>
         )}
@@ -110,27 +112,45 @@ export function ProposalCard({ proposal, recommended = false }: Props) {
             </Box>
           </Group>
           {overall !== null && (
-            <Box ta="center" style={{ minWidth: 64 }}>
+            <Stack align="center" gap={4} style={{ minWidth: 72 }}>
               <Text
                 size="2rem"
                 fw={800}
-                style={{ color: scoreTextColor(overall), lineHeight: 1 }}
+                style={{ color: scoreTextColor(overall / 10), lineHeight: 1 }}
               >
-                {overall.toFixed(1)}
+                {Math.round(overall)}
               </Text>
-              <Text size="xs" c="dimmed" fw={500}>/ 10</Text>
-            </Box>
+              <Text size="xs" c="dimmed" fw={500}>/ 100</Text>
+              <Badge
+                size="xs"
+                radius="sm"
+                variant="outline"
+                color={overall >= 70 ? "umgreen" : overall >= 40 ? "umyellow" : "ummaroon"}
+              >
+                {overall >= 70 ? "Meets" : overall >= 40 ? "Review" : "Fails"}
+              </Badge>
+            </Stack>
           )}
         </Group>
 
         {/* Overall score bar */}
         {overall !== null && (
-          <Progress
-            value={(overall / 10) * 100}
-            color={scoreColor(overall)}
-            size="lg"
-            radius="xl"
-          />
+          <>
+            <Progress
+              value={overall}
+              color={scoreColor(overall / 10)}
+              size="lg"
+              radius="xl"
+            />
+            <Group gap="xs">
+              {(["umgreen", "umyellow", "ummaroon"] as const).map((color, i) => (
+                <Group key={color} gap={4} align="center">
+                  <Box w={8} h={8} style={{ borderRadius: "50%", background: `var(--mantine-color-${color}-6)` }} />
+                  <Text size="xs" c="dimmed">{["≥ 7 Strong", "4–6 Fair", "< 4 Weak"][i]}</Text>
+                </Group>
+              ))}
+            </Group>
+          </>
         )}
 
         {/* Dimension scores */}
@@ -163,24 +183,51 @@ export function ProposalCard({ proposal, recommended = false }: Props) {
           <>
             <Divider />
             <Stack gap="xs">
-              <Group gap="xs" align="center">
-                <IconAlertTriangle size={14} color="var(--mantine-color-gray-6)" />
-                <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.05em" }}>
-                  Risk Flags
-                </Text>
+              <Group gap="xs" align="center" justify="space-between">
+                <Group gap="xs" align="center">
+                  <IconAlertTriangle size={14} color="var(--mantine-color-gray-6)" />
+                  <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.05em" }}>
+                    Risk Flags
+                  </Text>
+                </Group>
+                <Group gap="xs">
+                  {(["HIGH", "MEDIUM", "LOW"] as const).map((s) => (
+                    <Badge key={s} color={riskColor(s)} variant={s === "HIGH" ? "filled" : "light"} size="xs" radius="sm">
+                      {s}
+                    </Badge>
+                  ))}
+                </Group>
               </Group>
               <Group gap="xs" wrap="wrap">
                 {sortedRisks.map((risk, i) => (
-                  <Badge
+                  <Tooltip
                     key={i}
-                    color={riskColor(risk.severity)}
-                    variant={risk.severity === "HIGH" ? "filled" : "light"}
-                    size="sm"
-                    radius="sm"
-                    title={risk.explanation}
+                    label={
+                      <Stack gap={4} p={4}>
+                        <Text size="xs" fw={600}>{risk.clause}</Text>
+                        <Text size="xs">{risk.explanation}</Text>
+                        {risk.recommendation && (
+                          <Text size="xs" c="dimmed" style={{ fontStyle: "italic" }}>
+                            → {risk.recommendation}
+                          </Text>
+                        )}
+                      </Stack>
+                    }
+                    multiline
+                    w={280}
+                    withArrow
+                    position="top"
                   >
-                    {risk.clause.length > 40 ? risk.clause.slice(0, 38) + "…" : risk.clause}
-                  </Badge>
+                    <Badge
+                      color={riskColor(risk.severity)}
+                      variant={risk.severity === "HIGH" ? "filled" : "light"}
+                      size="sm"
+                      radius="sm"
+                      style={{ cursor: "help" }}
+                    >
+                      {risk.clause.length > 40 ? risk.clause.slice(0, 38) + "…" : risk.clause}
+                    </Badge>
+                  </Tooltip>
                 ))}
               </Group>
             </Stack>

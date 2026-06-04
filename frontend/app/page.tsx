@@ -1,31 +1,53 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import {
-  AppShell, Box, Group, Text, Container, Stack, Alert, Button,
-  SimpleGrid, Badge,
-} from "@mantine/core";
-import { IconRefresh, IconAlertCircle } from "@tabler/icons-react";
-import { Logo } from "@/logo";
-import { UploadZone } from "@/components/UploadZone";
 import { AgentProgressBar } from "@/components/AgentProgressBar";
-import { ThinkingLog } from "@/components/ThinkingLog";
-import { ProposalCard } from "@/components/ProposalCard";
 import { MemoPanel } from "@/components/MemoPanel";
+import { ProposalCard } from "@/components/ProposalCard";
+import { ThinkingLog } from "@/components/ThinkingLog";
+import { UploadZone } from "@/components/UploadZone";
+import { DEMO_RESULT } from "@/lib/fixtures";
 import type { AnalysisResult, Bundle, Stage } from "@/lib/types";
+import { Logo } from "@/logo";
+import {
+  Alert,
+  AppShell,
+  Box,
+  Button,
+  Container,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@mantine/core";
+import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 const API_BASE = "http://localhost:8000";
 
 type AppState = "idle" | "uploading" | "processing" | "done" | "error";
 
 export default function Home() {
-  const [appState, setAppState] = useState<AppState>("idle");
-  const [stage, setStage] = useState<Stage>(null);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const searchParams = useSearchParams();
+  const isDemo = searchParams.has("demo");
+  const [appState, setAppState] = useState<AppState>(isDemo ? "done" : "idle");
+  const [stage, setStage] = useState<Stage>(isDemo ? "done" : null);
+  const [result, setResult] = useState<AnalysisResult | null>(isDemo ? DEMO_RESULT : null);
+  const [selectedBundleId, setSelectedBundleId] = useState<string | null>(isDemo ? DEMO_RESULT.bundle_id : null);
   const [error, setError] = useState<string | null>(null);
   const [bundles, setBundles] = useState<Bundle[]>([
-    { id: "lms", label: "LMS Platform RFP", description: "Learning Management System evaluation for multi-campus university" },
-    { id: "cyber", label: "Cybersecurity Services RFP", description: "Managed security services evaluation against NIST/FedRAMP standards" },
+    {
+      id: "lms",
+      label: "LMS Platform RFP",
+      description:
+        "Learning Management System evaluation for multi-campus university",
+    },
+    {
+      id: "cyber",
+      label: "Cybersecurity Services RFP",
+      description:
+        "Managed security services evaluation against NIST/FedRAMP standards",
+    },
   ]);
 
   useEffect(() => {
@@ -44,6 +66,7 @@ export default function Home() {
 
   const handleSubmit = useCallback(async (files: File[], bundle: string) => {
     setAppState("uploading");
+    setSelectedBundleId(bundle);
     setError(null);
 
     try {
@@ -51,7 +74,10 @@ export default function Home() {
       files.forEach((f) => form.append("files", f));
       form.append("bundle", bundle);
 
-      const res = await fetch(`${API_BASE}/analyze`, { method: "POST", body: form });
+      const res = await fetch(`${API_BASE}/analyze`, {
+        method: "POST",
+        body: form,
+      });
       if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
 
       const { job_id } = await res.json();
@@ -91,7 +117,7 @@ export default function Home() {
     }
   }, []);
 
-  const activeBundle = result ? bundles.find((b) => b.id === result.bundle_id) : null;
+
 
   return (
     <AppShell header={{ height: 68 }}>
@@ -143,49 +169,77 @@ export default function Home() {
                   AI-Powered Vendor Analysis
                 </Text>
                 <Text c="dimmed" size="md">
-                  Upload vendor proposals and get structured extraction, risk flags,
-                  scoring, and a recommendation memo — in under a minute.
+                  Upload vendor proposals and get structured extraction, risk
+                  flags, scoring, and a recommendation memo in under a minute.
                 </Text>
               </Stack>
-              <UploadZone onSubmit={handleSubmit} loading={false} bundles={bundles} />
+              <UploadZone
+                onSubmit={handleSubmit}
+                loading={false}
+                bundles={bundles}
+              />
             </Stack>
           )}
 
           {appState === "uploading" && (
             <Stack align="center" gap="xl">
-              <UploadZone onSubmit={handleSubmit} loading={true} bundles={bundles} />
+              <UploadZone
+                onSubmit={handleSubmit}
+                loading={true}
+                bundles={bundles}
+              />
             </Stack>
           )}
 
-          {appState === "processing" && (
-            <Stack align="center" gap="md" pt="xl">
-              <AgentProgressBar stage={stage} />
-              <ThinkingLog stage={stage} />
-            </Stack>
-          )}
-
-          {appState === "done" && result && (() => {
-            const bestScore = Math.max(...result.proposals.map((p) => p.scores?.overall ?? -1));
+          {(appState === "processing" || appState === "done") && (() => {
+            const bundleId = result?.bundle_id ?? selectedBundleId;
+            const bundle = bundleId ? bundles.find((b) => b.id === bundleId) : null;
+            const scored = (result?.proposals ?? [])
+              .filter((p) => p.scores?.overall != null)
+              .sort((a, b) => b.scores!.overall - a.scores!.overall);
+            const winner = scored.length > 0 ? scored[0] : null;
+            const sortedProposals = [
+              ...scored,
+              ...(result?.proposals ?? []).filter((p) => p.scores?.overall == null),
+            ];
             return (
-              <Stack gap="xl" className="fadeIn">
-                <Group justify="space-between" align="center">
-                  <AgentProgressBar stage="done" />
-                  {activeBundle && (
-                    <Badge variant="light" color="umblue" size="md" radius="sm">
-                      {activeBundle.label}
-                    </Badge>
-                  )}
-                </Group>
-                <SimpleGrid cols={{ base: 1, md: Math.min(result.proposals.length, 3) }} spacing="md">
-                  {result.proposals.map((p) => (
-                    <ProposalCard
-                      key={p.filename}
-                      proposal={p}
-                      recommended={bestScore > 0 && p.scores?.overall === bestScore}
-                    />
-                  ))}
-                </SimpleGrid>
-                {result.memo && <MemoPanel memo={result.memo} />}
+              <Stack gap="xl" pt="xl">
+                {bundle && (
+                  <Box>
+                    <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
+                      {appState === "done" ? "RFP Evaluation" : "Evaluating"}
+                    </Text>
+                    <Text fw={700} size="xl" c="dark">{bundle.label}</Text>
+                    <Text size="sm" c="dimmed">
+                      {bundle.description}
+                      {appState === "done" && ` · ${sortedProposals.length} vendor${sortedProposals.length !== 1 ? "s" : ""} evaluated`}
+                    </Text>
+                  </Box>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--mantine-spacing-md)", alignItems: "flex-start" }}>
+                  <AgentProgressBar stage={appState === "done" ? "done" : stage} />
+                  <ThinkingLog stage={appState === "done" ? "done" : stage} />
+                </div>
+
+                {appState === "done" && result && (
+                  <Stack gap="xl" className="fadeIn">
+                    <SimpleGrid
+                      cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
+                      spacing="md"
+                    >
+                      {sortedProposals.map((p) => (
+                        <ProposalCard
+                          key={p.filename}
+                          proposal={p}
+                          recommended={winner !== null && p.filename === winner.filename}
+                          showBadge={sortedProposals.length > 1}
+                        />
+                      ))}
+                    </SimpleGrid>
+                    {result.memo && <MemoPanel memo={result.memo} />}
+                  </Stack>
+                )}
               </Stack>
             );
           })()}

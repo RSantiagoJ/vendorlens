@@ -23,7 +23,7 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
     <Title order={4} mb="xs" mt="sm" c="dark">{children}</Title>
   ),
   p: ({ children }) => (
-    <Text mb="sm" size="sm" lh={1.75} c="dark.7">{children}</Text>
+    <Text component="div" mb="sm" size="sm" lh={1.75} c="dark.7">{children}</Text>
   ),
   strong: ({ children }) => (
     <Text component="strong" fw={600} c="dark.8">{children}</Text>
@@ -74,7 +74,7 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
       radius="sm"
       style={{ borderLeft: "3px solid var(--mantine-color-umgreen-5)", background: "var(--mantine-color-gray-0)" }}
     >
-      <Text size="sm" c="dimmed" fs="italic">{children}</Text>
+      <Text component="div" size="sm" c="dimmed" fs="italic">{children}</Text>
     </Paper>
   ),
 };
