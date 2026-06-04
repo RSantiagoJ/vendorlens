@@ -18,6 +18,7 @@ class ProposalResult(BaseModel):
 
 class AnalysisResult(BaseModel):
     job_id: str
+    bundle_id: str = "lms"
     proposals: List[ProposalResult]
     memo: Optional[str] = None
     status: str

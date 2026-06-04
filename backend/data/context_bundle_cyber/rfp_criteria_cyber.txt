@@ -1,0 +1,103 @@
+VENDORLENS RFP EVALUATION CRITERIA
+Source: Higher Education Managed Cybersecurity Services RFP
+Scope: Enterprise security operations, threat detection, and incident response services
+
+EVALUATION DIMENSIONS AND WEIGHTS
+Scale: each dimension is scored 0–10. The weighted average is the overall score.
+Weights sum to exactly 1.00, so the maximum possible overall score is 10.0.
+
+core_lms_functionality         weight: 0.25   (Core Security Capability)
+accessibility_compliance       weight: 0.15   (Regulatory Framework Compliance)
+integration_interoperability   weight: 0.10   (Integration & Interoperability)
+pricing_and_licensing          weight: 0.10   (Pricing & Cost Transparency)
+security_and_compliance        weight: 0.20   (Vendor Security Posture)
+support_and_training           weight: 0.10   (Incident Response SLA & Training)
+enterprise_readiness           weight: 0.05   (Enterprise Readiness & Scale)
+risk_level                     weight: 0.05   (Contractual Risk)
+                               ────────────
+TOTAL WEIGHT:                             1.00  →  maximum overall score = 10.0
+
+STATED PRIORITIES FROM RFP
+
+"The University requires a managed security partner capable of providing 24x7
+threat detection, incident response, and security operations across a hybrid
+cloud and on-premises environment spanning all academic and administrative units."
+
+"Vendors must demonstrate current, audited security certifications and must
+provide documented incident response SLAs with contractual remedies for breach."
+
+"Total cost of ownership must be fully disclosed, including retainer fees,
+per-incident costs, and costs for forensic investigation services."
+
+CRITICAL (REQUIRED) FUNCTIONALITY — RFP Section 4
+
+CORE SECURITY CAPABILITY (core_lms_functionality):
+- 24x7 Security Operations Center (SOC) with staffed analyst tiers
+- SIEM platform with real-time log ingestion and correlation rules
+- Threat detection: network anomaly, endpoint behavioral, identity-based
+- Vulnerability scanning — authenticated, unauthenticated, and cloud asset coverage
+- Penetration testing: annual external, biennial internal, scoped on request
+- Threat intelligence feeds integrated into detection pipeline
+- Malware analysis and reverse engineering capability
+- Phishing simulation and campaign management platform
+- Dark web monitoring for credential exposure
+
+REGULATORY FRAMEWORK COMPLIANCE (accessibility_compliance):
+- SOC 2 Type II certification (current; issued within 18 months)
+- ISO 27001 certification preferred
+- FedRAMP authorization (Moderate or High) for cloud-delivered services
+- NIST CSF alignment documentation required
+- FERPA, GLBA, and applicable state data privacy law compliance documentation
+- Annual third-party penetration test summary with remediation evidence
+
+INTEGRATION & INTEROPERABILITY (integration_interoperability):
+- Integration with existing SIEM/SOAR platform (Splunk, Microsoft Sentinel, or equivalent)
+- Identity and access management integration (Active Directory, Azure AD, Okta)
+- Ticketing system integration (ServiceNow, Jira)
+- Cloud platform coverage: AWS, Azure, GCP
+- API access for custom automation and reporting pipelines
+- EDR/XDR platform interoperability (CrowdStrike, SentinelOne, or equivalent)
+
+PRICING & COST TRANSPARENCY (pricing_and_licensing):
+- Annual retainer fee with full scope of included services
+- Per-incident response and forensic investigation pricing disclosed
+- Pricing for add-on services: red team exercises, tabletop simulations, DLP
+- Multi-year pricing with escalation clauses fully disclosed
+- Cost for additional log sources or endpoints beyond base tier
+
+VENDOR SECURITY POSTURE (security_and_compliance):
+- Vendor's own SOC 2 Type II and ISO 27001 certification
+- Vendor's internal penetration test cadence and most recent findings summary
+- Bug bounty program or responsible disclosure policy
+- Supply chain security controls and third-party risk management program
+- Data residency and sovereignty controls for University data processed by vendor
+
+INCIDENT RESPONSE SLA & TRAINING (support_and_training):
+- Mean time to detect (MTTD) SLA with contractual penalty
+- Mean time to contain (MTTC) SLA with contractual penalty
+- Mean time to remediate (MTTR) SLA with contractual penalty
+- Dedicated incident response retainer with guaranteed response hours
+- Security awareness training platform included or available as add-on
+- Tabletop exercise facilitation (minimum annual)
+- Quarterly threat briefing and executive reporting
+
+ENTERPRISE READINESS & SCALE (enterprise_readiness):
+- Track record with higher education or public sector clients at similar scale
+- At least three peer institution references
+- Documented capacity for multi-campus, multi-cloud environments
+- Uptime SLA for SOC platform and monitoring infrastructure (target: 99.9%)
+- Succession and key-person risk mitigation plan
+
+CONTRACTUAL RISK (risk_level):
+- Liability cap of at least five times annual contract value for security incidents
+- Data breach notification within 24 hours of discovery
+- Indemnification clause covering third-party claims arising from vendor negligence
+- Governing law: institution's home state
+- Right to audit vendor security controls annually
+- Data return and destruction obligations at contract termination
+
+EVALUATION PROCESS CONTEXT
+
+VendorLens handles the written proposal evaluation phase. The committee
+also conducts: technical demonstrations, proof-of-concept testing with
+institutional log sources, and reference interviews with peer institutions.

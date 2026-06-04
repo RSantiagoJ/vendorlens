@@ -24,6 +24,26 @@ BASE_DIR = Path(__file__).parent.parent
 DOCS_DIR = BASE_DIR / "data" / "dummy_docs"
 POLICY_PATH = BASE_DIR / "data" / "context_bundle" / "policy.txt"
 
+
+def make_policy_lookup(policy_path: Path):
+    """Return a policy_lookup function bound to a specific policy file."""
+    def _lookup(query: str) -> str:
+        if not policy_path.exists():
+            return f"ERROR: policy file not found at {policy_path}"
+        policy_text = policy_path.read_text(encoding="utf-8")
+        sections = [s.strip() for s in re.split(r"(?=SECTION \d+:)", policy_text) if s.strip()]
+        query_words = {w.lower() for w in re.split(r"\W+", query) if len(w) > 2}
+        scored = []
+        for section in sections:
+            hits = sum(1 for w in query_words if w in section.lower())
+            if hits > 0:
+                scored.append((hits, section))
+        if not scored:
+            return policy_text
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return "\n\n".join(text for _, text in scored[:3])
+    return _lookup
+
 mcp = FastMCP("VendorLens Tools")
 
 
@@ -39,7 +59,7 @@ def _document_reader(filename: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def _policy_lookup(query: str) -> str:
+def _policy_lookup(query: str) -> str:  # default bundle (LMS)
     """Search UMPO policy.txt for sections relevant to the query.
 
     Splits policy.txt by section headers and scores each section by

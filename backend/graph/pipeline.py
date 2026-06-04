@@ -98,20 +98,20 @@ def _load_index() -> VectorStoreIndex:
 # Pipeline builder
 # ---------------------------------------------------------------------------
 
-def build_pipeline():
-    """Initialize all agents and compile the LangGraph pipeline.
+def build_pipeline(bundle_id: str = "lms"):
+    """Initialize all agents and compile the LangGraph pipeline for a given bundle.
 
-    Agents are initialized once here and captured by each node closure,
-    so they are reused across all proposals and pipeline runs.
+    Args:
+        bundle_id: Context bundle to use for risk and scoring agents (e.g. "lms", "cyber").
 
     Returns:
         Compiled LangGraph CompiledStateGraph ready to invoke.
     """
-    print("  Loading ChromaDB index...")
+    print(f"  Loading ChromaDB index (bundle: {bundle_id})...")
     index = _load_index()
     extraction_agent = ExtractionAgent(index)
-    risk_agent = RiskAgent()
-    scoring_agent = ScoringAgent()
+    risk_agent = RiskAgent(bundle_id=bundle_id)
+    scoring_agent = ScoringAgent(bundle_id=bundle_id)
     memo_agent = MemoAgent()
     print("  Agents initialized.")
 

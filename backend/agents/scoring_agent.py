@@ -58,10 +58,13 @@ def _parse_weights(criteria_text: str) -> dict[str, float]:
 
 
 class ScoringAgent:
-    def __init__(self):
-        bundle = load_context_bundle()
-        rubric = bundle.get("scoring_rubric_lms", "")
-        criteria = bundle.get("rfp_criteria_lms", "")
+    def __init__(self, bundle_id: str = "lms"):
+        bundle = load_context_bundle(bundle_id)
+        # Find criteria and rubric by prefix — works for any bundle naming
+        criteria_key = next((k for k in bundle if k.startswith("rfp_criteria")), None)
+        rubric_key = next((k for k in bundle if k.startswith("scoring_rubric")), None)
+        rubric = bundle.get(rubric_key, "") if rubric_key else ""
+        criteria = bundle.get(criteria_key, "") if criteria_key else ""
 
         base_prompt = load_prompt("scoring_agent")
         self.system_prompt = (

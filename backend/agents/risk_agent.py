@@ -25,6 +25,7 @@ load_dotenv()
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from graph.state import ProposalData, RiskFlag
+from tools.context_loader import get_policy_path
 from tools.llm_factory import dedup_ordered, load_prompt, make_llm, parse_llm_json
 
 # Policy query groups that cover all HIGH/MEDIUM risk categories.
@@ -39,13 +40,13 @@ _POLICY_QUERIES = [
 
 
 class RiskAgent:
-    def __init__(self):
+    def __init__(self, bundle_id: str = "lms"):
         self.system_prompt = load_prompt("risk_agent")
         self.llm, _ = make_llm()
 
-        # Deferred to avoid importing MCP server at module load time
-        from tools.mcp_server import _policy_lookup
-        self._policy_context = self._gather_policy_context(_policy_lookup)
+        from tools.mcp_server import make_policy_lookup
+        policy_lookup = make_policy_lookup(get_policy_path(bundle_id))
+        self._policy_context = self._gather_policy_context(policy_lookup)
 
     def _gather_policy_context(self, policy_lookup) -> str:
         """Run targeted policy_lookup queries once and deduplicate the results."""

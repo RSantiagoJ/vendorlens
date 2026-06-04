@@ -2,21 +2,32 @@ import asyncio
 import json
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from typing import AsyncGenerator
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator, Optional
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from api.models import AnalysisResult, AnalyzeResponse, ProposalResult
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState
+from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
 
-app = FastAPI(title="VendorLens API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Pre-warm the default pipeline so the first request doesn't pay cold-start cost.
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(_executor, lambda: _get_pipeline(DEFAULT_BUNDLE))
+    yield
+
+
+app = FastAPI(title="VendorLens API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,28 +36,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Pipeline is expensive to boot (loads ChromaDB + all agents) — initialize once.
-_pipeline = None
 _executor = ThreadPoolExecutor(max_workers=4)
 
+# One cached pipeline per bundle — built on first use.
+_pipelines: dict[str, object] = {}
 
-def _get_pipeline():
-    global _pipeline
-    if _pipeline is None:
-        _pipeline = build_pipeline()
-    return _pipeline
+
+def _get_pipeline(bundle_id: str = DEFAULT_BUNDLE):
+    if bundle_id not in _pipelines:
+        _pipelines[bundle_id] = build_pipeline(bundle_id=bundle_id)
+    return _pipelines[bundle_id]
 
 
 # In-memory job store: job_id → {status, events, result, error}
-# Each event: {type: str, data: dict}
 _jobs: dict[str, dict] = {}
 
-
-# ---------------------------------------------------------------------------
-# Pipeline runner (sync — called from ThreadPoolExecutor)
-# ---------------------------------------------------------------------------
-
-# Map node names to the SSE event emitted the first time that node fires.
 _NODE_EVENT = {
     "extraction_node": "extracting",
     "risk_node": "risk",
@@ -55,7 +59,7 @@ _NODE_EVENT = {
 }
 
 
-def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]]) -> None:
+def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id: str) -> None:
     job = _jobs[job_id]
 
     def emit(event_type: str, data: dict) -> None:
@@ -77,19 +81,16 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]]) -> None:
             "error": None,
         }
 
-        # Accumulate the final state from per-node update chunks.
         final: dict = {k: v for k, v in initial_state.items()}
         seen_stages: set[str] = set()
 
-        for chunk in _get_pipeline().stream(initial_state, stream_mode="updates"):
+        for chunk in _get_pipeline(bundle_id).stream(initial_state, stream_mode="updates"):
             for node_name, updates in chunk.items():
-                # Emit a progress event the first time each stage fires.
                 stage_event = _NODE_EVENT.get(node_name)
                 if stage_event and stage_event not in seen_stages:
                     seen_stages.add(stage_event)
                     emit(stage_event, {"status": stage_event})
 
-                # Merge updates into final state; operator.add fields accumulate.
                 if isinstance(updates, dict):
                     for k, v in updates.items():
                         if k in ("extracted", "with_risks", "proposals") and isinstance(v, list):
@@ -100,6 +101,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]]) -> None:
         proposals = [ProposalState(**p) for p in final.get("proposals", [])]
         result = AnalysisResult(
             job_id=job_id,
+            bundle_id=bundle_id,
             proposals=[
                 ProposalResult(
                     filename=p.filename,
@@ -134,19 +136,28 @@ def health() -> dict:
     return {"status": "ok"}
 
 
+@app.get("/bundles")
+def list_bundles() -> list[dict]:
+    return list(BUNDLES.values())
+
+
 @app.post("/analyze", response_model=AnalyzeResponse)
-async def analyze(files: list[UploadFile]) -> AnalyzeResponse:
+async def analyze(
+    files: list[UploadFile],
+    bundle: Optional[str] = Form(DEFAULT_BUNDLE),
+) -> AnalyzeResponse:
     if not files:
         raise HTTPException(status_code=422, detail="At least one file is required.")
+    if bundle not in BUNDLES:
+        raise HTTPException(status_code=422, detail=f"Unknown bundle '{bundle}'. Valid: {list(BUNDLES)}")
 
     job_id = str(uuid.uuid4())
     _jobs[job_id] = {"status": "pending", "events": [], "result": None, "error": None}
 
-    # Read file bytes eagerly — UploadFile is not thread-safe across await boundaries.
     file_contents = [(f.filename or f"file_{i}", await f.read()) for i, f in enumerate(files)]
 
     loop = asyncio.get_event_loop()
-    loop.run_in_executor(_executor, _run_pipeline, job_id, file_contents)
+    loop.run_in_executor(_executor, _run_pipeline, job_id, file_contents, bundle)
 
     return AnalyzeResponse(job_id=job_id)
 
@@ -161,15 +172,12 @@ async def stream(job_id: str) -> StreamingResponse:
         while True:
             job = _jobs[job_id]
             events = job["events"]
-
             while sent < len(events):
                 ev = events[sent]
                 yield f"event: {ev['type']}\ndata: {json.dumps(ev['data'])}\n\n"
                 sent += 1
-
             if job["status"] in ("done", "error") and sent >= len(events):
                 break
-
             await asyncio.sleep(0.3)
 
     return StreamingResponse(

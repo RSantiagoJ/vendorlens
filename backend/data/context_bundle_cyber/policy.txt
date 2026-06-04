@@ -1,0 +1,115 @@
+HIGHER EDUCATION CYBERSECURITY VENDOR EVALUATION POLICY — VENDORLENS RISK AGENT
+
+SECTION 1: SECURITY VENDOR MANAGEMENT
+
+All cybersecurity service vendors must complete a full security risk assessment before
+contract execution. The University Security Team reviews each vendor to confirm:
+
+- Vendor's own security posture meets or exceeds the services they claim to provide
+- No conflict of interest between vendor's tooling and University's existing stack
+- Vendor demonstrates active security research and threat intelligence capabilities
+- Subcontractor and supply chain risks are disclosed and managed
+
+The University CISO reviews:
+- Security certification type, currency, and audit scope
+- Incident response capability evidence (case studies, tabletop results)
+- Data handling practices for University log and event data
+- Personnel background check requirements for analysts with University data access
+
+All of the following teams must provide final approval before contract execution:
+- University Legal Team: liability, indemnification, and governing law review
+- University Finance Team: spend authorization and budget alignment
+- University CISO: security posture, integration feasibility, and SLA adequacy
+
+SECTION 2: SECURITY CERTIFICATION REQUIREMENTS
+
+HIGH RISK: Vendor does not hold a current SOC 2 Type II certification.
+- SOC 2 Type II (current, issued within 18 months of proposal date) is required.
+- SOC 2 Type I is not acceptable as a substitute for Type II.
+- ISO 27001 certification is required or must have a documented roadmap to achieve it within 12 months.
+- FedRAMP Moderate or High authorization is required for any cloud-delivered services
+  processing University data. FedRAMP In Process status requires written risk acceptance from CISO.
+- Expired or aging certifications (>18 months) constitute a HIGH risk finding.
+
+SECTION 3: INCIDENT RESPONSE SLA REQUIREMENTS
+
+HIGH RISK: Vendor does not provide contractual SLA commitments with financial penalties.
+- Mean Time to Detect (MTTD): must be ≤15 minutes for critical events; SLA must carry
+  financial penalty for breach.
+- Mean Time to Contain (MTTC): must be ≤1 hour for critical incidents.
+- Mean Time to Remediate (MTTR): must be ≤4 hours for critical incidents.
+- Incident response retainer with guaranteed response hours is required; best-effort-only
+  commitments are not acceptable for institutional-level risk.
+- Breach notification to the University must occur within 24 hours of discovery.
+  Notification timelines exceeding 48 hours constitute a HIGH risk finding.
+
+SECTION 4: DATA HANDLING AND RESIDENCY
+
+HIGH RISK: Institutional data processed or stored outside the United States without CISO approval.
+- All institutional log data, event data, and security telemetry must be processed and stored
+  within the United States, or vendor must provide a documented data residency exception
+  approved in writing by the CISO.
+- Vendor must not use institutional security event data for product benchmarking, model training,
+  or competitive intelligence without explicit written consent from the institution's CIO.
+- Data return: upon contract termination, vendor must return all institutional data within 30 days
+  in a portable, standard format. Data destruction must be certified within 60 days.
+
+SECTION 5: VENDOR SECURITY POSTURE
+
+HIGH RISK: Vendor does not hold current security certifications for their own operations.
+- The vendor must hold a current SOC 2 Type II and/or ISO 27001 certification for their own
+  service delivery infrastructure, not only for customer-facing components.
+- Vendor must provide evidence of annual penetration testing of their own platform, with a
+  summary of findings and remediation status available upon request.
+- Vendor must operate a bug bounty or responsible disclosure program.
+- Supply chain security: vendor must disclose all subprocessors and major subcontractors
+  who have access to institutional data. Undisclosed subcontractors constitute a HIGH risk finding.
+
+SECTION 6: LIABILITY AND INDEMNIFICATION
+
+HIGH RISK: Liability cap below three times the annual contract value.
+- The University requires a liability cap of at least five times the annual contract value
+  for losses arising from security incidents attributable to vendor negligence or failure.
+- Liability cap below two times the annual contract value is a HIGH risk finding.
+- Vendor must provide a full indemnification clause covering third-party claims arising
+  from vendor negligence, data breach, or failure to meet SLA commitments.
+- The University will not accept limitations on consequential damages arising from
+  security incidents or data breaches.
+
+SECTION 7: GOVERNING LAW AND DISPUTE RESOLUTION
+
+HIGH RISK: Governing law outside the institution's home state.
+- All contracts must be governed by the laws of the institution's home state.
+- Governing law in another U.S. state requires written approval from the institution's Legal team.
+- Mandatory arbitration clauses that limit the institution's right to seek injunctive
+  relief constitute a HIGH risk finding.
+- Venue for dispute resolution must be in the institution's home state.
+
+SECTION 8: RENEWAL AND TERMINATION
+
+MEDIUM RISK: Auto-renewal with opt-out notice period exceeding 60 days.
+- The University requires a termination-for-convenience clause with ≤60 days notice.
+- Auto-renewal provisions with opt-out notice periods exceeding 60 days are disfavored.
+- Early termination penalties exceeding three months of contract value constitute a
+  MEDIUM risk finding.
+- Upon notice of termination, vendor must continue service at full capacity for the
+  full notice period without degradation.
+
+SECTION 9: PERSONNEL AND BACKGROUND CHECKS
+
+HIGH RISK: Vendor does not conduct background checks on analysts with institutional data access.
+- All vendor personnel with access to institutional security data or systems must undergo
+  background checks consistent with the institution's HR standards.
+- Vendor must disclose the use of offshore or third-party subcontracted analysts.
+  Offshore analyst access to institutional data requires CISO approval.
+- Vendor must provide a key-person risk mitigation plan identifying backups for
+  critical roles (lead analyst, incident commander, account manager).
+
+SECTION 10: AUDIT AND ASSESSMENT RIGHTS
+
+MEDIUM RISK: Vendor does not grant the University a right to audit security controls.
+- The University requires the right to audit vendor security controls annually,
+  either directly or through a mutually agreed-upon third party.
+- Vendor must cooperate with University security assessments within 30 days of request.
+- Vendor must notify the University within 24 hours of any material change to their
+  security certifications, ownership, or control environment.
