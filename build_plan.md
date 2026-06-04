@@ -119,7 +119,7 @@ Tasks:
    - Returns ScoreCard
 
 3. [DONE] Write test_agents.py — run both against all three proposals
-       Verify: Vendor B scores highest overall, Vendor A scores lowest
+   Verify: Vendor B scores highest overall, Vendor A scores lowest
 
 Checkpoint: Risk flags and scores are directionally correct.
 Gemini Pro scoring agent works independently.
@@ -136,7 +136,7 @@ All tasks complete. Checkpoint passed.
 - agents/extraction_agent.py: top-level imports, no duplication
 - agents/risk_agent.py: top-level imports, Gemini primary / Anthropic fallback
 - agents/scoring_agent.py: top-level imports, weights parsed from rfp_criteria_lms.txt,
-  overall computed in Python via _compute_overall(), ScoreCard built from dict comprehension
+  overall computed in Python via \_compute_overall(), ScoreCard built from dict comprehension
 - test_agents.py: all 3 agents on all 3 vendors; B highest, A lowest, A has ≥3 HIGH flags
 
 ---
@@ -175,7 +175,7 @@ All tasks complete. Checkpoint passed. Canvas recommended with score 10.0.
   operator.add accumulators (extracted, with_risks, proposals)
 - agents/memo_agent.py: uses make_claude_llm() — intentionally Claude for prose quality
 - tools/llm_factory.py: added make_claude_llm(), dedup_ordered(), cached load_prompt()
-- agents/risk_agent.py: policy context cached in __init__ (runs once, not per vendor)
+- agents/risk_agent.py: policy context cached in **init** (runs once, not per vendor)
 - agents/extraction_agent.py: dedup_ordered() replaces manual seen+ordered loop
 - data/context_bundle/rfp_criteria_lms.txt: weights corrected to sum to 1.00
   (pricing_and_licensing reduced 0.15 → 0.10); max score is now 10.0
@@ -203,24 +203,27 @@ Tasks:
 
 3. Start the server (all Python runs inside Docker):
    docker compose run --service-ports backend \
-     uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 
 4. Test with curl:
+
    # POST returns job_id immediately
+
    curl -X POST http://localhost:8000/analyze \
-     -F "files=@data/dummy_docs/vendor_a_blackboard.txt" \
-     -F "files=@data/dummy_docs/vendor_b_canvas.txt" \
-     -F "files=@data/dummy_docs/vendor_c_brightspace.txt"
+    -F "files=@data/dummy_docs/vendor_a_blackboard.txt" \
+    -F "files=@data/dummy_docs/vendor_b_canvas.txt" \
+    -F "files=@data/dummy_docs/vendor_c_brightspace.txt"
 
    # Stream progress + final result (paste job_id from above)
+
    curl -N http://localhost:8000/stream/{job_id}
 
 Checkpoint: SSE stream ends with a "done" event containing proposals, risks, scores, memo.
 
 Note: All Python commands use docker compose — never run python3 directly on the host.
-      Docker requires sudo on this machine:
-      sudo docker compose run backend python3 -m pytest   ← for tests
-      sudo docker compose exec backend bash               ← interactive shell
+Docker requires sudo on this machine:
+sudo docker compose run backend python3 -m pytest ← for tests
+sudo docker compose exec backend bash ← interactive shell
 
 --- SESSION NOTES (Day 5, complete) ---
 
@@ -278,13 +281,13 @@ Tasks:
 
 2. Write terraform/ directory:
    terraform/
-     main.tf        — AWS provider config, region variable
-     ecr.tf         — ECR repository for the backend Docker image
-     s3.tf          — S3 bucket for uploaded vendor docs (replaces /tmp)
-     ssm.tf         — SSM Parameter Store for all API keys (ANTHROPIC, GOOGLE, LANGCHAIN)
-     apprunner.tf   — App Runner service pulling image from ECR
-     variables.tf   — region, app_name, environment
-     outputs.tf     — app_runner_url (becomes the live demo URL)
+   main.tf — AWS provider config, region variable
+   ecr.tf — ECR repository for the backend Docker image
+   s3.tf — S3 bucket for uploaded vendor docs (replaces /tmp)
+   ssm.tf — SSM Parameter Store for all API keys (ANTHROPIC, GOOGLE, LANGCHAIN)
+   apprunner.tf — App Runner service pulling image from ECR
+   variables.tf — region, app_name, environment
+   outputs.tf — app_runner_url (becomes the live demo URL)
 
 3. Build and push Docker image to ECR:
    aws ecr get-login-password | docker login ...
@@ -320,21 +323,21 @@ Checkpoint: terraform output returns live App Runner URL. App works end-to-end i
 
 Core concepts covered in this project:
 
-| Concept           | Where it appears                                      |
-|-------------------|-------------------------------------------------------|
-| Provider config   | aws provider block in main.tf                         |
-| Resources         | aws_ecr_repository, aws_s3_bucket, aws_ssm_parameter, aws_apprunner_service |
-| Data sources      | aws_iam_policy_document for bucket/role policies      |
-| Variables         | variables.tf — region, app_name passed via .tfvars    |
-| Outputs           | outputs.tf — app_runner_url printed after apply       |
-| Remote state      | S3 backend for terraform.tfstate (meta: S3 for state + S3 for app uploads) |
+| Concept         | Where it appears                                                            |
+| --------------- | --------------------------------------------------------------------------- |
+| Provider config | aws provider block in main.tf                                               |
+| Resources       | aws_ecr_repository, aws_s3_bucket, aws_ssm_parameter, aws_apprunner_service |
+| Data sources    | aws_iam_policy_document for bucket/role policies                            |
+| Variables       | variables.tf — region, app_name passed via .tfvars                          |
+| Outputs         | outputs.tf — app_runner_url printed after apply                             |
+| Remote state    | S3 backend for terraform.tfstate (meta: S3 for state + S3 for app uploads)  |
 
 Commands:
-  terraform init      — download AWS provider
-  terraform plan      — preview what will be created
-  terraform apply     — provision infrastructure
-  terraform output    — print the live URL
-  terraform destroy   — tear down everything (cost control)
+terraform init — download AWS provider
+terraform plan — preview what will be created
+terraform apply — provision infrastructure
+terraform output — print the live URL
+terraform destroy — tear down everything (cost control)
 
 ---
 
@@ -372,7 +375,11 @@ team could drop in their own documents and run this against their RFP."
 
 "This took 15 seconds. It would have taken a contracts analyst half a day."
 
----
+## TODO - implement option to change rfp criteria dropdown
+
+## TODO - Remove rfp label in results
+
+## TODO - Check that extraction is done with gemini
 
 ## Day 7 optional: Dropbox connector
 

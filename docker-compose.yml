@@ -10,3 +10,16 @@ services:
       - ./backend:/app
     # Keep container alive for iterative dev; override per command.
     command: ["sh", "-c", "tail -f /dev/null"]
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /app
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
