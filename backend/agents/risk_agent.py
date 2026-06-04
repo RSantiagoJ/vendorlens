@@ -22,11 +22,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_core.messages import HumanMessage, SystemMessage
-
 from graph.state import ProposalData, RiskFlag
 from tools.context_loader import get_policy_path
-from tools.llm_factory import dedup_ordered, load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import dedup_ordered, invoke_llm, load_prompt, make_llm, parse_llm_json
 
 # Policy query groups that cover all HIGH/MEDIUM risk categories.
 # Each query targets the keyword-scoring logic in _policy_lookup.
@@ -66,15 +64,11 @@ class RiskAgent:
         Returns:
             list[RiskFlag] — may be empty if no risks are found.
         """
-        messages = [
-            SystemMessage(content=self.system_prompt),
-            HumanMessage(
-                content=(
-                    f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
-                    f"Relevant policy context:\n{self._policy_context}\n\n"
-                    "Identify all risks. Return JSON array only."
-                )
-            ),
-        ]
-        response = self.llm.invoke(messages)
-        return [RiskFlag(**flag) for flag in parse_llm_json(response.content)]
+        raw = invoke_llm(
+            self.llm,
+            self.system_prompt,
+            f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
+            f"Relevant policy context:\n{self._policy_context}\n\n"
+            "Identify all risks. Return JSON array only.",
+        )
+        return [RiskFlag(**flag) for flag in parse_llm_json(raw)]

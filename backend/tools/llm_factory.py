@@ -78,6 +78,12 @@ def make_llm():
     )
 
 
+def invoke_llm(llm, system_prompt: str, human_content: str) -> str:
+    """Call an LLM with a system + human message and return the response content."""
+    from langchain_core.messages import HumanMessage, SystemMessage
+    return llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=human_content)]).content
+
+
 def dedup_ordered(items: list[str]) -> list[str]:
     """Return items with duplicates removed, preserving first-seen order.
 

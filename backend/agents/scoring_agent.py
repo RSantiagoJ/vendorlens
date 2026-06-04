@@ -21,11 +21,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_core.messages import HumanMessage, SystemMessage
-
 from graph.state import DimensionScore, ProposalData, RiskFlag, ScoreCard
 from tools.context_loader import load_context_bundle
-from tools.llm_factory import load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import invoke_llm, load_prompt, make_llm, parse_llm_json
 
 # Structural mapping: rfp_criteria dimension names → ScoreCard field names.
 # Weights for each dimension come from the rfp_criteria context bundle file.
@@ -102,19 +100,15 @@ class ScoringAgent:
             [{"clause": f.clause, "severity": f.severity} for f in risk_flags],
         )
 
-        messages = [
-            SystemMessage(content=self.system_prompt),
-            HumanMessage(
-                content=(
-                    f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
-                    f"Risk flags from Risk Agent:\n{risk_summary}\n\n"
-                    f"HIGH severity risk count: {high_count}\n\n"
-                    "Score this proposal on all 9 dimensions. Return JSON only."
-                )
-            ),
-        ]
-        response = self.llm.invoke(messages)
-        data = parse_llm_json(response.content)
+        raw = invoke_llm(
+            self.llm,
+            self.system_prompt,
+            f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
+            f"Risk flags from Risk Agent:\n{risk_summary}\n\n"
+            f"HIGH severity risk count: {high_count}\n\n"
+            "Score this proposal on all 9 dimensions. Return JSON only.",
+        )
+        data = parse_llm_json(raw)
 
         dim_scores = {field: float(data[field]["score"]) for field in _SCORECARD_FIELDS}
         return ScoreCard(

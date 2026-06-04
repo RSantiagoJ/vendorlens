@@ -14,10 +14,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_core.messages import HumanMessage, SystemMessage
-
 from graph.state import ProposalState
-from tools.llm_factory import load_prompt, make_claude_llm
+from tools.llm_factory import invoke_llm, load_prompt, make_claude_llm
 
 
 class MemoAgent:
@@ -45,14 +43,8 @@ class MemoAgent:
             for p in proposals
         ]
 
-        messages = [
-            SystemMessage(content=self.system_prompt),
-            HumanMessage(
-                content=(
-                    f"Vendor evaluation data:\n{json.dumps(proposal_data)}\n\n"
-                    "Write the recommendation memo. Return markdown only."
-                )
-            ),
-        ]
-        response = self.llm.invoke(messages)
-        return response.content
+        return invoke_llm(
+            self.llm,
+            self.system_prompt,
+            f"Vendor evaluation data:\n{json.dumps(proposal_data)}\n\nWrite the recommendation memo. Return markdown only.",
+        )

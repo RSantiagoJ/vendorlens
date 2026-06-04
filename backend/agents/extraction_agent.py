@@ -17,13 +17,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langchain_core.messages import HumanMessage, SystemMessage
 from llama_index.core import VectorStoreIndex
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from graph.state import ProposalData
-from tools.llm_factory import dedup_ordered, load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import dedup_ordered, invoke_llm, load_prompt, make_llm, parse_llm_json
 
 # Three query groups cover all 30 ProposalData fields without redundant
 # embedding API calls. top_k=8 per query captures all chunks in short docs.
@@ -76,14 +75,9 @@ class ExtractionAgent:
             null for any field not found in the document.
         """
         chunks = self._retrieve_chunks(filename)
-        messages = [
-            SystemMessage(content=self.system_prompt),
-            HumanMessage(
-                content=(
-                    f"Relevant chunks from the vendor proposal:\n{chunks}\n\n"
-                    "Extract all fields. Return JSON only."
-                )
-            ),
-        ]
-        response = self.llm.invoke(messages)
-        return ProposalData.model_validate(parse_llm_json(response.content))
+        raw = invoke_llm(
+            self.llm,
+            self.system_prompt,
+            f"Relevant chunks from the vendor proposal:\n{chunks}\n\nExtract all fields. Return JSON only.",
+        )
+        return ProposalData.model_validate(parse_llm_json(raw))
