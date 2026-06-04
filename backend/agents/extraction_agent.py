@@ -17,7 +17,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from llama_index.core import VectorStoreIndex
+from llama_index.core import Settings, VectorStoreIndex
+from llama_index.core.schema import QueryBundle
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
@@ -38,6 +39,12 @@ class ExtractionAgent:
         self.index = index
         self.system_prompt = load_prompt("extraction_agent")
         self.llm, _ = make_llm()
+        # Embed the fixed query strings once at init; reused for every vendor retrieval.
+        # load_index() always runs before this so Settings.embed_model is guaranteed set.
+        self._query_bundles = [
+            QueryBundle(query_str=q, embedding=Settings.embed_model.get_text_embedding(q))
+            for q in _RETRIEVAL_QUERIES
+        ]
 
     def _retrieve_chunks(self, filename: str) -> str:
         """Run three targeted RAG queries in parallel for one vendor doc."""
@@ -55,11 +62,11 @@ class ExtractionAgent:
             retry=retry_if_exception_type(Exception),
             reraise=True,
         )
-        def run_query(query: str) -> list[str]:
-            return [node.get_content() for node in retriever.retrieve(query)]
+        def run_query(bundle: QueryBundle) -> list[str]:
+            return [node.get_content() for node in retriever.retrieve(bundle)]
 
-        with ThreadPoolExecutor(max_workers=len(_RETRIEVAL_QUERIES)) as pool:
-            results = pool.map(run_query, _RETRIEVAL_QUERIES)
+        with ThreadPoolExecutor(max_workers=len(self._query_bundles)) as pool:
+            results = pool.map(run_query, self._query_bundles)
 
         chunks = [chunk for batch in results for chunk in batch]
         return "\n\n---\n\n".join(dedup_ordered(chunks))
