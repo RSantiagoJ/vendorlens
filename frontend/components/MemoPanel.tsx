@@ -4,7 +4,7 @@ import {
   Paper, Group, Text, Button, Divider, ScrollArea,
   Title, Table, Stack,
 } from "@mantine/core";
-import { IconDownload, IconFileText } from "@tabler/icons-react";
+import { IconDownload, IconFileText, IconPrinter } from "@tabler/icons-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -99,16 +99,30 @@ export function MemoPanel({ memo }: Props) {
             Recommendation Memo
           </Text>
         </Group>
-        <Button
-          leftSection={<IconDownload size={16} />}
-          variant="outline"
-          color="umblue"
-          size="sm"
-          radius="md"
-          onClick={download}
-        >
-          Download .md
-        </Button>
+        <Group gap="xs">
+          <Button
+            leftSection={<IconPrinter size={16} />}
+            variant="outline"
+            color="umgreen"
+            size="sm"
+            radius="md"
+            data-print-hide
+            onClick={() => window.print()}
+          >
+            Save as PDF
+          </Button>
+          <Button
+            leftSection={<IconDownload size={16} />}
+            variant="outline"
+            color="umblue"
+            size="sm"
+            radius="md"
+            data-print-hide
+            onClick={download}
+          >
+            Download .md
+          </Button>
+        </Group>
       </Group>
       <Divider mb="md" />
       <ScrollArea.Autosize mah={600}>

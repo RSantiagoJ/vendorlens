@@ -75,3 +75,31 @@ body {
   color: var(--mantine-color-gray-7);
   font-style: italic;
 }
+
+/* Print / Save as PDF */
+@media print {
+  /* Show only the results report */
+  body * { visibility: hidden; }
+  #print-report, #print-report * { visibility: visible; }
+  #print-report {
+    position: absolute;
+    inset: 0;
+    padding: 2rem;
+  }
+
+  /* Remove decorative shadows and borders */
+  .mantine-Paper-root { box-shadow: none !important; }
+
+  /* Expand scroll areas so full memo prints */
+  .mantine-ScrollArea-root,
+  .mantine-ScrollArea-viewport {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* Hide buttons and interactive controls */
+  [data-print-hide], button { display: none !important; }
+
+  /* Keep vendor cards on page, avoid mid-card page breaks */
+  .mantine-Paper-root { break-inside: avoid; }
+}

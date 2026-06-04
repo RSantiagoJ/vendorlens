@@ -1,6 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function useCountUp(target: number, duration = 900): number {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let rafId: number;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      setValue(Math.round((1 - Math.pow(1 - t, 3)) * target));
+      if (t < 1) rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [target, duration]);
+  return value;
+}
 import {
   Paper, Text, Group, Stack, Badge, Progress, Collapse,
   Button, Divider, Box, ThemeIcon, Tooltip,
@@ -67,6 +83,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
 
   const displayName = vendor_name ?? filename;
   const overall = scores?.overall ?? null;
+  const animatedScore = useCountUp(overall ?? 0);
 
   const sortedRisks = [...(risks ?? [])].sort(
     (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
@@ -117,7 +134,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                 fw={800}
                 style={{ color: scoreTier(overall / 10).textColor, lineHeight: 1 }}
               >
-                {Math.round(overall)}
+                {animatedScore}
               </Text>
               <Text size="xs" c="dimmed" fw={500}>/ 100</Text>
               <Badge
@@ -136,7 +153,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
         {overall !== null && (
           <>
             <Progress
-              value={overall}
+              value={animatedScore}
               color={scoreTier(overall / 10).color}
               size="lg"
               radius="xl"

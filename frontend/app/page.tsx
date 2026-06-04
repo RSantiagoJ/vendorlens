@@ -5,6 +5,7 @@ import { MemoPanel } from "@/components/MemoPanel";
 import { ProposalCard } from "@/components/ProposalCard";
 import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
+import { VendorRadarChart } from "@/components/VendorRadarChart";
 import { DEMO_RESULT } from "@/lib/fixtures";
 import type { AnalysisResult, Bundle, Stage } from "@/lib/types";
 import { Logo } from "@/logo";
@@ -20,6 +21,7 @@ import {
   Text,
 } from "@mantine/core";
 import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
+import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -43,6 +45,12 @@ export default function Home() {
       .then(setBundles)
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (appState === "done") {
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    }
+  }, [appState]);
 
   function reset() {
     setAppState("idle");
@@ -207,7 +215,7 @@ export default function Home() {
               </div>
 
               {appState === "done" && result && (
-                <Stack gap="xl" className="fadeIn">
+                <Stack gap="xl" className="fadeIn" id="print-report">
                   <SimpleGrid
                     cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
                     spacing="md"
@@ -220,6 +228,7 @@ export default function Home() {
                       />
                     ))}
                   </SimpleGrid>
+                  <VendorRadarChart proposals={sortedProposals} />
                   {result.memo && <MemoPanel memo={result.memo} />}
                 </Stack>
               )}
