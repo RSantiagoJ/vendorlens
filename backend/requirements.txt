@@ -17,3 +17,4 @@ pydantic
 python-dotenv
 pymupdf
 pyyaml
+tenacity

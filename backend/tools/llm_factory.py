@@ -33,16 +33,17 @@ def load_prompt(role: str) -> str:
 
 
 def make_claude_llm():
-    """Return ChatAnthropic(claude-sonnet-4-6). Raises ValueError if key not set."""
+    """Return ChatAnthropic(claude-sonnet-4-6) with retry. Raises ValueError if key not set."""
     key = os.getenv("ANTHROPIC_API_KEY")
     if not key:
         raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
     from langchain_anthropic import ChatAnthropic
-    return ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key)
+    llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key)
+    return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
 
 def make_llm():
-    """Return (llm, model_name) using the best available API key.
+    """Return (llm, model_name) using the best available API key, with retry.
 
     Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
     Note: MemoAgent calls make_claude_llm() directly and is unaffected by this priority.
@@ -58,12 +59,13 @@ def make_llm():
 
     if google_key:
         from langchain_google_genai import ChatGoogleGenerativeAI
+        llm = ChatGoogleGenerativeAI(
+            model="gemini-3.5-flash",
+            google_api_key=google_key,
+            max_output_tokens=8192,
+        )
         return (
-            ChatGoogleGenerativeAI(
-                model="gemini-3.5-flash",
-                google_api_key=google_key,
-                max_output_tokens=8192,
-            ),
+            llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True),
             "Gemini 3.5 Flash",
         )
 

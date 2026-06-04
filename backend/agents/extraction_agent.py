@@ -12,6 +12,7 @@ is parsed into a ProposalData Pydantic model.
 Null is returned for any field not explicitly stated — no hallucination.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,6 +20,7 @@ load_dotenv()
 from langchain_core.messages import HumanMessage, SystemMessage
 from llama_index.core import VectorStoreIndex
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from graph.state import ProposalData
 from tools.llm_factory import dedup_ordered, load_prompt, make_llm, parse_llm_json
@@ -39,11 +41,7 @@ class ExtractionAgent:
         self.llm, _ = make_llm()
 
     def _retrieve_chunks(self, filename: str) -> str:
-        """Run three targeted RAG queries for one vendor doc.
-
-        Returns deduplicated chunks joined by a separator so the LLM sees
-        the full relevant context without repetition.
-        """
+        """Run three targeted RAG queries in parallel for one vendor doc."""
         filters = MetadataFilters(filters=[
             MetadataFilter(key="file_name", value=filename)
         ])
@@ -51,11 +49,20 @@ class ExtractionAgent:
             filters=filters,
             similarity_top_k=8,
         )
-        chunks = [
-            node.get_content()
-            for query in _RETRIEVAL_QUERIES
-            for node in retriever.retrieve(query)
-        ]
+
+        @retry(
+            stop=stop_after_attempt(3),
+            wait=wait_exponential(multiplier=1, min=2, max=10),
+            retry=retry_if_exception_type(Exception),
+            reraise=True,
+        )
+        def run_query(query: str) -> list[str]:
+            return [node.get_content() for node in retriever.retrieve(query)]
+
+        with ThreadPoolExecutor(max_workers=len(_RETRIEVAL_QUERIES)) as pool:
+            results = pool.map(run_query, _RETRIEVAL_QUERIES)
+
+        chunks = [chunk for batch in results for chunk in batch]
         return "\n\n---\n\n".join(dedup_ordered(chunks))
 
     def extract(self, filename: str) -> ProposalData:
