@@ -9,6 +9,7 @@ import {
   IconSearch,
   IconShieldCheck,
 } from "@tabler/icons-react";
+import { useEffect, useRef, useState } from "react";
 
 const STAGES: {
   key: Stage;
@@ -69,6 +70,43 @@ interface Props {
 }
 
 export function AgentProgressBar({ stage }: Props) {
+  const startTimesRef = useRef<Partial<Record<string, number>>>({});
+  const endTimesRef = useRef<Partial<Record<string, number>>>({});
+  const prevStageRef = useRef<Stage>(null);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const prev = prevStageRef.current;
+
+    // Record end time when a stage completes
+    if (prev && prev !== stage && prev !== "done" && prev !== null) {
+      if (!endTimesRef.current[prev]) {
+        endTimesRef.current[prev] = Date.now();
+      }
+    }
+
+    // Record start time when a new active stage begins
+    if (stage && stage !== "done") {
+      if (!startTimesRef.current[stage]) {
+        startTimesRef.current[stage] = Date.now();
+      }
+    }
+
+    prevStageRef.current = stage;
+
+    if (!stage || stage === "done") return;
+
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [stage]);
+
+  function getElapsedSeconds(stageKey: string): number | null {
+    const start = startTimesRef.current[stageKey];
+    if (!start) return null;
+    const end = endTimesRef.current[stageKey] ?? Date.now();
+    return Math.floor((end - start) / 1000);
+  }
+
   return (
     <Paper
       p="lg"
@@ -94,6 +132,8 @@ export function AgentProgressBar({ stage }: Props) {
           const status = getStageStatus(key, stage);
           const isActive = status === "active";
           const isDone = status === "done";
+          const elapsed = getElapsedSeconds(key as string);
+
           return (
             <Paper
               key={key}
@@ -127,13 +167,25 @@ export function AgentProgressBar({ stage }: Props) {
                   )}
                 </ThemeIcon>
                 <Stack gap={2} style={{ flex: 1 }}>
-                  <Text
-                    size="sm"
-                    fw={isActive ? 700 : isDone ? 600 : 400}
-                    c={isDone ? "umgreen.6" : isActive ? "umblue.8" : "dimmed"}
-                  >
-                    {label}
-                  </Text>
+                  <Group gap="xs" align="center">
+                    <Text
+                      size="sm"
+                      fw={isActive ? 700 : isDone ? 600 : 400}
+                      c={isDone ? "umgreen.6" : isActive ? "umblue.8" : "dimmed"}
+                    >
+                      {label}
+                    </Text>
+                    {elapsed != null && (
+                      <Text
+                        size="xs"
+                        fw={500}
+                        c={isDone ? "umgreen.5" : "umblue.4"}
+                        style={{ fontVariantNumeric: "tabular-nums" }}
+                      >
+                        {elapsed}s
+                      </Text>
+                    )}
+                  </Group>
                   {(isActive || isDone) && (
                     <Text size="xs" c="dimmed">
                       {description}

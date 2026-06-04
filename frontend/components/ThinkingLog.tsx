@@ -48,25 +48,34 @@ const STAGE_LINES: Record<ActiveStage, string[]> = {
   ],
 };
 
-const COMPLETION_LINES: Record<ActiveStage, string> = {
-  extracting: "Extraction complete — structured data ready for all vendors",
-  risk: "Risk analysis complete — flags classified and prioritized",
-  scoring: "Scoring complete — weighted scores computed",
-  memo: "Memo complete — recommendation ready",
+const STAGE_SUMMARY: Record<ActiveStage, string> = {
+  extracting: `${STAGE_LINES.extracting.length} operations`,
+  risk: `${STAGE_LINES.risk.length} checks`,
+  scoring: `${STAGE_LINES.scoring.length} criteria`,
+  memo: `${STAGE_LINES.memo.length} sections`,
 };
 
-const INTERVAL_MS = 2000;
+const COMPLETION_LABELS: Record<ActiveStage, string> = {
+  extracting: "Extraction complete",
+  risk: "Risk analysis complete",
+  scoring: "Scoring complete",
+  memo: "Memo complete",
+};
 
-interface Entry {
-  text: string;
-  stage: ActiveStage | "done";
-  completion?: boolean;
-}
+const TYPEWRITER_INTERVAL_MS = 25;
+const TYPEWRITER_CHARS_PER_TICK = 4;
 
 const ACTIVE_STAGE_SET = new Set<Stage>(["extracting", "risk", "scoring", "memo"]);
 
 function isActiveStage(s: Stage): s is ActiveStage {
   return ACTIVE_STAGE_SET.has(s);
+}
+
+interface Entry {
+  text: string;
+  stage: ActiveStage | "done";
+  completion?: boolean;
+  typed?: number; // chars revealed so far; undefined = fully shown
 }
 
 interface Props {
@@ -76,19 +85,29 @@ interface Props {
 export function ThinkingLog({ stage }: Props) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const indexRef = useRef(0);
   const prevStageRef = useRef<ActiveStage | null>(null);
+  const stageStartRef = useRef<Partial<Record<ActiveStage, number>>>({});
 
   useEffect(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (lineTimerRef.current) clearTimeout(lineTimerRef.current);
+    if (typewriterRef.current) clearInterval(typewriterRef.current);
 
-    // When a stage completes, add a completion marker
+    // When a stage completes, add a rich completion marker with timing
     if (prevStageRef.current && prevStageRef.current !== stage) {
       const completedStage = prevStageRef.current;
+      const startTime = stageStartRef.current[completedStage];
+      const elapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : null;
+      const timePart = elapsed != null ? ` · ${elapsed}s` : "";
       setEntries((prev) => [
         ...prev,
-        { text: COMPLETION_LINES[completedStage], stage: completedStage, completion: true },
+        {
+          text: `${COMPLETION_LABELS[completedStage]} — ${STAGE_SUMMARY[completedStage]}${timePart}`,
+          stage: completedStage,
+          completion: true,
+        },
       ]);
     }
 
@@ -98,26 +117,56 @@ export function ThinkingLog({ stage }: Props) {
     }
 
     prevStageRef.current = stage;
+    stageStartRef.current[stage] = Date.now();
     indexRef.current = 0;
     const lines = STAGE_LINES[stage];
+    const capturedStage = stage;
+
+    function revealLastEntry(text: string, onDone: () => void) {
+      let typed = 0;
+      if (typewriterRef.current) clearInterval(typewriterRef.current);
+      typewriterRef.current = setInterval(() => {
+        typed = Math.min(typed + TYPEWRITER_CHARS_PER_TICK, text.length);
+        setEntries((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last) next[next.length - 1] = { ...last, typed };
+          return next;
+        });
+        if (typed >= text.length) {
+          clearInterval(typewriterRef.current!);
+          // Mark as fully revealed
+          setEntries((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last) next[next.length - 1] = { ...last, typed: undefined };
+            return next;
+          });
+          onDone();
+        }
+      }, TYPEWRITER_INTERVAL_MS);
+    }
+
+    function addNextLine() {
+      if (indexRef.current >= lines.length) return;
+      const delay = Math.floor(Math.random() * 900) + 600; // 600–1500ms
+      lineTimerRef.current = setTimeout(() => {
+        const text = lines[indexRef.current++];
+        setEntries((prev) => [...prev, { text, stage: capturedStage, typed: 0 }]);
+        revealLastEntry(text, addNextLine);
+      }, delay);
+    }
 
     // First line immediately
-    setEntries((prev) => [...prev, { text: lines[0], stage }]);
-    indexRef.current = 1;
-
-    timerRef.current = setInterval(() => {
-      if (indexRef.current >= lines.length) {
-        clearInterval(timerRef.current!);
-        return;
-      }
-      const line = lines[indexRef.current];
-      setEntries((prev) => [...prev, { text: line, stage }]);
-      indexRef.current++;
-    }, INTERVAL_MS);
+    const firstText = lines[indexRef.current++];
+    setEntries((prev) => [...prev, { text: firstText, stage: capturedStage, typed: 0 }]);
+    revealLastEntry(firstText, addNextLine);
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (lineTimerRef.current) clearTimeout(lineTimerRef.current);
+      if (typewriterRef.current) clearInterval(typewriterRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
   // Auto-scroll to bottom on new entries
@@ -128,13 +177,14 @@ export function ThinkingLog({ stage }: Props) {
     });
   }, [entries]);
 
-  const allCompletionLines: Entry[] = stage === "done" && entries.length === 0
-    ? (["extracting", "risk", "scoring", "memo"] as ActiveStage[]).map((s) => ({
-        text: COMPLETION_LINES[s],
-        stage: s,
-        completion: true,
-      }))
-    : [];
+  const allCompletionLines: Entry[] =
+    stage === "done" && entries.length === 0
+      ? (["extracting", "risk", "scoring", "memo"] as ActiveStage[]).map((s) => ({
+          text: `${COMPLETION_LABELS[s]} — ${STAGE_SUMMARY[s]}`,
+          stage: s,
+          completion: true,
+        }))
+      : [];
 
   const displayEntries = entries.length > 0 ? entries : allCompletionLines;
   if (displayEntries.length === 0) return null;
@@ -150,17 +200,19 @@ export function ThinkingLog({ stage }: Props) {
         </Text>
       </Group>
 
-      <ScrollArea h={180} viewportRef={viewportRef} scrollbarSize={4}>
+      <ScrollArea h={240} viewportRef={viewportRef} scrollbarSize={4}>
         <Stack gap={3} pr="xs">
           {displayEntries.map((entry, i) => {
             const isLast = i === displayEntries.length - 1;
             const isDimmed = !isLast && !entry.completion;
+            const isTyping = entry.typed !== undefined;
+            const displayText = isTyping ? entry.text.slice(0, entry.typed) : entry.text;
 
             return (
               <Text
                 key={i}
                 size="xs"
-                className="fadeIn"
+                className={entry.completion ? "fadeIn" : undefined}
                 style={{
                   fontFamily: "'Courier New', 'Menlo', monospace",
                   lineHeight: 1.7,
@@ -174,12 +226,19 @@ export function ThinkingLog({ stage }: Props) {
                   gap: 8,
                 }}
               >
-                <span style={{ flexShrink: 0, color: entry.completion ? "var(--mantine-color-umgreen-5)" : "var(--mantine-color-umblue-4)" }}>
+                <span
+                  style={{
+                    flexShrink: 0,
+                    color: entry.completion
+                      ? "var(--mantine-color-umgreen-5)"
+                      : "var(--mantine-color-umblue-4)",
+                  }}
+                >
                   {entry.completion ? "✓" : "›"}
                 </span>
                 <span>
-                  {entry.text}
-                  {isLast && isActiveStage(stage) && (
+                  {displayText}
+                  {(isTyping || (isLast && isActiveStage(stage))) && (
                     <span
                       style={{
                         display: "inline-block",
