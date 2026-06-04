@@ -53,9 +53,7 @@ def _get_pipeline(bundle_id: str = DEFAULT_BUNDLE):
 _jobs: dict[str, dict] = {}
 
 _NODE_EVENT = {
-    "extraction_node": "extracting",
-    "risk_node": "risk",
-    "scoring_node": "scoring",
+    "vendor_node": "extracting",
     "memo_node": "memo",
 }
 

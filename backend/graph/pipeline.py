@@ -5,28 +5,18 @@ LangGraph pipeline orchestrating all four VendorLens agents.
 
 Architecture:
   START
-    └─ fan_out_extraction   (conditional edge → Send per proposal)
-         ├─ extraction_node ─┐
-         ├─ extraction_node  ├── parallel; fan-in via operator.add → extracted
-         └─ extraction_node ─┘
+    └─ fan_out_vendors   (conditional edge → Send per proposal)
+         ├─ vendor_node ─┐   each node runs extract→risk→score sequentially
+         ├─ vendor_node  ├── parallel; fan-in via operator.add → proposals
+         └─ vendor_node ─┘
                   ↓
-         fan_out_risk        (conditional edge → Send per extracted proposal)
-         ├─ risk_node ───────┐
-         ├─ risk_node        ├── parallel; fan-in via operator.add → with_risks
-         └─ risk_node ───────┘
-                  ↓
-         fan_out_scoring     (conditional edge → Send per proposal-with-risks)
-         ├─ scoring_node ────┐
-         ├─ scoring_node     ├── parallel; fan-in via operator.add → proposals
-         └─ scoring_node ────┘
-                  ↓
-            memo_node         (sequential; writes `memo`)
+            memo_node     (sequential; writes `memo`)
                   ↓
                 END
 
-State design:
-  `extracted`, `with_risks`, and `proposals` all use operator.add reducers so
-  parallel nodes accumulate results safely without clobbering each other.
+Each vendor_node processes one proposal end-to-end (extraction → risk → scoring)
+so all three pipeline stages run concurrently across vendors instead of in
+barrier-synchronized waves that caused duplicate LLM calls.
 
 LangSmith tracing is automatic when LANGCHAIN_TRACING_V2=true and
 LANGCHAIN_API_KEY are set in backend/.env.
@@ -77,7 +67,7 @@ def build_pipeline(bundle_id: str = "lms"):
     """Initialize all agents and compile the LangGraph pipeline for a given bundle.
 
     Args:
-        bundle_id: Context bundle to use for risk and scoring agents (e.g. "lms", "cyber").
+        bundle_id: Context bundle to use for risk and scoring agents (e.g. "lms", "payroll", "erp").
 
     Returns:
         Compiled LangGraph CompiledStateGraph ready to invoke.
@@ -94,51 +84,28 @@ def build_pipeline(bundle_id: str = "lms"):
     # Fan-out dispatchers (conditional edges — return Send objects)
     # -----------------------------------------------------------------------
 
-    def fan_out_extraction(state: PipelineState) -> List[Send]:
-        return [Send("extraction_node", p) for p in state["pending"]]
-
-    def fan_out_risk(state: PipelineState) -> List[Send]:
-        return [Send("risk_node", p) for p in state["extracted"]]
-
-    def fan_out_scoring(state: PipelineState) -> List[Send]:
-        return [Send("scoring_node", p) for p in state["with_risks"]]
+    def fan_out_vendors(state: PipelineState) -> List[Send]:
+        return [Send("vendor_node", p) for p in state["pending"]]
 
     # -----------------------------------------------------------------------
     # Node definitions (closures capture the agent singletons above)
     # -----------------------------------------------------------------------
 
-    def extraction_node(raw: dict) -> dict:
+    def vendor_node(raw: dict) -> dict:
+        """Process one vendor end-to-end: extract → risk → score."""
+        filename = raw["filename"]
+        raw_text = raw["raw_text"]
         try:
-            proposal_data = extraction_agent.extract(raw["filename"])
-            proposal = ProposalState(
-                filename=raw["filename"],
-                raw_text=raw["raw_text"],
-                extracted=proposal_data,
-            )
-            return {"extracted": [proposal.model_dump()]}
+            proposal_data = extraction_agent.extract(filename)
+            proposal = ProposalState(filename=filename, raw_text=raw_text, extracted=proposal_data)
+            risks = risk_agent.analyze(proposal_data)
+            proposal = proposal.model_copy(update={"risks": risks})
+            scores = scoring_agent.score(proposal_data, risks)
+            proposal = proposal.model_copy(update={"scores": scores})
+            return {"proposals": [proposal.model_dump()]}
         except Exception as e:
-            proposal = ProposalState(filename=raw["filename"], raw_text=raw["raw_text"])
-            return {"extracted": [proposal.model_dump()], "error": str(e)}
-
-    def risk_node(proposal_dict: dict) -> dict:
-        try:
-            p = ProposalState(**proposal_dict)
-            if p.extracted:
-                risks = risk_agent.analyze(p.extracted)
-                return {"with_risks": [p.model_copy(update={"risks": risks}).model_dump()]}
-            return {"with_risks": [proposal_dict]}
-        except Exception as e:
-            return {"with_risks": [proposal_dict], "error": str(e)}
-
-    def scoring_node(proposal_dict: dict) -> dict:
-        try:
-            p = ProposalState(**proposal_dict)
-            if p.extracted:
-                scores = scoring_agent.score(p.extracted, p.risks or [])
-                return {"proposals": [p.model_copy(update={"scores": scores}).model_dump()]}
-            return {"proposals": [proposal_dict]}
-        except Exception as e:
-            return {"proposals": [proposal_dict], "error": str(e)}
+            proposal = ProposalState(filename=filename, raw_text=raw_text)
+            return {"proposals": [proposal.model_dump()], "error": str(e)}
 
     def memo_node(state: PipelineState) -> dict:
         try:
@@ -154,15 +121,11 @@ def build_pipeline(bundle_id: str = "lms"):
 
     graph = StateGraph(PipelineState)
 
-    graph.add_node("extraction_node", extraction_node)
-    graph.add_node("risk_node", risk_node)
-    graph.add_node("scoring_node", scoring_node)
+    graph.add_node("vendor_node", vendor_node)
     graph.add_node("memo_node", memo_node)
 
-    graph.add_conditional_edges(START, fan_out_extraction, ["extraction_node"])
-    graph.add_conditional_edges("extraction_node", fan_out_risk, ["risk_node"])
-    graph.add_conditional_edges("risk_node", fan_out_scoring, ["scoring_node"])
-    graph.add_edge("scoring_node", "memo_node")
+    graph.add_conditional_edges(START, fan_out_vendors, ["vendor_node"])
+    graph.add_edge("vendor_node", "memo_node")
     graph.add_edge("memo_node", END)
 
     return graph.compile()
