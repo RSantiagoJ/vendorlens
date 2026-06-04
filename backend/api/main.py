@@ -61,9 +61,10 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         job["events"].append({"type": event_type, "data": data})
 
     try:
-        # Emit extracting immediately so the UI shows activity before any LLM call.
-        emit("extracting", {"status": "extracting"})
+        vendor_names = [name.rsplit(".", 1)[0] for name, _ in file_contents]
+        emit("extracting", {"status": "extracting", "vendors": vendor_names})
         seen_stages: set[str] = {"extracting"}
+        total_risks = 0
 
         pending = [
             {"filename": name, "raw_text": content.decode("utf-8", errors="replace")}
@@ -86,6 +87,8 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
             for node_name, updates in chunk.items():
                 if node_name == "vendor_node":
                     vendor_nodes_done += 1
+                    for p in (updates or {}).get("proposals", []):
+                        total_risks += len(p.get("risks") or [])
                     # First vendor done → risk analysis is underway across the batch.
                     if "risk" not in seen_stages:
                         seen_stages.add("risk")
@@ -93,7 +96,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
                     # Last vendor done → all scoring complete, memo is next.
                     if vendor_nodes_done >= num_vendors and "scoring" not in seen_stages:
                         seen_stages.add("scoring")
-                        emit("scoring", {"status": "scoring"})
+                        emit("scoring", {"status": "scoring", "total_risks": total_risks})
                 elif node_name == "memo_node" and "memo" not in seen_stages:
                     seen_stages.add("memo")
                     emit("memo", {"status": "memo"})

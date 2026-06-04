@@ -65,6 +65,18 @@ const COMPLETION_LABELS: Record<ActiveStage, string> = {
 const TYPEWRITER_INTERVAL_MS = 25;
 const TYPEWRITER_CHARS_PER_TICK = 4;
 
+function buildExtractingLines(vendorNames: string[]): string[] {
+  if (vendorNames.length === 0) return STAGE_LINES.extracting;
+  return [
+    "Initializing ChromaDB vector index...",
+    "Running semantic search → pricing, fees, contract length",
+    "Running semantic search → security certifications, DPA",
+    "Running semantic search → features, SLA, integrations",
+    ...vendorNames.map((n) => `Extracting structured data from ${n}...`),
+    "Parsing JSON response into ProposalData model",
+  ];
+}
+
 const ACTIVE_STAGE_SET = new Set<Stage>(["extracting", "risk", "scoring", "memo"]);
 
 function isActiveStage(s: Stage): s is ActiveStage {
@@ -80,9 +92,11 @@ interface Entry {
 
 interface Props {
   stage: Stage;
+  vendorNames?: string[];
+  totalRisks?: number;
 }
 
-export function ThinkingLog({ stage }: Props) {
+export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
   const [entries, setEntries] = useState<Entry[]>([]);
   const viewportRef = useRef<HTMLDivElement>(null);
   const lineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,10 +115,14 @@ export function ThinkingLog({ stage }: Props) {
       const startTime = stageStartRef.current[completedStage];
       const elapsed = startTime ? Math.round((Date.now() - startTime) / 1000) : null;
       const timePart = elapsed != null ? ` · ${elapsed}s` : "";
+      const flagsPart =
+        completedStage === "risk" && totalRisks != null
+          ? ` · ${totalRisks} flag${totalRisks !== 1 ? "s" : ""}`
+          : "";
       setEntries((prev) => [
         ...prev,
         {
-          text: `${COMPLETION_LABELS[completedStage]} — ${STAGE_SUMMARY[completedStage]}${timePart}`,
+          text: `${COMPLETION_LABELS[completedStage]} — ${STAGE_SUMMARY[completedStage]}${flagsPart}${timePart}`,
           stage: completedStage,
           completion: true,
         },
@@ -119,7 +137,8 @@ export function ThinkingLog({ stage }: Props) {
     prevStageRef.current = stage;
     stageStartRef.current[stage] = Date.now();
     indexRef.current = 0;
-    const lines = STAGE_LINES[stage];
+    const lines =
+      stage === "extracting" ? buildExtractingLines(vendorNames) : STAGE_LINES[stage];
     const capturedStage = stage;
 
     function revealLastEntry(text: string, onDone: () => void) {

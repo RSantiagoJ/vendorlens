@@ -38,6 +38,8 @@ export default function Home() {
   const [selectedBundleId, setSelectedBundleId] = useState<string | null>(isDemo ? DEMO_RESULT.bundle_id : null);
   const [error, setError] = useState<string | null>(null);
   const [bundles, setBundles] = useState<Bundle[]>([]);
+  const [vendorNames, setVendorNames] = useState<string[]>([]);
+  const [totalRisks, setTotalRisks] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     fetch(`${API_BASE}/bundles`)
@@ -57,6 +59,8 @@ export default function Home() {
     setStage(null);
     setResult(null);
     setError(null);
+    setVendorNames([]);
+    setTotalRisks(undefined);
   }
 
   const handleSubmit = useCallback(async (files: File[], bundle: string) => {
@@ -80,9 +84,25 @@ export default function Home() {
 
       const es = new EventSource(`${API_BASE}/stream/${job_id}`);
 
-      (["extracting", "risk", "scoring", "memo"] as const).forEach(
+      es.addEventListener("extracting", (e) => {
+        setStage("extracting");
+        try {
+          const data = JSON.parse((e as MessageEvent).data);
+          if (Array.isArray(data.vendors)) setVendorNames(data.vendors);
+        } catch {}
+      });
+
+      (["risk", "memo"] as const).forEach(
         (s) => es.addEventListener(s, () => setStage(s))
       );
+
+      es.addEventListener("scoring", (e) => {
+        setStage("scoring");
+        try {
+          const data = JSON.parse((e as MessageEvent).data);
+          if (typeof data.total_risks === "number") setTotalRisks(data.total_risks);
+        } catch {}
+      });
 
       es.addEventListener("done", (e) => {
         es.close();
@@ -211,7 +231,11 @@ export default function Home() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--mantine-spacing-md)", alignItems: "flex-start" }}>
                 <AgentProgressBar stage={appState === "done" ? "done" : stage} />
-                <ThinkingLog stage={appState === "done" ? "done" : stage} />
+                <ThinkingLog
+                  stage={appState === "done" ? "done" : stage}
+                  vendorNames={vendorNames}
+                  totalRisks={totalRisks}
+                />
               </div>
 
               {appState === "done" && result && (
