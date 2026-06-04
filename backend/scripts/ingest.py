@@ -42,13 +42,9 @@ from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
-BASE_DIR = Path(__file__).parent.parent
+from tools.chroma import BASE_DIR, CHROMA_DIR, COLLECTION_NAME, EMBEDDING_MODEL
+
 DOCS_DIR = BASE_DIR / "data" / "vendor_proposals"
-CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
-COLLECTION_NAME = "vendor_proposals"
 
 
 def build_index(force: bool = False) -> VectorStoreIndex:
@@ -74,7 +70,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
             chroma_collection = chroma_client.get_collection(COLLECTION_NAME)
             vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
             embed_model = GoogleGenAIEmbedding(
-                model_name="models/gemini-embedding-001",
+                model_name=EMBEDDING_MODEL,
                 api_key=os.environ["GOOGLE_API_KEY"],
             )
             Settings.embed_model = embed_model
@@ -93,7 +89,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
 
     # Configure embedding model globally for LlamaIndex
     embed_model = GoogleGenAIEmbedding(
-        model_name="models/gemini-embedding-001",
+        model_name=EMBEDDING_MODEL,
         api_key=os.environ["GOOGLE_API_KEY"],
     )
     Settings.embed_model = embed_model

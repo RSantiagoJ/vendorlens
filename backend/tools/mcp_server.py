@@ -20,7 +20,8 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-BASE_DIR = Path(__file__).parent.parent
+from tools.chroma import BASE_DIR
+
 DOCS_DIR = BASE_DIR / "data" / "vendor_proposals"
 POLICY_PATH = BASE_DIR / "data" / "context_bundles" / "lms" / "policy.txt"
 

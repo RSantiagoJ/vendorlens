@@ -33,8 +33,6 @@ LANGCHAIN_API_KEY are set in backend/.env.
 """
 
 import operator
-import os
-from pathlib import Path
 from typing import Annotated, List, Optional
 from typing_extensions import TypedDict
 
@@ -42,22 +40,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import chromadb
 from langgraph.constants import Send
 from langgraph.graph import END, START, StateGraph
-from llama_index.core import Settings, VectorStoreIndex
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
-from llama_index.vector_stores.chroma import ChromaVectorStore
 
 from agents.extraction_agent import ExtractionAgent
 from agents.memo_agent import MemoAgent
 from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
 from graph.state import ProposalState
-
-BASE_DIR = Path(__file__).parent.parent
-CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
-COLLECTION_NAME = "vendor_proposals"
+from tools.chroma import load_index
 
 
 # ---------------------------------------------------------------------------
@@ -79,22 +70,6 @@ class PipelineState(TypedDict):
 
 
 # ---------------------------------------------------------------------------
-# Index loader
-# ---------------------------------------------------------------------------
-
-def _load_index() -> VectorStoreIndex:
-    embed_model = GoogleGenAIEmbedding(
-        model_name="models/gemini-embedding-001",
-        api_key=os.environ["GOOGLE_API_KEY"],
-    )
-    Settings.embed_model = embed_model
-    chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    collection = chroma_client.get_collection(COLLECTION_NAME)
-    vector_store = ChromaVectorStore(chroma_collection=collection)
-    return VectorStoreIndex.from_vector_store(vector_store)
-
-
-# ---------------------------------------------------------------------------
 # Pipeline builder
 # ---------------------------------------------------------------------------
 
@@ -108,7 +83,7 @@ def build_pipeline(bundle_id: str = "lms"):
         Compiled LangGraph CompiledStateGraph ready to invoke.
     """
     print(f"  Loading ChromaDB index (bundle: {bundle_id})...")
-    index = _load_index()
+    index = load_index()
     extraction_agent = ExtractionAgent(index)
     risk_agent = RiskAgent(bundle_id=bundle_id)
     scoring_agent = ScoringAgent(bundle_id=bundle_id)

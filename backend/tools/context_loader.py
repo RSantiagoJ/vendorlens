@@ -8,9 +8,7 @@ Usage:
     bundle = load_context_bundle("cyber")          # cybersecurity bundle
 """
 
-from pathlib import Path
-
-BASE_DIR = Path(__file__).parent.parent
+from tools.chroma import BASE_DIR
 
 BUNDLES: dict[str, dict] = {
     "lms": {

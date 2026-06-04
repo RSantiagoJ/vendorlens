@@ -24,7 +24,7 @@ import argparse
 import os
 import sys
 from collections import Counter
-from pathlib import Path
+
 
 from dotenv import load_dotenv
 
@@ -42,8 +42,8 @@ if not os.getenv("ANTHROPIC_API_KEY"):
 
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState, VendorLensState
+from tools.chroma import BASE_DIR
 
-BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data" / "vendor_proposals" / "lms"
 
 VENDORS = [

@@ -25,7 +25,6 @@ Expected output:
 
 import os
 import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -34,34 +33,14 @@ load_dotenv()
 if not os.getenv("GOOGLE_API_KEY"):
     sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
 
-import chromadb
-from llama_index.core import Settings, VectorStoreIndex
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
-from llama_index.vector_stores.chroma import ChromaVectorStore
-
 from agents.extraction_agent import ExtractionAgent as AgentClass
+from tools.chroma import load_index
 
 print("Using Gemini 3.5 Flash")
-
-BASE_DIR = Path(__file__).parent.parent
-CHROMA_DIR = BASE_DIR / "data" / "chroma_db"
-COLLECTION_NAME = "vendor_proposals"
 
 VENDOR_A = "blackboard.txt"
 VENDOR_B = "canvas.txt"
 VENDOR_C = "brightspace.txt"
-
-
-def load_index() -> VectorStoreIndex:
-    embed_model = GoogleGenAIEmbedding(
-        model_name="models/gemini-embedding-001",
-        api_key=os.environ["GOOGLE_API_KEY"],
-    )
-    Settings.embed_model = embed_model
-    chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    chroma_collection = chroma_client.get_collection(COLLECTION_NAME)
-    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    return VectorStoreIndex.from_vector_store(vector_store)
 
 
 def run_checks():
