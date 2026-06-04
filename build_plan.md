@@ -368,7 +368,27 @@ Checkpoint: full pipeline runs with no Google keys set. Scoring stage shows Haik
 
 ---
 
-## Day 8 — Negotiation Playbook Agent 🎯
+## Day 8 — UI Visual Impact + Google Migration ✅ COMPLETE
+
+### What was built
+
+1. **Remove Google dependency** — switched to Claude-only LLMs (Haiku 3.5 for scoring, Sonnet 4.6 for all other agents) and local ONNX embeddings (`BAAI/bge-small-en-v1.5` via FastEmbed). No API keys required beyond Anthropic.
+
+2. **WinnerHero banner** — full-width animated green-gradient banner above the vendor cards. Shows the recommended vendor's name, a 4rem animated score count-up, a thick fill bar, top-3 scoring strengths panel, and a stat line with vendor/risk counts.
+
+3. **ProposalCard upgrades** — dimension score rows are now clickable popovers showing AI rationale; non-winner cards show "Gap to win" badges (top 2 trailing dimensions vs the winner); risk tooltips now surface `policy_excerpt` when present.
+
+4. **Score duplication resolved** — VendorComparisonTable score cells replaced mini-bar sparklines with plain colored numbers. Bars live in the cards; numbers in the table; they now serve distinct purposes.
+
+5. **Results reordered** — WinnerHero → Cards → Radar chart → Comparison table → Memo. Visual "wow" comes before the data grid.
+
+6. **Live log contrast fix** — dimmed log lines bumped from `gray-5` to `gray-7` for legibility on white background.
+
+Key files: `WinnerHero.tsx` (new), `ProposalCard.tsx`, `VendorComparisonTable.tsx`, `ThinkingLog.tsx`, `graph/pipeline.py` (print → logging).
+
+---
+
+## Day 8 (original plan) — Negotiation Playbook Agent 🎯
 
 ### The story for leadership
 
@@ -457,7 +477,7 @@ with leverage points, key asks, and walk-in summary for the winning vendor.
 
 ---
 
-## Day 9 — Anthropic Prompt Caching
+## Day 10 — Anthropic Prompt Caching
 
 ### Why this matters
 
@@ -528,7 +548,7 @@ Total input tokens for a 3-vendor run visibly lower than before caching.
 
 ---
 
-## Day 10 — Terraform Deploy 🎯
+## Day 9 — Terraform Deploy 🎯
 
 Goal: provision the full AWS stack with one command; get a live public URL.
 Personal AWS account — no work access dependencies, full admin control.
@@ -661,7 +681,7 @@ Full pipeline runs end-to-end in prod with the Negotiation Playbook panel visibl
 > "Any institution can fork this and have it running in 10 minutes."
 
 **Closing (30 sec):**
-> "Ten days. Five AI agents. Live on AWS. Fully auditable in LangSmith.
+> "Nine days. Five AI agents. Live on AWS. Fully auditable in LangSmith.
 > Drop in your own RFP policy files and it works for any procurement team."
 
 ---

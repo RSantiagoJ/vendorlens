@@ -22,9 +22,12 @@ LangSmith tracing is automatic when LANGCHAIN_TRACING_V2=true and
 LANGCHAIN_API_KEY are set in backend/.env.
 """
 
+import logging
 import operator
 from typing import Annotated, List, Optional
 from typing_extensions import TypedDict
+
+logger = logging.getLogger(__name__)
 
 from dotenv import load_dotenv
 
@@ -72,13 +75,13 @@ def build_pipeline(bundle_id: str = "lms"):
     Returns:
         Compiled LangGraph CompiledStateGraph ready to invoke.
     """
-    print(f"  Loading ChromaDB index (bundle: {bundle_id})...")
+    logger.info("Loading ChromaDB index (bundle: %s)", bundle_id)
     index = load_index()
     extraction_agent = ExtractionAgent(index)
     risk_agent = RiskAgent(bundle_id=bundle_id)
     scoring_agent = ScoringAgent(bundle_id=bundle_id)
     memo_agent = MemoAgent()
-    print("  Agents initialized.")
+    logger.info("Agents initialized")
 
     # -----------------------------------------------------------------------
     # Fan-out dispatchers (conditional edges — return Send objects)
