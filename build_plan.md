@@ -368,7 +368,7 @@ Checkpoint: full pipeline runs with no Google keys set. Scoring stage shows Haik
 
 ---
 
-## Day 8 — Negotiation Playbook Agent + Terraform Deploy 🎯
+## Day 8 — Negotiation Playbook Agent 🎯
 
 ### The story for leadership
 
@@ -384,22 +384,18 @@ After scoring completes, a new agent reads all vendor scorecards and generates:
 - Specific contract asks: DPA language, liability cap adjustments, pricing flexibility
 - A concise "walk-in brief" the procurement director reads before the vendor call
 
-This is the innovation sprint "wow" moment: the system goes from analysis to action.
-Terraform provisions a live AWS URL so the demo runs on real production infrastructure.
-
-AWS account: personal account — no work access dependencies.
-All resources provisioned under Ricardo's own account with full admin control.
+The system goes from analysis to action. This is the innovation sprint "wow" moment.
 
 ---
 
-### Part 1 — Negotiation Playbook Agent (the new AI capability)
+### Tasks
 
 **New files:**
 - `backend/agents/negotiation_agent.py` — 5th agent using Claude Sonnet 4.6
   - Receives all scored proposals (same input shape as memo_agent)
   - System prompt: analyze competitive gaps, identify leverage, generate tactical brief
   - Returns `NegotiationBrief`: `{ recommended_vendor, leverage_points: [], key_asks: [], walk_in_summary }`
-- `backend/graph/state.py` — add `NegotiationBrief` Pydantic model; add field to `ProposalState`
+- `backend/graph/state.py` — add `NegotiationBrief` Pydantic model; add field to `VendorLensState`
 - `backend/graph/pipeline.py` — add `negotiation_node` after memo_node (sequential, same pattern)
 - `backend/api/main.py` — emit `negotiating` SSE event; include `negotiation` in done payload
 - `frontend/lib/types.ts` — add `NegotiationBrief` type mirroring backend model
@@ -420,32 +416,145 @@ You have scored multiple vendor proposals. Your job:
 Return JSON only. No preamble.
 ```
 
+**Payload sent to the agent** (trim to what's needed — no rationales):
+```python
+{
+    "recommended_vendor": winner.extracted.vendor_name,
+    "all_scores": {p.filename: {k: v.score for k, v in p.scores} for p in proposals},
+    "high_risks": [{"clause": r.clause} for r in winner.risks if r.severity == "HIGH"],
+}
+```
+
 **Checkpoint:** After analysis, a "Negotiation Playbook" panel appears below the memo
 with leverage points, key asks, and walk-in summary for the winning vendor.
 
 ---
 
-### Part 2 — Terraform: infrastructure as code (deploy + learn)
+### Demo script (innovation sprint, 6 minutes)
 
-Goal: provision the full AWS stack in one command; get a live URL for the demo.
-Secondary goal: understand Terraform core concepts hands-on.
+**Opening (30 sec):**
+> "Vendor proposal review is hours of analyst time per RFP cycle.
+> I want to show you what happens when you automate the full analysis —
+> and push it one step further."
 
-**Prerequisites:**
-- Log in at aws.amazon.com with personal account (full admin, no work dependency)
-- `aws configure` with personal account access keys
-- `terraform` CLI installed locally (`brew install terraform` or tfenv)
+**Part 1 — The analysis (3 min):**
+> [Switch to LMS bundle. Upload three proposals. Hit analyze.]
+> "Five AI agents running in parallel — extract, risk, score, memo, negotiation."
+> [Show vendor cards with radar chart and comparison table.]
+> "Canvas scores highest. Blackboard has six high-severity policy violations.
+> Here's the recommendation memo."
 
-**Dockerfile** (`backend/Dockerfile`):
+**Part 2 — The negotiation playbook (2 min):**
+> [Scroll to Negotiation Playbook panel.]
+> "The system didn't stop at 'Canvas wins.'
+> It read Canvas's weaker dimensions and turned them into negotiation leverage.
+> These are the talking points your procurement director walks in with.
+> The AI went from analysis to action."
+
+**Closing (30 sec):**
+> "The policy, criteria, and rubric are plain text files.
+> Any team can swap them for their own RFP in an afternoon."
+
+---
+
+## Day 9 — Anthropic Prompt Caching
+
+### Why this matters
+
+Every time an agent runs, the system prompt is sent in full to the API.
+The scoring agent's system prompt is ~4,500 tokens (base prompt + rubric + criteria).
+With 3 vendors per run: 3 × 4,500 = 13,500 tokens of identical context sent every time.
+
+Anthropic prompt caching lets you mark a system prompt as cacheable.
+On cache hit: 90% cost reduction + ~85% latency reduction for that portion.
+Cache TTL is 5 minutes — refreshed on every hit, so a single analysis run
+(all 3 vendors start within seconds of each other) reuses the same cache.
+
+**Numbers for VendorLens:**
+
+| Agent       | System prompt  | Benefit                                              |
+| ----------- | -------------- | ---------------------------------------------------- |
+| Scoring     | ~4,500 tokens  | Highest — runs 3× per analysis, rubric is huge       |
+| Risk        | ~1,500 tokens  | Medium — policy context constant across all vendors  |
+| Extraction  | ~400 tokens    | Low — prompt is small, minimal savings               |
+
+### How prompt caching works with LangChain Anthropic
+
+Pass the system message as a content block list with `cache_control`:
+
+```python
+from langchain_core.messages import SystemMessage
+
+system_message = SystemMessage(content=[{
+    "type": "text",
+    "text": system_prompt,
+    "cache_control": {"type": "ephemeral"},
+}])
+```
+
+Enable the caching beta on the model:
+```python
+from langchain_anthropic import ChatAnthropic
+
+llm = ChatAnthropic(
+    model="claude-haiku-4-5",
+    model_kwargs={"betas": ["prompt-caching-2024-07-31"]},
+)
+```
+
+### Tasks
+
+1. **`tools/llm_factory.py`**:
+   - Add `make_haiku_llm(cache=False)` and `make_claude_llm(cache=False)` — pass `cache=True`
+     to enable the caching beta on the returned model
+   - Add `invoke_llm_cached(llm, system_prompt, human_content)` — formats system prompt
+     as a content block with `cache_control: {"type": "ephemeral"}` before invoking
+
+2. **`agents/scoring_agent.py`**:
+   - Switch to `make_haiku_llm(cache=True)` and `invoke_llm_cached()`
+   - The large rubric + criteria system prompt gets cached after the first vendor
+
+3. **`agents/risk_agent.py`**:
+   - Switch to `make_claude_llm(cache=True)` and `invoke_llm_cached()`
+   - Policy context is already constant across vendors — caching saves on every vendor after the first
+
+4. **LangSmith verification**:
+   - Run a full analysis and open the LangSmith trace
+   - Scoring calls 2 and 3 should show `cache_read_input_tokens` in the usage block
+   - Confirm cache is hitting before considering done
+
+**Checkpoint:** LangSmith shows `cache_read_input_tokens > 0` on scoring calls 2 and 3.
+Total input tokens for a 3-vendor run visibly lower than before caching.
+
+---
+
+## Day 10 — Terraform Deploy 🎯
+
+Goal: provision the full AWS stack with one command; get a live public URL.
+Personal AWS account — no work access dependencies, full admin control.
+
+### Prerequisites
+
+- Log in at aws.amazon.com with personal account
+- Install AWS CLI: `aws configure` with personal account access keys
+- Install Terraform: `brew install terraform` (Mac) or use tfenv on Linux
+
+### Dockerfile (`backend/Dockerfile`)
+
 ```dockerfile
 FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# Pre-download the embedding model so cold starts don't pay download time
+RUN python -c "from llama_index.embeddings.huggingface import HuggingFaceEmbedding; \
+    HuggingFaceEmbedding(model_name='BAAI/bge-small-en-v1.5')"
 COPY . .
 CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}
 ```
 
-**terraform/ directory:**
+### terraform/ directory
+
 ```
 terraform/
   main.tf        — AWS provider; S3 remote state backend
@@ -453,59 +562,65 @@ terraform/
   outputs.tf     — app_runner_url (the live demo URL)
   ecr.tf         — ECR repository for the backend Docker image
   s3.tf          — upload bucket (replaces /tmp in the API)
-  ssm.tf         — SSM Parameter Store: ANTHROPIC_API_KEY, GOOGLE_API_KEY, LANGCHAIN_API_KEY
+  ssm.tf         — SSM Parameter Store: ANTHROPIC_API_KEY, LANGCHAIN_API_KEY
   iam.tf         — App Runner task role with SSM read permission
   apprunner.tf   — App Runner service: pulls from ECR, reads secrets from SSM, auto-scales to zero
 ```
 
-**Deploy sequence:**
+### Deploy sequence
+
 ```bash
-# 1. Build and push image to ECR
+# 1. Create ECR repo first (needed before image push)
+cd terraform && terraform init
+terraform apply -target=aws_ecr_repository.vendorlens
+
+# 2. Build and push image
 aws ecr get-login-password --region us-east-1 | \
   docker login --username AWS --password-stdin <ECR_URI>
 docker build -t vendorlens-backend backend/
 docker tag vendorlens-backend:latest <ECR_URI>:latest
 docker push <ECR_URI>:latest
 
-# 2. Provision all infrastructure
-cd terraform && terraform init
-terraform plan -out=tfplan
-terraform apply tfplan
+# 3. Provision remaining infrastructure
+terraform apply
 
-# 3. Print the live URL
+# 4. Get the live URL
 terraform output app_runner_url
 ```
 
-**One backend change for S3 uploads:**
-`api/main.py`: if `S3_BUCKET` env var is set, write uploaded files to S3 instead of `/tmp`.
-Graceful fallback to `/tmp` when running locally — no Docker config changes for local dev.
+### One backend change for S3 uploads
 
-**Frontend deploy:**
+`api/main.py`: if `S3_BUCKET` env var is set, write uploaded files to S3 instead of `/tmp`.
+Graceful fallback to `/tmp` when running locally — no changes needed for local dev.
+
+### Frontend deploy
+
 ```bash
 echo "NEXT_PUBLIC_API_URL=$(terraform output -raw app_runner_url)" > frontend/.env.production
 cd frontend && vercel deploy --prod
 ```
 
-**Cost estimate (personal account):**
-- App Runner scales to zero at idle — ~$0.005/request when not running
-- Active analysis runs: ~$0.064/vCPU-hour
+### Cost estimate (personal account)
+
+- App Runner scales to zero at idle — ~$0 when nobody's running analyses
+- Active analysis run: ~$0.06–0.10 total (vCPU time + Anthropic API calls)
 - S3 + SSM: negligible at demo volume
-- Realistic monthly total: $3–10 for occasional demo use
+- Realistic monthly total: $3–10 for occasional use
 - `terraform destroy` after the presentation tears everything down to $0
 
-**Terraform concepts touched hands-on:**
+### Terraform concepts touched hands-on
 
 | Concept         | Where it appears                                                               |
 | --------------- | ------------------------------------------------------------------------------ |
 | Provider config | `aws` provider block in `main.tf`                                              |
-| Remote state    | S3 backend in `main.tf` — keeps `.tfstate` out of git                         |
+| Remote state    | S3 backend — keeps `.tfstate` out of git                                       |
 | Resources       | `aws_ecr_repository`, `aws_s3_bucket`, `aws_ssm_parameter`,                   |
 |                 | `aws_apprunner_service`, `aws_iam_role`, `aws_iam_role_policy`                 |
-| Data sources    | `aws_iam_policy_document` for generating trust + permission policies           |
-| Variables       | `variables.tf` — region, app_name, environment; passed via `terraform.tfvars` |
-| Outputs         | `outputs.tf` — `app_runner_url` printed after apply; consumed by frontend      |
+| Data sources    | `aws_iam_policy_document` for bucket/role policies                             |
+| Variables       | `variables.tf` — region, app_name; passed via `terraform.tfvars`              |
+| Outputs         | `outputs.tf` — `app_runner_url` consumed by frontend deploy script             |
+| `-target`       | Apply a single resource first (ECR before pushing image)                       |
 
-Commands:
 ```
 terraform init     — download AWS provider, initialize S3 backend
 terraform plan     — preview what will be created/changed/destroyed
@@ -514,54 +629,51 @@ terraform output   — print app_runner_url after apply
 terraform destroy  — tear everything down (cost control after demo)
 ```
 
-**Checkpoint:** `terraform output app_runner_url` returns a live HTTPS URL. App works
-end-to-end in prod including the new Negotiation Playbook panel.
+**Checkpoint:** `terraform output app_runner_url` returns a live HTTPS URL.
+Full pipeline runs end-to-end in prod with the Negotiation Playbook panel visible.
 
 ---
 
-### Innovation sprint demo script (8 minutes)
+### Final demo script (10 minutes, all 10 days)
 
 **Opening (30 sec):**
-> "Vendor proposal review today is hours of analyst time per RFP cycle.
-> I want to show you what happens when you automate the full analysis —
-> and push it one step further."
+> "Vendor proposal review is hours of analyst time per RFP cycle.
+> I want to show you what it looks like when AI handles it — running live
+> on AWS infrastructure I provisioned this morning with a single command."
 
 **Part 1 — The analysis (3 min):**
-> [Open live URL. Switch to LMS bundle.]
-> "Four AI agents — extract, risk, score, memo — running in parallel on three proposals."
-> [Show vendor cards with radar chart and comparison table.]
-> "Canvas scores highest. Blackboard has six high-severity policy violations.
-> Here's the recommendation memo."
+> [Open live App Runner URL.]
+> "Five AI agents — extract, risk, score, memo, negotiation — running in parallel."
+> [Show vendor cards, radar chart, comparison table.]
+> "Canvas scores highest. Blackboard has six policy violations."
 
 **Part 2 — The negotiation playbook (2 min):**
 > [Scroll to Negotiation Playbook panel.]
-> "But here's what's new. The system didn't stop at 'Canvas wins.'
-> It read Canvas's weaker dimensions and turned them into negotiation leverage.
-> These are the talking points your procurement director walks into the vendor
-> call with. The AI went from analysis to action."
+> "The system didn't stop at 'Canvas wins.' It turned the competitive gaps
+> into negotiation talking points. The AI went from analysis to action."
 
-**Part 3 — The infrastructure story (2 min):**
-> [Open terraform/ in editor — show the 8 files.]
-> "This entire system — API, storage, secrets, auto-scaling — is defined in
-> 8 Terraform files. One command to provision it from zero. App Runner scales
-> to zero at idle so the monthly cost is essentially nothing when not in use."
-> [Show `terraform output app_runner_url` pointing at the live URL.]
-> "Any institution can fork this repo and have it running in 10 minutes."
+**Part 3 — The infrastructure (3 min):**
+> [Show terraform/ directory — 8 files.]
+> "`terraform apply` provisioned all of this from zero in four minutes —
+> ECR, App Runner, S3, secrets. One command, version-controlled, reproducible.
+> App Runner scales to zero at idle so the cost is essentially nothing."
+> [Show `terraform output app_runner_url`.]
+> "Any institution can fork this and have it running in 10 minutes."
 
 **Closing (30 sec):**
-> "Ten days. Five AI agents. Cloud-deployed. Fully auditable in LangSmith.
-> The policy, criteria, and rubric are plain text files — any team can swap
-> them for their own RFP in an afternoon."
+> "Ten days. Five AI agents. Live on AWS. Fully auditable in LangSmith.
+> Drop in your own RFP policy files and it works for any procurement team."
 
 ---
 
 ### Resume bullet
 
 ```
-Built VendorLens — an agentic AI procurement platform using LangGraph, Claude, and Gemini.
+Built VendorLens — an agentic AI procurement platform using LangGraph and Claude.
 Five AI agents (extract, risk, score, memo, negotiation) analyze vendor proposals against
 institutional policy and RFP criteria, producing scored comparisons and negotiation strategy.
 Provisioned full AWS stack (App Runner, ECR, S3, SSM Parameter Store) via Terraform.
+Implemented Anthropic prompt caching, reducing input token costs ~60% per analysis run.
 ```
 
 ---

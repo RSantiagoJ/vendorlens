@@ -1,16 +1,15 @@
 """
 llm_factory — LLM selection, prompt loading, and shared utilities.
 
-All LLM calls use Anthropic:
-  - Claude Sonnet 4.6 (make_claude_llm / make_llm): extraction, risk, memo, negotiation
-  - Claude Haiku 3.5  (make_haiku_llm):             scoring — mechanical task, 4x faster
+Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
+Raises ValueError if neither key is set.
 
 Usage:
-    from tools.llm_factory import load_prompt, make_llm, make_claude_llm, make_haiku_llm, parse_llm_json
+    from tools.llm_factory import load_prompt, make_llm, make_claude_llm, parse_llm_json
 
     system_prompt = load_prompt("extraction_agent")
-    llm, llm_name = make_llm()          # Sonnet 4.6
-    llm = make_haiku_llm()              # Haiku 3.5, used by ScoringAgent
+    llm, llm_name = make_llm()
+    llm = make_claude_llm()          # always Claude, used by MemoAgent
     data = parse_llm_json(response.content)
 """
 
@@ -43,26 +42,55 @@ def make_claude_llm():
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
 
-def make_haiku_llm():
-    """Return ChatAnthropic(claude-haiku-4-5) with retry. Used for scoring (mechanical task)."""
-    key = os.getenv("ANTHROPIC_API_KEY")
-    if not key:
-        raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
-    from langchain_anthropic import ChatAnthropic
-    llm = ChatAnthropic(model="claude-haiku-4-5", max_tokens=4096, api_key=key)
-    return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
+def _make_google_llm(api_key: str):
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    return ChatGoogleGenerativeAI(
+        model="gemini-3.5-flash",
+        google_api_key=api_key,
+        max_output_tokens=8192,
+    )
 
 
 def make_llm():
-    """Return (llm, model_name) — Claude Sonnet 4.6 for extraction, risk, and memo agents.
+    """Return (llm, model_name) using the best available API key.
+
+    Priority: Gemini 3.5 Flash (GOOGLE_API_KEY) → Claude Sonnet 4.6 (ANTHROPIC_API_KEY).
+    If both GOOGLE_API_KEY and GOOGLE_FALLBACK_API_KEY are set, the fallback key is used
+    automatically when the primary hits a rate limit (HTTP 429 / ResourceExhausted).
+    Note: MemoAgent calls make_claude_llm() directly and is unaffected by this priority.
+    Google API key is also required for embeddings regardless of which LLM is used here.
 
     Returns:
         Tuple of (LangChain chat model, human-readable model name string).
 
     Raises:
-        ValueError: If ANTHROPIC_API_KEY is not set.
+        ValueError: If neither GOOGLE_API_KEY nor ANTHROPIC_API_KEY is set.
     """
-    return make_claude_llm(), "Claude Sonnet 4.6"
+    primary_key = os.getenv("GOOGLE_API_KEY")
+    fallback_key = os.getenv("GOOGLE_FALLBACK_API_KEY")
+
+    if primary_key or fallback_key:
+        primary = _make_google_llm(primary_key or fallback_key)
+
+        if primary_key and fallback_key:
+            from google.api_core.exceptions import ResourceExhausted
+            fallback = _make_google_llm(fallback_key)
+            llm = primary.with_fallbacks(
+                [fallback],
+                exceptions_to_handle=(ResourceExhausted,),
+            )
+        else:
+            llm = primary.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
+
+        return llm, "Gemini 3.5 Flash"
+
+    if os.getenv("ANTHROPIC_API_KEY"):
+        return make_claude_llm(), "Claude Sonnet 4.6"
+
+    raise ValueError(
+        "No LLM API key found. Set GOOGLE_API_KEY (Gemini 3.5 Flash, primary) "
+        "or ANTHROPIC_API_KEY (Claude Sonnet 4.6, fallback) in backend/.env"
+    )
 
 
 def invoke_llm(llm, system_prompt: str, human_content: str) -> str:

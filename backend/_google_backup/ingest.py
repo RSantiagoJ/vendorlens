@@ -2,11 +2,9 @@
 ingest.py — VendorLens RAG ingestion script.
 
 Loads all vendor proposal text files from data/vendor_proposals/ (all bundle
-subfolders: lms/, payroll/, erp/) into ChromaDB using LlamaIndex with local
-HuggingFace embeddings (BAAI/bge-small-en-v1.5). No API key required.
-
-Stores the bare filename as metadata so agents can filter retrieval to a
-specific vendor document regardless of which subfolder it lives in.
+subfolders: lms/, payroll/, erp/) into ChromaDB using LlamaIndex with Google
+embeddings. Stores the bare filename as metadata so agents can filter retrieval
+to a specific vendor document regardless of which subfolder it lives in.
 
 Run once before starting the pipeline:
     cd backend
@@ -17,6 +15,7 @@ data/chroma_db/ and skipped on subsequent runs unless --force is passed.
 """
 
 import argparse
+import os
 import sys
 import urllib.request
 import urllib.error
@@ -28,6 +27,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ---------------------------------------------------------------------------
+# Validate required env var before importing heavy dependencies
+# ---------------------------------------------------------------------------
+if not os.getenv("GOOGLE_API_KEY"):
+    sys.exit("ERROR: GOOGLE_API_KEY is not set. Add it to backend/.env")
+
 from llama_index.core import (
     SimpleDirectoryReader,
     StorageContext,
@@ -35,7 +40,7 @@ from llama_index.core import (
     Settings,
 )
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 
@@ -57,17 +62,20 @@ def build_index(force: bool = False) -> VectorStoreIndex:
     """
     chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
 
-    embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
-    Settings.embed_model = embed_model
-
     if not force:
         existing = chroma_client.list_collections()
         if any(c.name == COLLECTION_NAME for c in existing):
             count = chroma_client.get_collection(COLLECTION_NAME).count()
             print(f"ChromaDB collection '{COLLECTION_NAME}' already exists "
                   f"({count} chunks). Skipping ingestion. Use --force to rebuild.")
+            # Still return a usable index
             chroma_collection = chroma_client.get_collection(COLLECTION_NAME)
             vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+            embed_model = GoogleGenAIEmbedding(
+                model_name=EMBEDDING_MODEL,
+                api_key=os.environ["GOOGLE_API_KEY"],
+            )
+            Settings.embed_model = embed_model
             return VectorStoreIndex.from_vector_store(vector_store)
 
     print(f"Loading documents from: {DOCS_DIR}")
@@ -81,8 +89,17 @@ def build_index(force: bool = False) -> VectorStoreIndex:
     print(f"  Loaded {len(documents)} document(s): "
           f"{[d.metadata.get('file_name') for d in documents]}")
 
+    # Configure embedding model globally for LlamaIndex
+    embed_model = GoogleGenAIEmbedding(
+        model_name=EMBEDDING_MODEL,
+        api_key=os.environ["GOOGLE_API_KEY"],
+    )
+    Settings.embed_model = embed_model
+
+    # Chunking
     splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
 
+    # ChromaDB vector store
     if force:
         try:
             chroma_client.delete_collection(COLLECTION_NAME)
@@ -94,7 +111,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    print("Building index (local HuggingFace embeddings — no API key required)...")
+    print("Building index (this calls the Google Embeddings API)...")
     index = VectorStoreIndex.from_documents(
         documents,
         storage_context=storage_context,
@@ -118,6 +135,9 @@ if __name__ == "__main__":
     build_index(force=args.force)
     print("Ingestion complete.")
 
+    # Signal the running API to reload its index cache.
+    # If the API isn't running yet, this step is skipped — the fresh index
+    # will be loaded automatically when the API starts.
     try:
         req = urllib.request.Request(
             "http://localhost:8000/reload",

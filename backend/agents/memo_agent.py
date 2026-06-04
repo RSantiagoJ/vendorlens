@@ -32,13 +32,20 @@ class MemoAgent:
         Returns:
             Markdown string containing the full recommendation memo.
         """
-        # Only HIGH risks are used by the memo prompt — sending MEDIUM/LOW wastes tokens.
+        # Only HIGH risks and numeric scores are sent — rationales and MEDIUM/LOW risks
+        # are for the UI, not for memo writing.
         proposal_data = [
             {
                 "filename": p.filename,
                 "extracted": p.extracted.model_dump(exclude_none=True) if p.extracted else None,
-                "high_risks": [r.model_dump() for r in (p.risks or []) if r.severity == "HIGH"],
-                "scores": p.scores.model_dump() if p.scores else None,
+                "high_risks": [
+                    {"clause": r.clause, "explanation": r.explanation}
+                    for r in (p.risks or []) if r.severity == "HIGH"
+                ],
+                "scores": {
+                    k: (v.score if hasattr(v, "score") else v)
+                    for k, v in p.scores.model_dump().items()
+                } if p.scores else None,
             }
             for p in proposals
         ]

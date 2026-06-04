@@ -2,7 +2,7 @@
 ScoringAgent — Day 3
 
 Scores a vendor proposal against RFP evaluation criteria using:
-  - LLM via make_llm() — Gemini 3.5 Flash primary, Claude Sonnet 4.6 fallback
+  - Claude Haiku 3.5 — mechanical scoring task; 4x faster than Sonnet
   - Rubric and weights loaded from data/context_bundle/ at runtime
 
 How it works:
@@ -23,7 +23,7 @@ load_dotenv()
 
 from graph.state import DimensionScore, ProposalData, RiskFlag, ScoreCard
 from tools.context_loader import load_context_bundle
-from tools.llm_factory import invoke_llm, load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import invoke_llm, load_prompt, make_haiku_llm, parse_llm_json
 
 # Structural mapping: rfp_criteria dimension names → ScoreCard field names.
 # Weights for each dimension come from the rfp_criteria context bundle file.
@@ -77,7 +77,8 @@ class ScoringAgent:
                 f"got {len(self._weights)}: {self._weights}"
             )
 
-        self.llm, self.llm_name = make_llm()
+        self.llm = make_haiku_llm()
+        self.llm_name = "Claude Haiku 3.5"
 
     def _compute_overall(self, dim_scores: dict[str, float]) -> float:
         """Weighted average using weights parsed from rfp_criteria_lms.txt."""
