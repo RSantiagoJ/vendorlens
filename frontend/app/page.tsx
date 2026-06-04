@@ -117,7 +117,16 @@ export default function Home() {
     }
   }, []);
 
-
+  const bundleId = result?.bundle_id ?? selectedBundleId;
+  const currentBundle = bundleId ? bundles.find((b) => b.id === bundleId) : null;
+  const scored = (result?.proposals ?? [])
+    .filter((p) => p.scores?.overall != null)
+    .sort((a, b) => b.scores!.overall - a.scores!.overall);
+  const winner = scored[0] ?? null;
+  const sortedProposals = [
+    ...scored,
+    ...(result?.proposals ?? []).filter((p) => p.scores?.overall == null),
+  ];
 
   return (
     <AppShell header={{ height: 68 }}>
@@ -191,58 +200,46 @@ export default function Home() {
             </Stack>
           )}
 
-          {(appState === "processing" || appState === "done") && (() => {
-            const bundleId = result?.bundle_id ?? selectedBundleId;
-            const bundle = bundleId ? bundles.find((b) => b.id === bundleId) : null;
-            const scored = (result?.proposals ?? [])
-              .filter((p) => p.scores?.overall != null)
-              .sort((a, b) => b.scores!.overall - a.scores!.overall);
-            const winner = scored.length > 0 ? scored[0] : null;
-            const sortedProposals = [
-              ...scored,
-              ...(result?.proposals ?? []).filter((p) => p.scores?.overall == null),
-            ];
-            return (
-              <Stack gap="xl" pt="xl">
-                {bundle && (
-                  <Box>
-                    <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
-                      {appState === "done" ? "RFP Evaluation" : "Evaluating"}
-                    </Text>
-                    <Text fw={700} size="xl" c="dark">{bundle.label}</Text>
-                    <Text size="sm" c="dimmed">
-                      {bundle.description}
-                      {appState === "done" && ` · ${sortedProposals.length} vendor${sortedProposals.length !== 1 ? "s" : ""} evaluated`}
-                    </Text>
-                  </Box>
-                )}
+          {(appState === "processing" || appState === "done") && (
+            <Stack gap="xl" pt="xl">
+              {currentBundle && (
+                <Box>
+                  <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
+                    {appState === "done" ? "RFP Evaluation" : "Evaluating"}
+                  </Text>
+                  <Text fw={700} size="xl" c="dark">{currentBundle.label}</Text>
+                  <Text size="sm" c="dimmed">
+                    {currentBundle.description}
+                    {appState === "done" && ` · ${sortedProposals.length} vendor${sortedProposals.length !== 1 ? "s" : ""} evaluated`}
+                  </Text>
+                </Box>
+              )}
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--mantine-spacing-md)", alignItems: "flex-start" }}>
-                  <AgentProgressBar stage={appState === "done" ? "done" : stage} />
-                  <ThinkingLog stage={appState === "done" ? "done" : stage} />
-                </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--mantine-spacing-md)", alignItems: "flex-start" }}>
+                <AgentProgressBar stage={appState === "done" ? "done" : stage} />
+                <ThinkingLog stage={appState === "done" ? "done" : stage} />
+              </div>
 
-                {appState === "done" && result && (
-                  <Stack gap="xl" className="fadeIn">
-                    <SimpleGrid
-                      cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
-                      spacing="md"
-                    >
-                      {sortedProposals.map((p) => (
-                        <ProposalCard
-                          key={p.filename}
-                          proposal={p}
-                          recommended={winner !== null && p.filename === winner.filename}
-                          showBadge={sortedProposals.length > 1}
-                        />
-                      ))}
-                    </SimpleGrid>
-                    {result.memo && <MemoPanel memo={result.memo} />}
-                  </Stack>
-                )}
-              </Stack>
-            );
-          })()}
+              {appState === "done" && result && (
+                <Stack gap="xl" className="fadeIn">
+                  <SimpleGrid
+                    cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
+                    spacing="md"
+                  >
+                    {sortedProposals.map((p) => (
+                      <ProposalCard
+                        key={p.filename}
+                        proposal={p}
+                        recommended={winner !== null && p.filename === winner.filename}
+                        showBadge={sortedProposals.length > 1}
+                      />
+                    ))}
+                  </SimpleGrid>
+                  {result.memo && <MemoPanel memo={result.memo} />}
+                </Stack>
+              )}
+            </Stack>
+          )}
 
           {appState === "error" && (
             <Stack align="center" gap="md" pt="xl">

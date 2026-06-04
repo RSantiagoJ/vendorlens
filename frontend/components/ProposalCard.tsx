@@ -37,23 +37,23 @@ const CONTRACT_FIELDS: { key: keyof import("@/lib/types").ProposalData; label: s
   { key: "support_model", label: "Support Model" },
 ];
 
-function scoreColor(score: number): string {
-  if (score >= 7) return "umgreen";
-  if (score >= 4) return "umyellow";
-  return "ummaroon";
+const SCORE_TIERS = [
+  { min: 7, color: "umgreen", textColor: "var(--mantine-color-umgreen-6)" },
+  { min: 4, color: "umyellow", textColor: "var(--mantine-color-umyellow-7)" },
+  { min: 0, color: "ummaroon", textColor: "var(--mantine-color-ummaroon-6)" },
+] as const;
+
+function scoreTier(score: number) {
+  return SCORE_TIERS.find((t) => score >= t.min)!;
 }
 
-function scoreTextColor(score: number): string {
-  if (score >= 7) return "var(--mantine-color-umgreen-6)";
-  if (score >= 4) return "var(--mantine-color-umyellow-7)";
-  return "var(--mantine-color-ummaroon-6)";
-}
+const RISK_COLORS: Record<RiskFlag["severity"], string> = {
+  HIGH: "ummaroon",
+  MEDIUM: "umyellow",
+  LOW: "gray",
+};
 
-function riskColor(severity: RiskFlag["severity"]): string {
-  if (severity === "HIGH") return "ummaroon";
-  if (severity === "MEDIUM") return "umyellow";
-  return "gray";
-}
+const SEVERITY_ORDER: Record<RiskFlag["severity"], number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 
 interface Props {
   proposal: ProposalResult;
@@ -68,10 +68,9 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
   const displayName = vendor_name ?? filename;
   const overall = scores?.overall ?? null;
 
-  const highRisks = risks?.filter((r) => r.severity === "HIGH") ?? [];
-  const medRisks = risks?.filter((r) => r.severity === "MEDIUM") ?? [];
-  const lowRisks = risks?.filter((r) => r.severity === "LOW") ?? [];
-  const sortedRisks = [...highRisks, ...medRisks, ...lowRisks];
+  const sortedRisks = [...(risks ?? [])].sort(
+    (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
+  );
 
   return (
     <Paper
@@ -116,7 +115,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
               <Text
                 size="2rem"
                 fw={800}
-                style={{ color: scoreTextColor(overall / 10), lineHeight: 1 }}
+                style={{ color: scoreTier(overall / 10).textColor, lineHeight: 1 }}
               >
                 {Math.round(overall)}
               </Text>
@@ -125,7 +124,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                 size="xs"
                 radius="sm"
                 variant="outline"
-                color={overall >= 70 ? "umgreen" : overall >= 40 ? "umyellow" : "ummaroon"}
+                color={scoreTier(overall / 10).color}
               >
                 {overall >= 70 ? "Meets" : overall >= 40 ? "Review" : "Fails"}
               </Badge>
@@ -138,7 +137,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
           <>
             <Progress
               value={overall}
-              color={scoreColor(overall / 10)}
+              color={scoreTier(overall / 10).color}
               size="lg"
               radius="xl"
             />
@@ -162,13 +161,13 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                 <Box key={key}>
                   <Group justify="space-between" mb={2}>
                     <Text size="xs" c="dimmed">{label}</Text>
-                    <Text size="xs" fw={600} style={{ color: scoreTextColor(dim.score) }}>
+                    <Text size="xs" fw={600} style={{ color: scoreTier(dim.score).textColor }}>
                       {dim.score.toFixed(1)}
                     </Text>
                   </Group>
                   <Progress
                     value={(dim.score / 10) * 100}
-                    color={scoreColor(dim.score)}
+                    color={scoreTier(dim.score).color}
                     size="sm"
                     radius="xl"
                   />
@@ -192,7 +191,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                 </Group>
                 <Group gap="xs">
                   {(["HIGH", "MEDIUM", "LOW"] as const).map((s) => (
-                    <Badge key={s} color={riskColor(s)} variant={s === "HIGH" ? "filled" : "light"} size="xs" radius="sm">
+                    <Badge key={s} color={RISK_COLORS[s]} variant={s === "HIGH" ? "filled" : "light"} size="xs" radius="sm">
                       {s}
                     </Badge>
                   ))}
@@ -219,7 +218,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                     position="top"
                   >
                     <Badge
-                      color={riskColor(risk.severity)}
+                      color={RISK_COLORS[risk.severity]}
                       variant={risk.severity === "HIGH" ? "filled" : "light"}
                       size="sm"
                       radius="sm"

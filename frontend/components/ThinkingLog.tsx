@@ -63,8 +63,10 @@ interface Entry {
   completion?: boolean;
 }
 
+const ACTIVE_STAGE_SET = new Set<Stage>(["extracting", "risk", "scoring", "memo"]);
+
 function isActiveStage(s: Stage): s is ActiveStage {
-  return s === "extracting" || s === "risk" || s === "scoring" || s === "memo";
+  return ACTIVE_STAGE_SET.has(s);
 }
 
 interface Props {
