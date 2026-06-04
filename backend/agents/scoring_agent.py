@@ -84,7 +84,7 @@ class ScoringAgent:
     def _compute_overall(self, dim_scores: dict[str, float]) -> float:
         """Weighted average using weights parsed from rfp_criteria_lms.txt."""
         return round(
-            sum(dim_scores[field] * self._weights[field] for field in _SCORECARD_FIELDS), 1
+            sum(dim_scores[field] * self._weights[field] for field in _SCORECARD_FIELDS) * 10, 1
         )
 
     def score(self, proposal_data: ProposalData, risk_flags: list[RiskFlag]) -> ScoreCard:

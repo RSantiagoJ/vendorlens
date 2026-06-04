@@ -231,7 +231,6 @@ export default function Home() {
                         key={p.filename}
                         proposal={p}
                         recommended={winner !== null && p.filename === winner.filename}
-                        showBadge={sortedProposals.length > 1}
                       />
                     ))}
                   </SimpleGrid>
