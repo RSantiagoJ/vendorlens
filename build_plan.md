@@ -241,7 +241,7 @@ Ready for Day 6.
 
 ---
 
-## Day 6 — Next.js frontend
+## Day 6 — Next.js frontend ✅ COMPLETE
 
 Goal: Professional web UI ready for a boardroom demo.
 Ricardo is the expert here — own this layer.
@@ -263,6 +263,20 @@ Tasks:
 4. Test full end-to-end in browser
 
 Checkpoint: Upload 3 files, watch progress, see cards and memo, download works.
+
+--- SESSION NOTES (Day 6, complete) ---
+
+All tasks complete. Checkpoint passed.
+
+- frontend/ bootstrapped with Next.js 15 + TypeScript + Mantine UI (replaced Tailwind — better component library for this UI surface)
+- Components built: UploadZone, AgentProgressBar, ProposalCard, MemoPanel, ThinkingLog
+- AgentProgressBar: four labeled stages driven by SSE events; spinner on active stage, checkmark when done
+- ThinkingLog: simulated live activity feed showing per-stage work lines on a timed interval
+- ProposalCard: overall score bar, 9-dimension breakdown bars, risk flag chips with hover tooltips, collapsible contract details
+- Demo mode: /?demo loads DEMO_RESULT fixture from lib/fixtures.ts — no backend needed for boardroom demos
+- Bundle selector: SegmentedControl in UploadZone populated from GET /bundles; falls back to hardcoded defaults if backend unreachable
+- Vendor cards sorted highest → lowest score left to right; winner gets green border + "Best Choice" banner (hidden when only one vendor)
+- lib/types.ts mirrors backend Pydantic models exactly
 
 ---
 
@@ -411,6 +425,15 @@ team could drop in their own documents and run this against their RFP."
 - **RFP category badge**: moved from floating next to progress bar into the winner banner
 - **Live activity log**: updated to say "Gemini Flash" (not "Claude Sonnet") for extraction and risk stages
 - All institution-specific text (UMPO, UMass, SVM-01, LMS-specific labels) removed from frontend copy
+
+### Code cleanup (post-Day 6)
+- `api/main.py`: `asyncio.get_event_loop()` → `get_running_loop()` in all async contexts; `Optional[str]` → `str | None`; `{k: v for k, v in …}` → `dict(initial_state)`
+- `api/models.py`: removed `typing` imports; all fields use `X | None` and `list[X]` (modern Python 3.10+ syntax)
+- `graph/pipeline.py`: removed obvious one-liner docstrings from inner fan-out and node functions
+- `agents/scoring_agent.py`: collapsed 4-line bundle key lookup to 2 `bundle.get(next(…), "")` calls
+- `frontend/app/page.tsx`: eliminated IIFE inside JSX; derived vars (`scored`, `winner`, `sortedProposals`, `currentBundle`) now hoisted before `return`
+- `frontend/components/ProposalCard.tsx`: unified `scoreColor`/`scoreTextColor`/`riskColor` into `SCORE_TIERS` lookup + `scoreTier()` helper and `RISK_COLORS` map; replaced 3-pass filter-spread for risk sorting with a single `.sort()` using `SEVERITY_ORDER`
+- `frontend/components/ThinkingLog.tsx`: replaced 4-condition `||` chain in `isActiveStage` with a `Set.has()` lookup
 
 ## Day 7 optional: Dropbox connector
 
