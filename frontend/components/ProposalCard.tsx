@@ -17,44 +17,46 @@ function useCountUp(target: number, duration = 900): number {
   }, [target, duration]);
   return value;
 }
+
 import {
   Paper, Text, Group, Stack, Badge, Progress, Collapse,
-  Button, Divider, Box, ThemeIcon, Tooltip,
+  Button, Divider, Box, ThemeIcon, Tooltip, Popover,
 } from "@mantine/core";
 import {
-  IconBuilding, IconChevronDown, IconChevronUp, IconAlertTriangle, IconAward,
+  IconBuilding, IconChevronDown, IconChevronUp, IconAlertTriangle,
+  IconAward, IconInfoCircle, IconArrowUp,
 } from "@tabler/icons-react";
 import type { ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
 
 const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string }[] = [
-  { key: "platform_functionality", label: "Platform Functionality" },
+  { key: "platform_functionality",  label: "Platform Functionality" },
   { key: "accessibility_compliance", label: "Accessibility & Compliance" },
-  { key: "integration_capability", label: "Integration Capability" },
-  { key: "pricing_transparency", label: "Pricing Transparency" },
+  { key: "integration_capability",  label: "Integration Capability" },
+  { key: "pricing_transparency",    label: "Pricing Transparency" },
   { key: "security_and_compliance", label: "Security & Compliance" },
-  { key: "support_and_training", label: "Support & Training" },
-  { key: "enterprise_readiness", label: "Enterprise Readiness" },
-  { key: "innovation_roadmap", label: "Innovation Roadmap" },
-  { key: "risk_level", label: "Risk Level" },
+  { key: "support_and_training",    label: "Support & Training" },
+  { key: "enterprise_readiness",    label: "Enterprise Readiness" },
+  { key: "innovation_roadmap",      label: "Innovation Roadmap" },
+  { key: "risk_level",              label: "Risk Level" },
 ];
 
 const CONTRACT_FIELDS: { key: keyof import("@/lib/types").ProposalData; label: string }[] = [
-  { key: "total_cost", label: "Total Cost" },
-  { key: "pricing_model", label: "Pricing Model" },
-  { key: "price_escalation", label: "Price Escalation" },
-  { key: "contract_length", label: "Contract Length" },
-  { key: "renewal_terms", label: "Renewal Terms" },
-  { key: "termination_clause", label: "Termination Clause" },
-  { key: "liability_cap", label: "Liability Cap" },
-  { key: "sla_uptime", label: "SLA Uptime" },
+  { key: "total_cost",              label: "Total Cost" },
+  { key: "pricing_model",          label: "Pricing Model" },
+  { key: "price_escalation",       label: "Price Escalation" },
+  { key: "contract_length",        label: "Contract Length" },
+  { key: "renewal_terms",          label: "Renewal Terms" },
+  { key: "termination_clause",     label: "Termination Clause" },
+  { key: "liability_cap",          label: "Liability Cap" },
+  { key: "sla_uptime",             label: "SLA Uptime" },
   { key: "security_certifications", label: "Security Certifications" },
   { key: "data_processing_agreement", label: "Data Processing Agreement" },
-  { key: "governing_law", label: "Governing Law" },
-  { key: "support_model", label: "Support Model" },
+  { key: "governing_law",          label: "Governing Law" },
+  { key: "support_model",          label: "Support Model" },
 ];
 
 const SCORE_TIERS = [
-  { min: 7, color: "umgreen", textColor: "var(--mantine-color-umgreen-6)" },
+  { min: 7, color: "umgreen",  textColor: "var(--mantine-color-umgreen-6)" },
   { min: 4, color: "umyellow", textColor: "var(--mantine-color-umyellow-7)" },
   { min: 0, color: "ummaroon", textColor: "var(--mantine-color-ummaroon-6)" },
 ] as const;
@@ -75,10 +77,12 @@ interface Props {
   proposal: ProposalResult;
   recommended?: boolean;
   showBadge?: boolean;
+  winnerScores?: ScoreCard;
 }
 
-export function ProposalCard({ proposal, recommended = false, showBadge = true }: Props) {
+export function ProposalCard({ proposal, recommended = false, showBadge = true, winnerScores }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [openRationale, setOpenRationale] = useState<string | null>(null);
   const { vendor_name, scores, risks, extracted, filename } = proposal;
 
   const displayName = vendor_name ?? filename;
@@ -88,6 +92,19 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
   const sortedRisks = [...(risks ?? [])].sort(
     (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
   );
+
+  // Top 2 dimensions where this vendor trails the winner most
+  const gapToWin = !recommended && winnerScores && scores
+    ? DIMENSIONS
+        .map(({ key, label }) => ({
+          key,
+          label,
+          gap: parseFloat((winnerScores[key].score - scores[key].score).toFixed(1)),
+        }))
+        .filter((g) => g.gap >= 0.5)
+        .sort((a, b) => b.gap - a.gap)
+        .slice(0, 2)
+    : [];
 
   return (
     <Paper
@@ -121,9 +138,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
               <IconBuilding size={20} />
             </ThemeIcon>
             <Box style={{ flex: 1 }}>
-              <Text fw={700} size="lg" c="dark" lineClamp={1}>
-                {displayName}
-              </Text>
+              <Text fw={700} size="lg" c="dark" lineClamp={1}>{displayName}</Text>
               <Text size="xs" c="dimmed">{filename}</Text>
             </Box>
           </Group>
@@ -137,12 +152,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                 {animatedScore}
               </Text>
               <Text size="xs" c="dimmed" fw={500}>/ 100</Text>
-              <Badge
-                size="xs"
-                radius="sm"
-                variant="outline"
-                color={scoreTier(overall / 10).color}
-              >
+              <Badge size="xs" radius="sm" variant="outline" color={scoreTier(overall / 10).color}>
                 {overall >= 70 ? "Meets" : overall >= 40 ? "Review" : "Fails"}
               </Badge>
             </Stack>
@@ -152,12 +162,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
         {/* Overall score bar */}
         {overall !== null && (
           <>
-            <Progress
-              value={animatedScore}
-              color={scoreTier(overall / 10).color}
-              size="lg"
-              radius="xl"
-            />
+            <Progress value={animatedScore} color={scoreTier(overall / 10).color} size="lg" radius="xl" />
             <Group gap="xs">
               {(["umgreen", "umyellow", "ummaroon"] as const).map((color, i) => (
                 <Group key={color} gap={4} align="center">
@@ -169,32 +174,90 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
           </>
         )}
 
-        {/* Dimension scores */}
+        {/* Gap to win — only shown on non-recommended vendors */}
+        {gapToWin.length > 0 && (
+          <Box
+            p="xs"
+            style={{
+              background: "var(--mantine-color-gray-0)",
+              borderRadius: "var(--mantine-radius-sm)",
+              borderLeft: "3px solid var(--mantine-color-umyellow-4)",
+            }}
+          >
+            <Group gap={6} align="center" mb={6}>
+              <IconArrowUp size={12} color="var(--mantine-color-umyellow-6)" />
+              <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.04em" }}>
+                Gap to win
+              </Text>
+            </Group>
+            <Group gap="xs" wrap="wrap">
+              {gapToWin.map(({ key, label, gap }) => (
+                <Badge key={key} size="xs" variant="outline" color="umyellow">
+                  +{gap} {label}
+                </Badge>
+              ))}
+            </Group>
+          </Box>
+        )}
+
+        {/* Dimension scores — click any row to see AI rationale */}
         {scores && (
           <Stack gap={6}>
             {DIMENSIONS.map(({ key, label }) => {
               const dim = scores[key];
+              const isOpen = openRationale === key;
               return (
-                <Box key={key}>
-                  <Group justify="space-between" mb={2}>
-                    <Text size="xs" c="dimmed">{label}</Text>
-                    <Text size="xs" fw={600} style={{ color: scoreTier(dim.score).textColor }}>
-                      {dim.score.toFixed(1)}
-                    </Text>
-                  </Group>
-                  <Progress
-                    value={(dim.score / 10) * 100}
-                    color={scoreTier(dim.score).color}
-                    size="sm"
-                    radius="xl"
-                  />
-                </Box>
+                <Popover
+                  key={key}
+                  opened={isOpen}
+                  onClose={() => setOpenRationale(null)}
+                  position="bottom"
+                  withArrow
+                  shadow="md"
+                  width={280}
+                >
+                  <Popover.Target>
+                    <Box
+                      onClick={() => setOpenRationale(isOpen ? null : key)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <Group justify="space-between" mb={2}>
+                        <Text size="xs" c="dimmed">{label}</Text>
+                        <Group gap={4} align="center">
+                          <Text size="xs" fw={600} style={{ color: scoreTier(dim.score).textColor }}>
+                            {dim.score.toFixed(1)}
+                          </Text>
+                          <IconInfoCircle size={11} color="var(--mantine-color-gray-4)" />
+                        </Group>
+                      </Group>
+                      <Progress
+                        value={(dim.score / 10) * 100}
+                        color={scoreTier(dim.score).color}
+                        size="sm"
+                        radius="xl"
+                      />
+                    </Box>
+                  </Popover.Target>
+                  <Popover.Dropdown>
+                    <Stack gap={8}>
+                      <Group justify="space-between" align="center">
+                        <Text size="xs" fw={700} c="dark">{label}</Text>
+                        <Badge size="xs" variant="light" color={scoreTier(dim.score).color}>
+                          {dim.score.toFixed(1)} / 10
+                        </Badge>
+                      </Group>
+                      <Text size="xs" c="dimmed" style={{ lineHeight: 1.55, fontStyle: "italic" }}>
+                        {dim.rationale}
+                      </Text>
+                    </Stack>
+                  </Popover.Dropdown>
+                </Popover>
               );
             })}
           </Stack>
         )}
 
-        {/* Risk tags */}
+        {/* Risk flags */}
         {sortedRisks.length > 0 && (
           <>
             <Divider />
@@ -227,10 +290,28 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true }
                             → {risk.recommendation}
                           </Text>
                         )}
+                        {risk.policy_excerpt && (
+                          <Box
+                            mt={4}
+                            p={6}
+                            style={{
+                              background: "rgba(255,255,255,0.08)",
+                              borderRadius: 4,
+                              borderLeft: "2px solid rgba(255,255,255,0.25)",
+                            }}
+                          >
+                            <Text size="xs" c="dimmed" mb={2} tt="uppercase" style={{ letterSpacing: "0.04em", fontSize: 9 }}>
+                              Policy
+                            </Text>
+                            <Text size="xs" style={{ fontStyle: "italic", opacity: 0.85, lineHeight: 1.45 }}>
+                              "{risk.policy_excerpt}"
+                            </Text>
+                          </Box>
+                        )}
                       </Stack>
                     }
                     multiline
-                    w={280}
+                    w={300}
                     withArrow
                     position="top"
                   >

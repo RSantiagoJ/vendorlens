@@ -238,7 +238,7 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
                   color: entry.completion
                     ? "var(--mantine-color-umgreen-6)"
                     : isDimmed
-                    ? "var(--mantine-color-gray-5)"
+                    ? "var(--mantine-color-gray-7)"
                     : "var(--mantine-color-dark-6)",
                   display: "flex",
                   alignItems: "baseline",
