@@ -14,7 +14,7 @@ const STAGE_LINES: Record<ActiveStage, string[]> = {
     "Running semantic search → security certifications, DPA",
     "Running semantic search → features, SLA, integrations",
     "Deduplicating retrieved context chunks",
-    "Calling Gemini Flash to extract structured fields...",
+    "Calling Claude Sonnet to extract structured fields...",
     "Parsing JSON response into ProposalData model",
   ],
   risk: [
@@ -24,7 +24,7 @@ const STAGE_LINES: Record<ActiveStage, string[]> = {
     "Checking data ownership and AI training provisions",
     "Checking governing law and jurisdiction",
     "Checking liability cap against policy minimums",
-    "Calling Gemini Flash to classify risk severity (HIGH / MEDIUM / LOW)...",
+    "Calling Claude Sonnet to classify risk severity (HIGH / MEDIUM / LOW)...",
   ],
   scoring: [
     "Loading RFP criteria and scoring rubric...",
@@ -34,7 +34,7 @@ const STAGE_LINES: Record<ActiveStage, string[]> = {
     "Evaluating security and compliance (15%)",
     "Evaluating pricing transparency and support (10% each)",
     "Evaluating innovation and AI product roadmap (5%)",
-    "Calling Gemini Flash to score each dimension (0–10)...",
+    "Calling Claude Haiku to score each dimension (0–10)...",
     "Computing weighted overall scores",
   ],
   memo: [
@@ -72,7 +72,7 @@ function buildExtractingLines(vendorNames: string[]): string[] {
     "Running semantic search → pricing, fees, contract length",
     "Running semantic search → security certifications, DPA",
     "Running semantic search → features, SLA, integrations",
-    ...vendorNames.map((n) => `Extracting structured data from ${n}...`),
+    ...vendorNames.map((n) => `Calling Claude Sonnet to extract ${n}...`),
     "Parsing JSON response into ProposalData model",
   ];
 }
