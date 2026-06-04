@@ -384,7 +384,13 @@ Checkpoint: full pipeline runs with no Google keys set. Scoring stage shows Haik
 
 6. **Live log contrast fix** — dimmed log lines bumped from `gray-5` to `gray-7` for legibility on white background.
 
-Key files: `WinnerHero.tsx` (new), `ProposalCard.tsx`, `VendorComparisonTable.tsx`, `ThinkingLog.tsx`, `graph/pipeline.py` (print → logging).
+7. **Score ring** — replaced the overall score number + progress bar in ProposalCard with an animated SVG arc ring. Fills clockwise as the count-up runs; stroke color follows score tier (green/yellow/red). Removed the redundant progress bar.
+
+8. **Winner card elevation** — winner ProposalCard gets `scale(1.018)` lift + deeper shadow so it physically stands out in the grid. `overflow: visible` on SimpleGrid prevents clipping.
+
+9. **Pipeline landing page** — idle state now shows a 4-step visual (Extract → Risk Analysis → Scoring → Recommendation) with ThemeIcons and arrows above the upload zone.
+
+Key files: `WinnerHero.tsx` (new), `ProposalCard.tsx`, `VendorComparisonTable.tsx`, `ThinkingLog.tsx`, `page.tsx`, `graph/pipeline.py` (print → logging).
 
 ---
 
