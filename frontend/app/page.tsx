@@ -85,10 +85,9 @@ export default function Home() {
 
       const es = new EventSource(`${API_BASE}/stream/${job_id}`);
 
-      es.addEventListener("extracting", () => setStage("extracting"));
-      es.addEventListener("risk", () => setStage("risk"));
-      es.addEventListener("scoring", () => setStage("scoring"));
-      es.addEventListener("memo", () => setStage("memo"));
+      (["extracting", "risk", "scoring", "memo"] as const).forEach(
+        (s) => es.addEventListener(s, () => setStage(s))
+      );
 
       es.addEventListener("done", (e) => {
         es.close();
