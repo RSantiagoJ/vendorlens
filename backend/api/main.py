@@ -52,14 +52,10 @@ def _get_pipeline(bundle_id: str = DEFAULT_BUNDLE):
 # In-memory job store: job_id → {status, events, result, error}
 _jobs: dict[str, dict] = {}
 
-_NODE_EVENT = {
-    "vendor_node": "extracting",
-    "memo_node": "memo",
-}
-
-
 def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id: str) -> None:
     job = _jobs[job_id]
+    num_vendors = len(file_contents)
+    vendor_nodes_done = 0
 
     def emit(event_type: str, data: dict) -> None:
         job["events"].append({"type": event_type, "data": data})
@@ -88,10 +84,19 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
 
         for chunk in _get_pipeline(bundle_id).stream(initial_state, stream_mode="updates"):
             for node_name, updates in chunk.items():
-                stage_event = _NODE_EVENT.get(node_name)
-                if stage_event and stage_event not in seen_stages:
-                    seen_stages.add(stage_event)
-                    emit(stage_event, {"status": stage_event})
+                if node_name == "vendor_node":
+                    vendor_nodes_done += 1
+                    # First vendor done → risk analysis is underway across the batch.
+                    if "risk" not in seen_stages:
+                        seen_stages.add("risk")
+                        emit("risk", {"status": "risk"})
+                    # Last vendor done → all scoring complete, memo is next.
+                    if vendor_nodes_done >= num_vendors and "scoring" not in seen_stages:
+                        seen_stages.add("scoring")
+                        emit("scoring", {"status": "scoring"})
+                elif node_name == "memo_node" and "memo" not in seen_stages:
+                    seen_stages.add("memo")
+                    emit("memo", {"status": "memo"})
 
                 if isinstance(updates, dict):
                     for k, v in updates.items():
