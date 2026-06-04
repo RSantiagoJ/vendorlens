@@ -7,6 +7,7 @@ import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
 import { VendorComparisonTable } from "@/components/VendorComparisonTable";
 import { VendorRadarChart } from "@/components/VendorRadarChart";
+import { WinnerHero } from "@/components/WinnerHero";
 import { DEMO_RESULT } from "@/lib/fixtures";
 import type { AnalysisResult, Bundle, Stage } from "@/lib/types";
 import { Logo } from "@/logo";
@@ -142,6 +143,9 @@ export default function Home() {
     ...scored,
     ...(result?.proposals ?? []).filter((p) => p.scores?.overall == null),
   ];
+  const allRisksCount = (result?.proposals ?? []).reduce(
+    (sum, p) => sum + (p.risks?.length ?? 0), 0
+  );
 
   return (
     <AppShell header={{ height: 68 }}>
@@ -241,6 +245,13 @@ export default function Home() {
 
               {appState === "done" && result && (
                 <Stack gap="xl" className="fadeIn" id="print-report">
+                  {winner && (
+                    <WinnerHero
+                      winner={winner}
+                      totalVendors={sortedProposals.length}
+                      totalRisks={allRisksCount}
+                    />
+                  )}
                   <SimpleGrid
                     cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
                     spacing="md"
@@ -254,8 +265,8 @@ export default function Home() {
                       />
                     ))}
                   </SimpleGrid>
-                  <VendorComparisonTable proposals={sortedProposals} winner={winner} />
                   <VendorRadarChart proposals={sortedProposals} />
+                  <VendorComparisonTable proposals={sortedProposals} winner={winner} />
                   {result.memo && <MemoPanel memo={result.memo} />}
                 </Stack>
               )}

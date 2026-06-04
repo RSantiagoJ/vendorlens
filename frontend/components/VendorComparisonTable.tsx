@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { Paper, Text, Group, Badge, Box, ScrollArea, Tooltip, Stack } from "@mantine/core";
+import { Paper, Text, Group, Badge, ScrollArea, Tooltip, Stack } from "@mantine/core";
 import { IconAward } from "@tabler/icons-react";
 import type { ProposalData, ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
 
@@ -180,30 +180,13 @@ export function VendorComparisonTable({ proposals, winner }: Props) {
                   return (
                     <td key={p.filename} style={dataCell(isWin)}>
                       <Tooltip label={dim.rationale} multiline w={240} withArrow position="top">
-                        <Box style={{ cursor: "help", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                          <Box
-                            style={{
-                              width: 52,
-                              height: 5,
-                              borderRadius: 999,
-                              background: "var(--mantine-color-gray-2)",
-                              overflow: "hidden",
-                              flexShrink: 0,
-                            }}
-                          >
-                            <Box
-                              style={{
-                                width: `${(dim.score / 10) * 100}%`,
-                                height: "100%",
-                                background: `var(--mantine-color-${tier.color}-5)`,
-                                borderRadius: 999,
-                              }}
-                            />
-                          </Box>
-                          <Text size="xs" fw={600} style={{ color: tier.textColor, minWidth: 24 }}>
-                            {dim.score.toFixed(1)}
-                          </Text>
-                        </Box>
+                        <Text
+                          size="sm"
+                          fw={700}
+                          style={{ color: tier.textColor, cursor: "help" }}
+                        >
+                          {dim.score.toFixed(1)}
+                        </Text>
                       </Tooltip>
                     </td>
                   );
