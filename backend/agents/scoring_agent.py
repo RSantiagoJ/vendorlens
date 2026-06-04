@@ -23,7 +23,7 @@ load_dotenv()
 
 from graph.state import DimensionScore, ProposalData, RiskFlag, ScoreCard
 from tools.context_loader import load_context_bundle
-from tools.llm_factory import invoke_llm, load_prompt, make_haiku_llm, parse_llm_json
+from tools.llm_factory import invoke_llm_cached, load_prompt, make_haiku_llm, parse_llm_json
 
 # Structural mapping: rfp_criteria dimension names → ScoreCard field names.
 # Weights for each dimension come from the rfp_criteria context bundle file.
@@ -77,7 +77,7 @@ class ScoringAgent:
                 f"got {len(self._weights)}: {self._weights}"
             )
 
-        self.llm = make_haiku_llm()
+        self.llm = make_haiku_llm(cache=True)
         self.llm_name = "Claude Haiku 3.5"
 
     def _compute_overall(self, dim_scores: dict[str, float]) -> float:
@@ -101,7 +101,7 @@ class ScoringAgent:
             [{"clause": f.clause, "severity": f.severity} for f in risk_flags],
         )
 
-        raw = invoke_llm(
+        raw = invoke_llm_cached(
             self.llm,
             self.system_prompt,
             f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"

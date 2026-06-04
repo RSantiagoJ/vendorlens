@@ -3,16 +3,17 @@ RiskAgent — Day 3
 
 Evaluates extracted ProposalData against procurement policy using:
   - _policy_lookup from tools/mcp_server.py (keyword-scored policy search)
-  - LLM via make_llm() — Gemini 3.5 Flash primary, Claude Sonnet 4.6 fallback
+  - Claude Sonnet 4.6 with Anthropic prompt caching
 
 How it works:
   1. Run five targeted policy_lookup queries at init time to pull the most
      relevant policy sections for each risk category (security, data,
      contract terms, SLA, IP). Policy context is constant across all
-     proposals, so it is built once and reused.
-  2. Pass the extracted proposal JSON + policy context to the LLM.
-  3. LLM returns a JSON array of risk flags.
-  4. Parse into list[RiskFlag].
+     proposals, so it is folded into the system prompt once at init.
+  2. The combined system prompt (base + policy context) is cached by
+     Anthropic after the first vendor call — vendors 2 and 3 pay ~10% of
+     the normal input token cost for that portion.
+  3. LLM returns a JSON array of risk flags; parse into list[RiskFlag].
 
 policy_excerpt is populated by the LLM when the policy context contains
 a verbatim passage that triggered the flag. Null if no specific text found.
@@ -24,7 +25,7 @@ load_dotenv()
 
 from graph.state import ProposalData, RiskFlag
 from tools.context_loader import get_policy_path
-from tools.llm_factory import dedup_ordered, invoke_llm, load_prompt, make_llm, parse_llm_json
+from tools.llm_factory import dedup_ordered, invoke_llm_cached, load_prompt, make_claude_llm, parse_llm_json
 
 # Policy query groups that cover all HIGH/MEDIUM risk categories.
 # Each query targets the keyword-scoring logic in _policy_lookup.
@@ -39,12 +40,19 @@ _POLICY_QUERIES = [
 
 class RiskAgent:
     def __init__(self, bundle_id: str = "lms"):
-        self.system_prompt = load_prompt("risk_agent")
-        self.llm, _ = make_llm()
+        base_prompt = load_prompt("risk_agent")
+        self.llm = make_claude_llm(cache=True)
 
         from tools.mcp_server import make_policy_lookup
         policy_lookup = make_policy_lookup(get_policy_path(bundle_id))
-        self._policy_context = self._gather_policy_context(policy_lookup)
+        policy_context = self._gather_policy_context(policy_lookup)
+
+        # Fold policy context into the system prompt so it gets cached.
+        # Every vendor in a run uses the same policy — vendors 2+ hit the cache.
+        self.system_prompt = (
+            f"{base_prompt}\n\n"
+            f"--- PROCUREMENT POLICY CONTEXT ---\n{policy_context}"
+        )
 
     def _gather_policy_context(self, policy_lookup) -> str:
         """Run targeted policy_lookup queries once and deduplicate the results."""
@@ -64,11 +72,10 @@ class RiskAgent:
         Returns:
             list[RiskFlag] — may be empty if no risks are found.
         """
-        raw = invoke_llm(
+        raw = invoke_llm_cached(
             self.llm,
             self.system_prompt,
             f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
-            f"Relevant policy context:\n{self._policy_context}\n\n"
             "Identify all risks. Return JSON array only.",
         )
         return [RiskFlag(**flag) for flag in parse_llm_json(raw)]

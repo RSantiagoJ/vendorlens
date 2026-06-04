@@ -2,16 +2,22 @@
 llm_factory — LLM selection, prompt loading, and shared utilities.
 
 All LLM calls use Anthropic:
-  - Claude Sonnet 4.6 (make_claude_llm / make_llm): extraction, risk, memo, negotiation
+  - Claude Sonnet 4.6 (make_claude_llm / make_llm): extraction, risk, memo
   - Claude Haiku 3.5  (make_haiku_llm):             scoring — mechanical task, 4x faster
 
-Usage:
-    from tools.llm_factory import load_prompt, make_llm, make_claude_llm, make_haiku_llm, parse_llm_json
+Prompt caching:
+  Pass cache=True to make_claude_llm() or make_haiku_llm() to enable the
+  Anthropic prompt-caching beta on that model instance, then call
+  invoke_llm_cached() instead of invoke_llm() to mark the system prompt
+  with cache_control. Cache TTL is 5 minutes, refreshed on every hit.
+  Savings: ~90% cost + ~85% latency reduction on the cached portion.
 
-    system_prompt = load_prompt("extraction_agent")
-    llm, llm_name = make_llm()          # Sonnet 4.6
-    llm = make_haiku_llm()              # Haiku 3.5, used by ScoringAgent
-    data = parse_llm_json(response.content)
+Usage:
+    from tools.llm_factory import load_prompt, make_llm, make_claude_llm, make_haiku_llm
+    from tools.llm_factory import invoke_llm, invoke_llm_cached, parse_llm_json
+
+    llm = make_haiku_llm(cache=True)         # Haiku with caching enabled
+    result = invoke_llm_cached(llm, system_prompt, human_content)
 """
 
 import json
@@ -33,23 +39,33 @@ def load_prompt(role: str) -> str:
     return _PROMPTS[role]["system"]
 
 
-def make_claude_llm():
-    """Return ChatAnthropic(claude-sonnet-4-6) with retry. Raises ValueError if key not set."""
+def make_claude_llm(cache: bool = False):
+    """Return ChatAnthropic(claude-sonnet-4-6) with retry.
+
+    Args:
+        cache: Enable Anthropic prompt-caching beta. Use with invoke_llm_cached().
+    """
     key = os.getenv("ANTHROPIC_API_KEY")
     if not key:
         raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
     from langchain_anthropic import ChatAnthropic
-    llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key)
+    extra = {"model_kwargs": {"betas": ["prompt-caching-2024-07-31"]}} if cache else {}
+    llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key, **extra)
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
 
-def make_haiku_llm():
-    """Return ChatAnthropic(claude-haiku-4-5) with retry. Used for scoring (mechanical task)."""
+def make_haiku_llm(cache: bool = False):
+    """Return ChatAnthropic(claude-haiku-4-5) with retry. Used for scoring (mechanical task).
+
+    Args:
+        cache: Enable Anthropic prompt-caching beta. Use with invoke_llm_cached().
+    """
     key = os.getenv("ANTHROPIC_API_KEY")
     if not key:
         raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
     from langchain_anthropic import ChatAnthropic
-    llm = ChatAnthropic(model="claude-haiku-4-5", max_tokens=4096, api_key=key)
+    extra = {"model_kwargs": {"betas": ["prompt-caching-2024-07-31"]}} if cache else {}
+    llm = ChatAnthropic(model="claude-haiku-4-5", max_tokens=4096, api_key=key, **extra)
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
 
@@ -69,6 +85,23 @@ def invoke_llm(llm, system_prompt: str, human_content: str) -> str:
     """Call an LLM with a system + human message and return the response content."""
     from langchain_core.messages import HumanMessage, SystemMessage
     return llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=human_content)]).content
+
+
+def invoke_llm_cached(llm, system_prompt: str, human_content: str) -> str:
+    """Call an LLM with a cache-marked system prompt (Anthropic prompt caching).
+
+    The system prompt is sent as a content block with cache_control: ephemeral.
+    Requires the model to be created with cache=True (the prompt-caching beta header).
+    On cache hit: ~90% cost reduction + ~85% latency reduction for the cached portion.
+    Cache TTL is 5 minutes, refreshed on every hit.
+    """
+    from langchain_core.messages import HumanMessage, SystemMessage
+    system = SystemMessage(content=[{
+        "type": "text",
+        "text": system_prompt,
+        "cache_control": {"type": "ephemeral"},
+    }])
+    return llm.invoke([system, HumanMessage(content=human_content)]).content
 
 
 def dedup_ordered(items: list[str]) -> list[str]:

@@ -483,7 +483,7 @@ with leverage points, key asks, and walk-in summary for the winning vendor.
 
 ---
 
-## Day 10 — Anthropic Prompt Caching
+## Day 9 — Anthropic Prompt Caching ✅ COMPLETE
 
 ### Why this matters
 
@@ -552,9 +552,25 @@ llm = ChatAnthropic(
 **Checkpoint:** LangSmith shows `cache_read_input_tokens > 0` on scoring calls 2 and 3.
 Total input tokens for a 3-vendor run visibly lower than before caching.
 
+--- SESSION NOTES (Day 9, complete) ---
+
+All tasks complete.
+
+- `tools/llm_factory.py`: added `cache: bool = False` param to both `make_claude_llm()` and
+  `make_haiku_llm()` — passes `model_kwargs={"betas": ["prompt-caching-2024-07-31"]}` when enabled.
+  Added `invoke_llm_cached()` which wraps the system prompt as a content block with
+  `cache_control: {"type": "ephemeral"}` before invoking.
+- `agents/scoring_agent.py`: switched to `make_haiku_llm(cache=True)` and `invoke_llm_cached()`.
+  The large rubric + criteria system prompt (~4,500 tokens) is cached after vendor 1.
+- `agents/risk_agent.py`: switched to `make_claude_llm(cache=True)`. Policy context moved from
+  the human message into the system prompt at init time so the full combined prompt
+  (~base + policy = ~2,500 tokens) gets cached — vendors 2 and 3 hit the cache.
+- Cleanup: deleted `test_subgraph.py` (stale LangGraph sandbox) and `_google_backup/` directory.
+  Fixed stale Gemini references in `tests/test_extraction.py`.
+
 ---
 
-## Day 9 — Terraform Deploy 🎯
+## Day 10 — Terraform Deploy 🎯
 
 Goal: provision the full AWS stack with one command; get a live public URL.
 Personal AWS account — no work access dependencies, full admin control.

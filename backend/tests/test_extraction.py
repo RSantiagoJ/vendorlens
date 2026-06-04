@@ -1,7 +1,7 @@
 """
 test_extraction.py — Day 2 checkpoint: verify ExtractionAgent works.
 
-Runs ExtractionAgent against all three dummy proposals and asserts
+Runs ExtractionAgent against all three vendor proposals and asserts
 key field values against the expected data in dummy_data.md.
 
 Usage:
@@ -9,8 +9,8 @@ Usage:
     python tests/test_extraction.py
 
 Prerequisites:
-    - GOOGLE_API_KEY set in backend/.env (required — embeddings + Gemini 3.5 Flash)
-    - ChromaDB index built (run python ingest.py first)
+    - ANTHROPIC_API_KEY set in backend/.env
+    - ChromaDB index built (run scripts/ingest.py first)
 
 Expected output:
     [PASS] Vendor B total_cost contains $158,000
@@ -23,20 +23,14 @@ Expected output:
     All checks passed. Day 2 checkpoint complete.
 """
 
-import os
 import sys
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-if not os.getenv("GOOGLE_API_KEY"):
-    sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
-
 from agents.extraction_agent import ExtractionAgent as AgentClass
 from tools.chroma import load_index
-
-print("Using Gemini 3.5 Flash")
 
 VENDOR_A = "blackboard.txt"
 VENDOR_B = "canvas.txt"
