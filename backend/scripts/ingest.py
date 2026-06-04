@@ -35,7 +35,7 @@ from llama_index.core import (
     Settings,
 )
 from llama_index.core.node_parser import SentenceSplitter
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.fastembed import FastEmbedEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 
@@ -57,7 +57,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
     """
     chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
 
-    embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
+    embed_model = FastEmbedEmbedding(model_name=EMBEDDING_MODEL)
     Settings.embed_model = embed_model
 
     if not force:
@@ -94,7 +94,7 @@ def build_index(force: bool = False) -> VectorStoreIndex:
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-    print("Building index (local HuggingFace embeddings — no API key required)...")
+    print("Building index (FastEmbed ONNX embeddings — no API key required)...")
     index = VectorStoreIndex.from_documents(
         documents,
         storage_context=storage_context,

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import chromadb
 from llama_index.core import Settings, VectorStoreIndex
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.fastembed import FastEmbedEmbedding
 from llama_index.vector_stores.chroma import ChromaVectorStore
 
 BASE_DIR = Path(__file__).parent.parent
@@ -25,7 +25,7 @@ def load_index() -> VectorStoreIndex:
     with _index_lock:
         if _index is not None:
             return _index
-        Settings.embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
+        Settings.embed_model = FastEmbedEmbedding(model_name=EMBEDDING_MODEL)
         chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
         collection = chroma_client.get_collection(COLLECTION_NAME)
         vector_store = ChromaVectorStore(chroma_collection=collection)
