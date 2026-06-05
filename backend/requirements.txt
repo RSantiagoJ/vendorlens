@@ -17,3 +17,5 @@ python-dotenv
 pymupdf
 pyyaml
 tenacity
+pytest
+boto3

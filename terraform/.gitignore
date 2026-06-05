@@ -1,0 +1,10 @@
+# Local Terraform state — use S3 backend for shared state
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
+
+# Secrets — never commit these
+terraform.tfvars
+*.tfvars
+!*.tfvars.example

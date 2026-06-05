@@ -1,0 +1,14 @@
+# Copy this file to terraform.tfvars and fill in your API keys.
+# Never commit terraform.tfvars to git — it contains secrets.
+
+region      = "us-east-1"
+app_name    = "vendorlens"
+environment = "prod"
+
+# Sensitive values — set via TF_VAR_ env vars instead of hardcoding here:
+#   $env:TF_VAR_anthropic_api_key = "sk-ant-..."
+#   $env:TF_VAR_langchain_api_key = "ls__..."
+#
+# Or paste them here (never commit this file):
+# anthropic_api_key = "sk-ant-..."
+# langchain_api_key = "ls__..."

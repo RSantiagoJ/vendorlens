@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
@@ -8,6 +9,16 @@ from typing import AsyncGenerator
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Optional S3 client — only initialised when S3_BUCKET is set.
+_S3_BUCKET = os.environ.get("S3_BUCKET")
+_s3_client = None
+if _S3_BUCKET:
+    try:
+        import boto3
+        _s3_client = boto3.client("s3")
+    except ImportError:
+        _S3_BUCKET = None  # boto3 not installed; fall back to in-memory only
 
 from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,9 +41,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="VendorLens API", lifespan=lifespan)
 
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -174,6 +188,15 @@ async def analyze(
     _jobs[job_id] = {"status": "pending", "events": [], "result": None, "error": None}
 
     file_contents = [(f.filename or f"file_{i}", await f.read()) for i, f in enumerate(files)]
+
+    # Optionally persist uploads to S3 for audit / debugging (no-op locally).
+    if _s3_client and _S3_BUCKET:
+        for name, content in file_contents:
+            _s3_client.put_object(
+                Bucket=_S3_BUCKET,
+                Key=f"uploads/{job_id}/{name}",
+                Body=content,
+            )
 
     asyncio.get_running_loop().run_in_executor(_executor, _run_pipeline, job_id, file_contents, bundle)
 
