@@ -47,12 +47,15 @@ function fireFireworks() {
 }
 
 function fireSchoolPride() {
-  // UMass maroon + white + blue
+  // UMass maroon + white + blue — 5-cannon wave
   const colors = ["#881c1c", "#ffffff", "#003087"];
-  confetti({ particleCount: 100, angle: 60, spread: 55, origin: { x: 0 }, colors });
-  setTimeout(() =>
-    confetti({ particleCount: 100, angle: 120, spread: 55, origin: { x: 1 }, colors }), 200
-  );
+  const shoot = (angle: number, x: number) =>
+    confetti({ particleCount: 90, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 }, colors });
+  shoot(60, 0);
+  setTimeout(() => shoot(120, 1),    150);
+  setTimeout(() => shoot(75, 0.25),  300);
+  setTimeout(() => shoot(105, 0.75), 450);
+  setTimeout(() => shoot(90, 0.5),   600);
 }
 
 type Tab = "game" | "confetti" | "fortune";
