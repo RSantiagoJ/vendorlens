@@ -3,6 +3,7 @@
 import { AgentProgressBar } from "@/components/AgentProgressBar";
 import { MemoPanel } from "@/components/MemoPanel";
 import { ProposalCard } from "@/components/ProposalCard";
+import { BoredPanel } from "@/components/BoredPanel";
 import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
 import { VendorComparisonTable } from "@/components/VendorComparisonTable";
@@ -18,13 +19,15 @@ import {
   Button,
   Container,
   Group,
+  Paper,
   SimpleGrid,
   Stack,
   Text,
   ThemeIcon,
+  Transition,
 } from "@mantine/core";
 import {
-  IconAlertCircle, IconRefresh,
+  IconAlertCircle, IconCircleCheck, IconRefresh,
   IconSearch, IconShieldCheck, IconChartBar, IconFileText, IconArrowRight,
 } from "@tabler/icons-react";
 import confetti from "canvas-confetti";
@@ -40,18 +43,21 @@ const PIPELINE_STEPS = [
   { label: "Recommendation",Icon: IconFileText    },
 ];
 
-type AppState = "idle" | "uploading" | "processing" | "done" | "error";
+type AppState = "idle" | "uploading" | "processing" | "ready" | "done" | "error";
 
 export default function Home() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.has("demo");
-  const [appState, setAppState] = useState<AppState>(isDemo ? "done" : "idle");
-  const [stage, setStage] = useState<Stage>(isDemo ? "done" : null);
+  const isProcessingDemo = searchParams.has("processing");
+  const [appState, setAppState] = useState<AppState>(isDemo ? "done" : isProcessingDemo ? "processing" : "idle");
+  const [stage, setStage] = useState<Stage>(isDemo ? "done" : isProcessingDemo ? "extracting" : null);
   const [result, setResult] = useState<AnalysisResult | null>(isDemo ? DEMO_RESULT : null);
-  const [selectedBundleId, setSelectedBundleId] = useState<string | null>(isDemo ? DEMO_RESULT.bundle_id : null);
+  const [selectedBundleId, setSelectedBundleId] = useState<string | null>((isDemo || isProcessingDemo) ? DEMO_RESULT.bundle_id : null);
   const [error, setError] = useState<string | null>(null);
   const [bundles, setBundles] = useState<Bundle[]>([]);
-  const [vendorNames, setVendorNames] = useState<string[]>([]);
+  const [vendorNames, setVendorNames] = useState<string[]>(
+    isProcessingDemo ? DEMO_RESULT.proposals.map((p) => p.extracted?.vendor_name ?? p.filename) : []
+  );
   const [totalRisks, setTotalRisks] = useState<number | undefined>(undefined);
 
   useEffect(() => {
@@ -62,10 +68,17 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (appState === "done") {
-      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
-    }
+    if (appState !== "done") return;
+    const shoot = (angle: number, x: number) =>
+      confetti({ particleCount: 80, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 } });
+    shoot(60, 0);
+    setTimeout(() => shoot(120, 1), 150);
+    setTimeout(() => shoot(90, 0.5), 300);
   }, [appState]);
+
+  function revealResults() {
+    setAppState("done");
+  }
 
   function reset() {
     setAppState("idle");
@@ -122,7 +135,7 @@ export default function Home() {
         setStage("done");
         const data: AnalysisResult = JSON.parse((e as MessageEvent).data);
         setResult(data);
-        setAppState("done");
+        setAppState("ready");
       });
 
       es.addEventListener("error", (e) => {
@@ -252,12 +265,12 @@ export default function Home() {
             </Stack>
           )}
 
-          {(appState === "processing" || appState === "done") && (
+          {(appState === "processing" || appState === "ready" || appState === "done") && (
             <Stack gap="xl" pt="xl">
               {currentBundle && (
                 <Box>
                   <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
-                    {appState === "done" ? "RFP Evaluation" : "Evaluating"}
+                    {appState === "done" || appState === "ready" ? "RFP Evaluation" : "Evaluating"}
                   </Text>
                   <Text fw={700} size="xl" c="dark">{currentBundle.label}</Text>
                   <Text size="sm" c="dimmed">
@@ -268,13 +281,15 @@ export default function Home() {
               )}
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--mantine-spacing-md)", alignItems: "flex-start" }}>
-                <AgentProgressBar stage={appState === "done" ? "done" : stage} />
+                <AgentProgressBar stage={appState === "done" || appState === "ready" ? "done" : stage} />
                 <ThinkingLog
-                  stage={appState === "done" ? "done" : stage}
+                  stage={appState === "done" || appState === "ready" ? "done" : stage}
                   vendorNames={vendorNames}
                   totalRisks={totalRisks}
                 />
               </div>
+
+              {(appState === "processing" || appState === "ready") && <BoredPanel />}
 
               {appState === "done" && result && (
                 <Stack gap="xl" className="fadeIn" id="print-report">
@@ -329,6 +344,38 @@ export default function Home() {
             </Stack>
           )}
         </Container>
+
+        <Transition mounted={appState === "ready"} transition="slide-up" duration={350}>
+          {(styles) => (
+            <Box style={{ ...styles, position: "fixed", bottom: 72, right: 24, zIndex: 201 }}>
+              <Paper
+                radius="lg"
+                shadow="xl"
+                p="md"
+                style={{
+                  background: "#0f0f1a",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  width: 228,
+                }}
+              >
+                <Stack gap="xs">
+                  <Group gap="xs">
+                    <IconCircleCheck size={16} color="var(--mantine-color-green-5)" />
+                    <Text size="sm" fw={600} style={{ color: "rgba(255,255,255,0.9)" }}>
+                      Analysis complete!
+                    </Text>
+                  </Group>
+                  <Text size="xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+                    Finish your game or jump straight to results.
+                  </Text>
+                  <Button size="sm" color="green" fullWidth onClick={revealResults}>
+                    View Results →
+                  </Button>
+                </Stack>
+              </Paper>
+            </Box>
+          )}
+        </Transition>
       </AppShell.Main>
     </AppShell>
   );
