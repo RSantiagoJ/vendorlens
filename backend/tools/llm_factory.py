@@ -49,7 +49,7 @@ def make_claude_llm(cache: bool = False):
     if not key:
         raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
     from langchain_anthropic import ChatAnthropic
-    extra = {"model_kwargs": {"betas": ["prompt-caching-2024-07-31"]}} if cache else {}
+    extra = {"betas": ["prompt-caching-2024-07-31"]} if cache else {}
     llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key, **extra)
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
@@ -64,7 +64,7 @@ def make_haiku_llm(cache: bool = False):
     if not key:
         raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
     from langchain_anthropic import ChatAnthropic
-    extra = {"model_kwargs": {"betas": ["prompt-caching-2024-07-31"]}} if cache else {}
+    extra = {"betas": ["prompt-caching-2024-07-31"]} if cache else {}
     llm = ChatAnthropic(model="claude-haiku-4-5-20251001", max_tokens=4096, api_key=key, **extra)
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 

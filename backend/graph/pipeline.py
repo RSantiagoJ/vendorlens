@@ -31,7 +31,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from langgraph.constants import Send
+from langgraph.types import Send
 from langgraph.graph import END, START, StateGraph
 
 from agents.extraction_agent import ExtractionAgent
