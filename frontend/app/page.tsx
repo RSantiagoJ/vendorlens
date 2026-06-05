@@ -3,9 +3,9 @@
 export const dynamic = "force-dynamic";
 
 import { AgentProgressBar } from "@/components/AgentProgressBar";
+import { BoredPanel } from "@/components/BoredPanel";
 import { MemoPanel } from "@/components/MemoPanel";
 import { ProposalCard } from "@/components/ProposalCard";
-import { BoredPanel } from "@/components/BoredPanel";
 import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
 import { VendorComparisonTable } from "@/components/VendorComparisonTable";
@@ -29,44 +29,74 @@ import {
   Transition,
 } from "@mantine/core";
 import {
-  IconAlertCircle, IconCircleCheck, IconRefresh,
-  IconSearch, IconShieldCheck, IconChartBar, IconFileText, IconArrowRight,
-  IconAward, IconAlertTriangle, IconBuilding,
-  IconDeviceLaptop, IconCoins, IconBuildingBank,
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconArrowRight,
+  IconAward,
+  IconBuilding,
+  IconBuildingBank,
+  IconChartBar,
+  IconCircleCheck,
+  IconCoins,
+  IconDeviceLaptop,
+  IconFileText,
+  IconRefresh,
+  IconSearch,
+  IconShieldCheck,
 } from "@tabler/icons-react";
-
-const BUNDLE_ICONS: Record<string, ReturnType<typeof IconDeviceLaptop>> = {
-  lms:     <IconDeviceLaptop size={18} />,
-  payroll: <IconCoins size={18} />,
-  erp:     <IconBuildingBank size={18} />,
-};
 import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
+const BUNDLE_ICONS: Record<string, ReturnType<typeof IconDeviceLaptop>> = {
+  lms: <IconDeviceLaptop size={18} />,
+  payroll: <IconCoins size={18} />,
+  erp: <IconBuildingBank size={18} />,
+};
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const PIPELINE_STEPS = [
-  { label: "Extract",        sub: "Parse proposals",        Icon: IconSearch      },
-  { label: "Risk Analysis",  sub: "Flag policy violations", Icon: IconShieldCheck  },
-  { label: "Scoring",        sub: "Rank by RFP criteria",   Icon: IconChartBar     },
-  { label: "Recommendation", sub: "Generate memo",          Icon: IconFileText    },
+  { label: "Extract", sub: "Parse proposals", Icon: IconSearch },
+  {
+    label: "Risk Analysis",
+    sub: "Flag policy violations",
+    Icon: IconShieldCheck,
+  },
+  { label: "Scoring", sub: "Rank by RFP criteria", Icon: IconChartBar },
+  { label: "Recommendation", sub: "Generate memo", Icon: IconFileText },
 ];
 
-type AppState = "idle" | "uploading" | "processing" | "ready" | "done" | "error";
+type AppState =
+  | "idle"
+  | "uploading"
+  | "processing"
+  | "ready"
+  | "done"
+  | "error";
 
 function HomeContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.has("demo");
   const isProcessingDemo = searchParams.has("processing");
-  const [appState, setAppState] = useState<AppState>(isDemo ? "done" : isProcessingDemo ? "processing" : "idle");
-  const [stage, setStage] = useState<Stage>(isDemo ? "done" : isProcessingDemo ? "extracting" : null);
-  const [result, setResult] = useState<AnalysisResult | null>(isDemo ? DEMO_RESULT : null);
-  const [selectedBundleId, setSelectedBundleId] = useState<string | null>((isDemo || isProcessingDemo) ? DEMO_RESULT.bundle_id : null);
+  const [appState, setAppState] = useState<AppState>(
+    isDemo ? "done" : isProcessingDemo ? "processing" : "idle",
+  );
+  const [stage, setStage] = useState<Stage>(
+    isDemo ? "done" : isProcessingDemo ? "extracting" : null,
+  );
+  const [result, setResult] = useState<AnalysisResult | null>(
+    isDemo ? DEMO_RESULT : null,
+  );
+  const [selectedBundleId, setSelectedBundleId] = useState<string | null>(
+    isDemo || isProcessingDemo ? DEMO_RESULT.bundle_id : null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [vendorNames, setVendorNames] = useState<string[]>(
-    isProcessingDemo ? DEMO_RESULT.proposals.map((p) => p.extracted?.vendor_name ?? p.filename) : []
+    isProcessingDemo
+      ? DEMO_RESULT.proposals.map((p) => p.extracted?.vendor_name ?? p.filename)
+      : [],
   );
   const [totalRisks, setTotalRisks] = useState<number | undefined>(undefined);
 
@@ -91,12 +121,18 @@ function HomeContent() {
   function revealResults() {
     setAppState("done");
     const shoot = (angle: number, x: number) =>
-      confetti({ particleCount: 80, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 } });
+      confetti({
+        particleCount: 80,
+        angle,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x, y: 0.8 },
+      });
     shoot(60, 0);
-    setTimeout(() => shoot(120, 1),    150);
-    setTimeout(() => shoot(75, 0.25),  300);
+    setTimeout(() => shoot(120, 1), 150);
+    setTimeout(() => shoot(75, 0.25), 300);
     setTimeout(() => shoot(105, 0.75), 450);
-    setTimeout(() => shoot(90, 0.5),   600);
+    setTimeout(() => shoot(90, 0.5), 600);
   }
 
   function reset() {
@@ -137,15 +173,16 @@ function HomeContent() {
         } catch {}
       });
 
-      (["risk", "memo"] as const).forEach(
-        (s) => es.addEventListener(s, () => setStage(s))
+      (["risk", "memo"] as const).forEach((s) =>
+        es.addEventListener(s, () => setStage(s)),
       );
 
       es.addEventListener("scoring", (e) => {
         setStage("scoring");
         try {
           const data = JSON.parse((e as MessageEvent).data);
-          if (typeof data.total_risks === "number") setTotalRisks(data.total_risks);
+          if (typeof data.total_risks === "number")
+            setTotalRisks(data.total_risks);
         } catch {}
       });
 
@@ -180,7 +217,9 @@ function HomeContent() {
   }, []);
 
   const bundleId = result?.bundle_id ?? selectedBundleId;
-  const currentBundle = bundleId ? bundles.find((b) => b.id === bundleId) : null;
+  const currentBundle = bundleId
+    ? bundles.find((b) => b.id === bundleId)
+    : null;
   const scored = (result?.proposals ?? [])
     .filter((p) => p.scores?.overall != null)
     .sort((a, b) => b.scores!.overall - a.scores!.overall);
@@ -190,7 +229,8 @@ function HomeContent() {
     ...(result?.proposals ?? []).filter((p) => p.scores?.overall == null),
   ];
   const allRisksCount = (result?.proposals ?? []).reduce(
-    (sum, p) => sum + (p.risks?.length ?? 0), 0
+    (sum, p) => sum + (p.risks?.length ?? 0),
+    0,
   );
 
   return (
@@ -208,10 +248,20 @@ function HomeContent() {
               <Logo width={44} />
             </Box>
             <Box>
-              <Text fw={800} size="xl" style={{ color: "white", lineHeight: 1.2 }}>
+              <Text
+                fw={800}
+                size="xl"
+                style={{ color: "white", lineHeight: 1.2 }}
+              >
                 VendorLens
               </Text>
-              <Text size="sm" style={{ color: "var(--mantine-color-umblue-3)", lineHeight: 1.3 }}>
+              <Text
+                size="sm"
+                c="umblue.3"
+                style={{
+                  lineHeight: 1.3,
+                }}
+              >
                 Proposal Intelligence · UMass Procurement
               </Text>
             </Box>
@@ -244,39 +294,64 @@ function HomeContent() {
                 py="xl"
                 style={{
                   width: "100%",
-                  background: "radial-gradient(ellipse 90% 60% at 50% 0%, var(--mantine-color-umblue-0) 0%, transparent 100%)",
+                  background:
+                    "radial-gradient(ellipse 90% 60% at 50% 0%, var(--mantine-color-umblue-0) 0%, transparent 100%)",
                   borderRadius: "var(--mantine-radius-lg)",
                 }}
               >
-              <Stack gap="md" align="center" maw={560} mx="auto" ta="center">
-                <Text size="2rem" fw={800} c="dark" style={{ lineHeight: 1.2 }}>
-                  AI-Powered Vendor Analysis
-                </Text>
-                <Text c="dimmed" size="md">
-                  Upload vendor proposals and get structured extraction, risk
-                  flags, scoring, and a recommendation memo in under a minute.
-                </Text>
-                {bundles.length > 0 && (
-                  <Group gap="sm" justify="center" mt="xs" wrap="wrap">
-                    {bundles.map((b) => (
-                      <Paper
-                        key={b.id} p="sm" radius="md" withBorder bg="white"
-                        style={{ minWidth: 148, maxWidth: 168, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
-                      >
-                        <Group gap={7} mb={5} wrap="nowrap">
-                          <ThemeIcon size={26} radius="md" variant="light" color="umblue">
-                            {BUNDLE_ICONS[b.id] ?? <IconBuilding size={14} />}
-                          </ThemeIcon>
-                          <Text size="sm" fw={700} c="dark">{b.label}</Text>
-                        </Group>
-                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.4 }}>
-                          {b.description}
-                        </Text>
-                      </Paper>
-                    ))}
-                  </Group>
-                )}
-              </Stack>
+                <Stack gap="md" align="center" maw={560} mx="auto" ta="center">
+                  <Text
+                    size="2rem"
+                    fw={800}
+                    c="dark"
+                    style={{ lineHeight: 1.2 }}
+                  >
+                    AI-Powered Vendor Analysis
+                  </Text>
+                  <Text c="dimmed" size="md">
+                    Upload vendor proposals and get structured extraction, risk
+                    flags, scoring, and a recommendation memo in under a minute.
+                  </Text>
+                  {bundles.length > 0 && (
+                    <Group gap="sm" justify="center" mt="xs" wrap="wrap">
+                      {bundles.map((b) => (
+                        <Paper
+                          key={b.id}
+                          p="sm"
+                          radius="md"
+                          withBorder
+                          bg="white"
+                          style={{
+                            minWidth: 148,
+                            maxWidth: 168,
+                            boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+                          }}
+                        >
+                          <Group gap={7} mb={5} wrap="nowrap">
+                            <ThemeIcon
+                              size={26}
+                              radius="md"
+                              variant="light"
+                              color="umblue"
+                            >
+                              {BUNDLE_ICONS[b.id] ?? <IconBuilding size={14} />}
+                            </ThemeIcon>
+                            <Text size="sm" fw={700} c="dark">
+                              {b.label}
+                            </Text>
+                          </Group>
+                          <Text
+                            size="xs"
+                            c="dimmed"
+                            style={{ lineHeight: 1.4 }}
+                          >
+                            {b.description}
+                          </Text>
+                        </Paper>
+                      ))}
+                    </Group>
+                  )}
+                </Stack>
               </Box>
 
               {/* Pipeline steps visual */}
@@ -284,18 +359,40 @@ function HomeContent() {
                 {PIPELINE_STEPS.map(({ label, sub, Icon }, i) => (
                   <Group key={label} gap={0} align="flex-start" wrap="nowrap">
                     <Stack align="center" gap={6} style={{ width: 112 }}>
-                      <ThemeIcon size={48} radius="xl" variant="light" color="umblue">
+                      <ThemeIcon
+                        size={48}
+                        radius="xl"
+                        variant="light"
+                        color="umblue"
+                      >
                         <Icon size={22} />
                       </ThemeIcon>
-                      <Text size="xs" fw={700} ta="center" c="dark" style={{ lineHeight: 1.3 }}>
+                      <Text
+                        size="xs"
+                        fw={700}
+                        ta="center"
+                        c="dark"
+                        style={{ lineHeight: 1.3 }}
+                      >
                         {label}
                       </Text>
-                      <Text size="xs" ta="center" c="dimmed" style={{ lineHeight: 1.2 }}>
+                      <Text
+                        size="xs"
+                        ta="center"
+                        c="dimmed"
+                        style={{ lineHeight: 1.2 }}
+                      >
                         {sub}
                       </Text>
                     </Stack>
                     {i < PIPELINE_STEPS.length - 1 && (
-                      <Box style={{ paddingTop: 14, color: "var(--mantine-color-gray-4)", flexShrink: 0 }}>
+                      <Box
+                        style={{
+                          paddingTop: 14,
+                          color: "var(--mantine-color-gray-4)",
+                          flexShrink: 0,
+                        }}
+                      >
                         <IconArrowRight size={16} />
                       </Box>
                     )}
@@ -321,24 +418,43 @@ function HomeContent() {
             </Stack>
           )}
 
-          {(appState === "processing" || appState === "ready" || appState === "done") && (
+          {(appState === "processing" ||
+            appState === "ready" ||
+            appState === "done") && (
             <Stack gap="xl" pt="xl">
               {currentBundle && (
                 <Box>
-                  <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
-                    {appState === "done" || appState === "ready" ? "RFP Evaluation" : "Evaluating"}
+                  <Text
+                    size="xs"
+                    tt="uppercase"
+                    fw={600}
+                    c="dimmed"
+                    style={{ letterSpacing: "0.06em" }}
+                  >
+                    {appState === "done" || appState === "ready"
+                      ? "RFP Evaluation"
+                      : "Evaluating"}
                   </Text>
-                  <Text fw={700} size="xl" c="dark">{currentBundle.label}</Text>
+                  <Text fw={700} size="xl" c="dark">
+                    {currentBundle.label}
+                  </Text>
                   <Text size="sm" c="dimmed">
                     {currentBundle.description}
-                    {appState === "done" && ` · ${sortedProposals.length} vendor${sortedProposals.length !== 1 ? "s" : ""} evaluated`}
+                    {appState === "done" &&
+                      ` · ${sortedProposals.length} vendor${sortedProposals.length !== 1 ? "s" : ""} evaluated`}
                   </Text>
                 </Box>
               )}
 
               {appState !== "done" && (
-                <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" style={{ alignItems: "flex-start" }}>
-                  <AgentProgressBar stage={appState === "ready" ? "done" : stage} />
+                <SimpleGrid
+                  cols={{ base: 1, md: 2 }}
+                  spacing="md"
+                  style={{ alignItems: "flex-start" }}
+                >
+                  <AgentProgressBar
+                    stage={appState === "ready" ? "done" : stage}
+                  />
                   <ThinkingLog
                     stage={appState === "ready" ? "done" : stage}
                     vendorNames={vendorNames}
@@ -347,7 +463,9 @@ function HomeContent() {
                 </SimpleGrid>
               )}
 
-              {(appState === "processing" || appState === "ready") && <BoredPanel />}
+              {(appState === "processing" || appState === "ready") && (
+                <BoredPanel />
+              )}
 
               {appState === "done" && result && (
                 <Stack gap="xl" className="fadeIn" id="print-report">
@@ -360,7 +478,11 @@ function HomeContent() {
                   )}
 
                   {/* KPI summary bar */}
-                  <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" data-print-hide>
+                  <SimpleGrid
+                    cols={{ base: 1, sm: 3 }}
+                    spacing="md"
+                    data-print-hide
+                  >
                     {[
                       {
                         value: sortedProposals.length,
@@ -375,7 +497,9 @@ function HomeContent() {
                         color: "ummaroon",
                       },
                       {
-                        value: winner ? Math.round(winner.scores!.overall) : "—",
+                        value: winner
+                          ? Math.round(winner.scores!.overall)
+                          : "—",
                         suffix: winner ? "/100" : "",
                         label: "Winner Score",
                         icon: <IconAward size={22} />,
@@ -395,17 +519,39 @@ function HomeContent() {
                       >
                         <Group justify="space-between" align="flex-start">
                           <Stack gap={2}>
-                            <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
+                            <Text
+                              size="xs"
+                              tt="uppercase"
+                              fw={600}
+                              c="dimmed"
+                              style={{ letterSpacing: "0.06em" }}
+                            >
                               {label}
                             </Text>
                             <Group gap={4} align="baseline">
-                              <Text fw={900} style={{ fontSize: "2rem", lineHeight: 1, color: `var(--mantine-color-${color}-7)` }}>
+                              <Text
+                                fw={900}
+                                style={{
+                                  fontSize: "2rem",
+                                  lineHeight: 1,
+                                  color: `var(--mantine-color-${color}-7)`,
+                                }}
+                              >
                                 {value}
                               </Text>
-                              {suffix && <Text size="sm" c="dimmed" fw={500}>{suffix}</Text>}
+                              {suffix && (
+                                <Text size="sm" c="dimmed" fw={500}>
+                                  {suffix}
+                                </Text>
+                              )}
                             </Group>
                           </Stack>
-                          <ThemeIcon size={44} radius="xl" variant="light" color={color}>
+                          <ThemeIcon
+                            size={44}
+                            radius="xl"
+                            variant="light"
+                            color={color}
+                          >
                             {icon}
                           </ThemeIcon>
                         </Group>
@@ -422,14 +568,19 @@ function HomeContent() {
                       <ProposalCard
                         key={p.filename}
                         proposal={p}
-                        recommended={winner !== null && p.filename === winner.filename}
+                        recommended={
+                          winner !== null && p.filename === winner.filename
+                        }
                         winnerScores={winner?.scores ?? undefined}
                         staggerIndex={i}
                       />
                     ))}
                   </SimpleGrid>
                   <VendorRadarChart proposals={sortedProposals} />
-                  <VendorComparisonTable proposals={sortedProposals} winner={winner} />
+                  <VendorComparisonTable
+                    proposals={sortedProposals}
+                    winner={winner}
+                  />
                   {result.memo && <MemoPanel memo={result.memo} />}
                 </Stack>
               )}
@@ -459,9 +610,21 @@ function HomeContent() {
           )}
         </Container>
 
-        <Transition mounted={appState === "ready"} transition="slide-up" duration={350}>
+        <Transition
+          mounted={appState === "ready"}
+          transition="slide-up"
+          duration={350}
+        >
           {(styles) => (
-            <Box style={{ ...styles, position: "fixed", bottom: 72, right: 24, zIndex: 201 }}>
+            <Box
+              style={{
+                ...styles,
+                position: "fixed",
+                bottom: 72,
+                right: 24,
+                zIndex: 201,
+              }}
+            >
               <Paper
                 radius="lg"
                 shadow="xl"
@@ -474,15 +637,27 @@ function HomeContent() {
               >
                 <Stack gap="xs">
                   <Group gap="xs">
-                    <IconCircleCheck size={16} color="var(--mantine-color-green-5)" />
-                    <Text size="sm" fw={600} style={{ color: "rgba(255,255,255,0.9)" }}>
+                    <IconCircleCheck
+                      size={16}
+                      color="var(--mantine-color-green-5)"
+                    />
+                    <Text
+                      size="sm"
+                      fw={600}
+                      style={{ color: "rgba(255,255,255,0.9)" }}
+                    >
                       Analysis complete!
                     </Text>
                   </Group>
                   <Text size="xs" style={{ color: "rgba(255,255,255,0.55)" }}>
                     Finish your game or jump straight to results.
                   </Text>
-                  <Button size="sm" color="green" fullWidth onClick={revealResults}>
+                  <Button
+                    size="sm"
+                    color="green"
+                    fullWidth
+                    onClick={revealResults}
+                  >
                     View Results →
                   </Button>
                 </Stack>
