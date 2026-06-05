@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { AgentProgressBar } from "@/components/AgentProgressBar";
 import { MemoPanel } from "@/components/MemoPanel";
 import { ProposalCard } from "@/components/ProposalCard";
@@ -40,7 +42,7 @@ const BUNDLE_ICONS: Record<string, ReturnType<typeof IconDeviceLaptop>> = {
 };
 import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -53,7 +55,7 @@ const PIPELINE_STEPS = [
 
 type AppState = "idle" | "uploading" | "processing" | "ready" | "done" | "error";
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const isDemo = searchParams.has("demo");
   const isProcessingDemo = searchParams.has("processing");
@@ -485,5 +487,13 @@ export default function Home() {
         </Transition>
       </AppShell.Main>
     </AppShell>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
