@@ -23,6 +23,15 @@ body {
   50% { opacity: 0; }
 }
 
+@keyframes stagePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 142, 245, 0); }
+  50% { box-shadow: 0 0 0 3px rgba(59, 142, 245, 0.22); }
+}
+
+.stage-active {
+  animation: stagePulse 2s ease-in-out infinite;
+}
+
 /* Memo markdown rendering */
 .memo-content h1 {
   font-size: 1.5rem;

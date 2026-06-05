@@ -31,16 +31,26 @@ import type { ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
 const RING_R = 40;
 const RING_C = 2 * Math.PI * RING_R;
 
-function ScoreRing({ overall, animated, tier }: {
+function ScoreRing({ overall, animated, tier, recommended }: {
   overall: number;
   animated: number;
   tier: typeof SCORE_TIERS[number];
+  recommended?: boolean;
 }) {
   const offset = RING_C - (animated / 100) * RING_C;
   return (
     <Stack align="center" gap={4} style={{ flexShrink: 0 }}>
       <Box style={{ position: "relative", width: 96, height: 96 }}>
-        <svg width="96" height="96" viewBox="0 0 96 96" style={{ transform: "rotate(-90deg)" }}>
+        <svg
+          width="96" height="96" viewBox="0 0 96 96"
+          style={{
+            transform: "rotate(-90deg)",
+            filter: recommended
+              ? `drop-shadow(0 0 7px var(--mantine-color-${tier.color}-5))`
+              : undefined,
+            transition: "filter 400ms ease",
+          }}
+        >
           <circle cx="48" cy="48" r={RING_R} fill="none" stroke="var(--mantine-color-gray-2)" strokeWidth="8" />
           <circle
             cx="48" cy="48" r={RING_R} fill="none"
@@ -120,9 +130,10 @@ interface Props {
   recommended?: boolean;
   showBadge?: boolean;
   winnerScores?: ScoreCard;
+  staggerIndex?: number;
 }
 
-export function ProposalCard({ proposal, recommended = false, showBadge = true, winnerScores }: Props) {
+export function ProposalCard({ proposal, recommended = false, showBadge = true, winnerScores, staggerIndex }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [openRationale, setOpenRationale] = useState<string | null>(null);
   const { vendor_name, scores, risks, extracted, filename } = proposal;
@@ -166,6 +177,8 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
         position: "relative",
         zIndex: recommended ? 1 : undefined,
         transition: "box-shadow 200ms ease, transform 200ms ease",
+        animationDelay: staggerIndex !== undefined ? `${staggerIndex * 90}ms` : undefined,
+        animationFillMode: staggerIndex !== undefined ? "both" : undefined,
       }}
     >
       <Stack gap="md">
@@ -191,7 +204,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
             </Box>
           </Group>
           {overall !== null && (
-            <ScoreRing overall={overall} animated={animatedScore} tier={scoreTier(overall / 10)} />
+            <ScoreRing overall={overall} animated={animatedScore} tier={scoreTier(overall / 10)} recommended={recommended} />
           )}
         </Group>
 

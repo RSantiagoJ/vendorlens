@@ -50,7 +50,14 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
         .slice(0, 3)
     : [];
 
-  const highRisks = (winner.risks ?? []).filter((r) => r.severity === "HIGH").length;
+  const allRisks = winner.risks ?? [];
+  const riskBreakdown = {
+    HIGH: allRisks.filter((r) => r.severity === "HIGH").length,
+    MEDIUM: allRisks.filter((r) => r.severity === "MEDIUM").length,
+    LOW: allRisks.filter((r) => r.severity === "LOW").length,
+  };
+  const totalWinnerRisks = riskBreakdown.HIGH + riskBreakdown.MEDIUM + riskBreakdown.LOW;
+  const highRisks = riskBreakdown.HIGH;
   const tier = overall >= 70 ? "umgreen" : overall >= 40 ? "umyellow" : "ummaroon";
 
   return (
@@ -169,6 +176,54 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
               </>
             )}
           </Group>
+
+          {/* Risk breakdown bar for this vendor */}
+          {totalWinnerRisks > 0 && (
+            <Box>
+              <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={6} style={{ letterSpacing: "0.05em" }}>
+                This vendor's risk profile
+              </Text>
+              <Box
+                style={{
+                  height: 7,
+                  borderRadius: 999,
+                  display: "flex",
+                  overflow: "hidden",
+                  background: "var(--mantine-color-gray-2)",
+                  marginBottom: 8,
+                }}
+              >
+                {riskBreakdown.HIGH > 0 && (
+                  <Box style={{ width: `${(riskBreakdown.HIGH / totalWinnerRisks) * 100}%`, background: "var(--mantine-color-ummaroon-5)" }} />
+                )}
+                {riskBreakdown.MEDIUM > 0 && (
+                  <Box style={{ width: `${(riskBreakdown.MEDIUM / totalWinnerRisks) * 100}%`, background: "var(--mantine-color-umyellow-5)" }} />
+                )}
+                {riskBreakdown.LOW > 0 && (
+                  <Box style={{ width: `${(riskBreakdown.LOW / totalWinnerRisks) * 100}%`, background: "var(--mantine-color-gray-4)" }} />
+                )}
+              </Box>
+              <Group gap="md">
+                {(["HIGH", "MEDIUM", "LOW"] as const)
+                  .filter((s) => riskBreakdown[s] > 0)
+                  .map((s) => (
+                    <Group key={s} gap={5} align="center">
+                      <Box
+                        style={{
+                          width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                          background: s === "HIGH"
+                            ? "var(--mantine-color-ummaroon-5)"
+                            : s === "MEDIUM"
+                            ? "var(--mantine-color-umyellow-5)"
+                            : "var(--mantine-color-gray-4)",
+                        }}
+                      />
+                      <Text size="xs" c="dimmed">{riskBreakdown[s]} {s}</Text>
+                    </Group>
+                  ))}
+              </Group>
+            </Box>
+          )}
         </Stack>
 
         {/* Right — top strengths */}

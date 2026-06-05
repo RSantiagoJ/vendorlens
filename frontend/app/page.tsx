@@ -29,6 +29,7 @@ import {
 import {
   IconAlertCircle, IconCircleCheck, IconRefresh,
   IconSearch, IconShieldCheck, IconChartBar, IconFileText, IconArrowRight,
+  IconAward, IconAlertTriangle, IconBuilding,
 } from "@tabler/icons-react";
 import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
@@ -186,19 +187,21 @@ export default function Home() {
     <AppShell header={{ height: 68 }}>
       <AppShell.Header
         style={{
-          boxShadow: "0 1px 8px rgba(0,0,0,0.08)",
-          background: "white",
-          borderBottom: "none",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.3)",
+          background: "#0f1117",
+          borderBottom: "2px solid var(--mantine-color-umgreen-5)",
         }}
       >
         <Group h="100%" px="lg" justify="space-between">
           <Group gap="sm">
-            <Logo width={44} />
+            <Box style={{ filter: "brightness(0) invert(1)" }}>
+              <Logo width={44} />
+            </Box>
             <Box>
-              <Text fw={800} size="xl" c="dark" style={{ lineHeight: 1.2 }}>
+              <Text fw={800} size="xl" style={{ color: "white", lineHeight: 1.2 }}>
                 VendorLens
               </Text>
-              <Text size="sm" c="dimmed" style={{ lineHeight: 1.3 }}>
+              <Text size="sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.3 }}>
                 Proposal Intelligence · UMass Procurement
               </Text>
             </Box>
@@ -206,10 +209,10 @@ export default function Home() {
           {appState !== "idle" && (
             <Button
               variant="subtle"
-              color="gray"
               size="xs"
               leftSection={<IconRefresh size={14} />}
               onClick={reset}
+              style={{ color: "rgba(255,255,255,0.6)" }}
             >
               Start over
             </Button>
@@ -313,17 +316,73 @@ export default function Home() {
                       totalRisks={allRisksCount}
                     />
                   )}
+
+                  {/* KPI summary bar */}
+                  <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" data-print-hide>
+                    {[
+                      {
+                        value: sortedProposals.length,
+                        label: "Vendors Analyzed",
+                        icon: <IconBuilding size={22} />,
+                        color: "umblue",
+                      },
+                      {
+                        value: allRisksCount,
+                        label: "Risks Flagged",
+                        icon: <IconAlertTriangle size={22} />,
+                        color: "ummaroon",
+                      },
+                      {
+                        value: winner ? Math.round(winner.scores!.overall) : "—",
+                        suffix: winner ? "/100" : "",
+                        label: "Winner Score",
+                        icon: <IconAward size={22} />,
+                        color: "umgreen",
+                      },
+                    ].map(({ value, label, icon, color, suffix = "" }) => (
+                      <Paper
+                        key={label}
+                        p="lg"
+                        radius="md"
+                        withBorder
+                        bg="white"
+                        style={{
+                          borderLeft: `4px solid var(--mantine-color-${color}-5)`,
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+                        }}
+                      >
+                        <Group justify="space-between" align="flex-start">
+                          <Stack gap={2}>
+                            <Text size="xs" tt="uppercase" fw={600} c="dimmed" style={{ letterSpacing: "0.06em" }}>
+                              {label}
+                            </Text>
+                            <Group gap={4} align="baseline">
+                              <Text fw={900} style={{ fontSize: "2rem", lineHeight: 1, color: `var(--mantine-color-${color}-7)` }}>
+                                {value}
+                              </Text>
+                              {suffix && <Text size="sm" c="dimmed" fw={500}>{suffix}</Text>}
+                            </Group>
+                          </Stack>
+                          <ThemeIcon size={44} radius="xl" variant="light" color={color}>
+                            {icon}
+                          </ThemeIcon>
+                        </Group>
+                      </Paper>
+                    ))}
+                  </SimpleGrid>
+
                   <SimpleGrid
                     cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
                     spacing="md"
                     style={{ overflow: "visible" }}
                   >
-                    {sortedProposals.map((p) => (
+                    {sortedProposals.map((p, i) => (
                       <ProposalCard
                         key={p.filename}
                         proposal={p}
                         recommended={winner !== null && p.filename === winner.filename}
                         winnerScores={winner?.scores ?? undefined}
+                        staggerIndex={i}
                       />
                     ))}
                   </SimpleGrid>

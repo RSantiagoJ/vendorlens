@@ -138,6 +138,7 @@ export function AgentProgressBar({ stage }: Props) {
               px="md"
               py="sm"
               radius="md"
+              className={isActive ? "stage-active" : undefined}
               style={{
                 background: isActive
                   ? "var(--mantine-color-umblue-0)"
@@ -145,7 +146,7 @@ export function AgentProgressBar({ stage }: Props) {
                 border: isActive
                   ? "1px solid var(--mantine-color-umblue-2)"
                   : "1px solid transparent",
-                transition: "all 150ms ease",
+                transition: "background 150ms ease, border 150ms ease",
               }}
             >
               <Group gap="md" align="flex-start">
