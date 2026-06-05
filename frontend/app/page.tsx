@@ -190,8 +190,8 @@ export default function Home() {
     <AppShell header={{ height: 68 }}>
       <AppShell.Header
         style={{
-          boxShadow: "0 2px 16px rgba(0,0,0,0.3)",
-          background: "#0f1117",
+          boxShadow: "0 2px 20px rgba(0,0,0,0.4)",
+          background: "linear-gradient(90deg, #1c0810 0%, #0f1117 55%)",
           borderBottom: "2px solid var(--mantine-color-umgreen-5)",
         }}
       >
@@ -204,7 +204,7 @@ export default function Home() {
               <Text fw={800} size="xl" style={{ color: "white", lineHeight: 1.2 }}>
                 VendorLens
               </Text>
-              <Text size="sm" style={{ color: "rgba(255,255,255,0.45)", lineHeight: 1.3 }}>
+              <Text size="sm" style={{ color: "var(--mantine-color-umblue-3)", lineHeight: 1.3 }}>
                 Proposal Intelligence · UMass Procurement
               </Text>
             </Box>
@@ -215,7 +215,7 @@ export default function Home() {
               size="xs"
               leftSection={<IconRefresh size={14} />}
               onClick={reset}
-              style={{ color: "rgba(255,255,255,0.6)" }}
+              style={{ color: "rgba(255,255,255,0.8)" }}
             >
               Start over
             </Button>

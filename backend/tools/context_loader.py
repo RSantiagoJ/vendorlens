@@ -28,7 +28,7 @@ BUNDLES: dict[str, dict] = {
     "erp": {
         "id": "erp",
         "label": "ERP",
-        "description": "Enterprise Resource Planning — finance, HR, and ops",
+        "description": "Enterprise Resource Planning for finance, HR, and ops",
         "dir": "context_bundles/erp",
     },
 }
