@@ -570,7 +570,35 @@ All tasks complete.
 
 ---
 
-## Day 10 — Terraform Deploy 🎯
+## Day 10 — UI Polish + Waiting Experience ✅ COMPLETE
+
+### What was built
+
+1. **Bored Panel** — floating "🎮 Bored?" widget fixed to the bottom-right corner, visible only during analysis. Three tabs:
+   - **Game**: fully playable Tetris with ghost piece, wall kicks, per-level gravity, and game-over overlay
+   - **Confetti**: three presets — Burst, Fireworks (left/right cannons), School Pride (UMass maroon/white/blue)
+   - **Fortune**: procurement-themed fortune cookies, random on open, "Another one" to cycle
+
+2. **"Ready" state** — when the SSE `done` event fires, the app pauses on the processing view instead of immediately replacing it. A dark notification card slides up ("Analysis complete! Finish your game or jump straight to results.") with a **View Results →** button. Clicking it triggers fireworks and reveals results.
+
+3. **Fireworks on reveal** — replaced the single confetti burst with a three-cannon fireworks effect (left, right, center) that fires when the user clicks View Results.
+
+4. **`?processing` demo mode** — URL param that starts the app in processing state with live stage cycling (extracting → risk → scoring → memo, every 2.5s) so the full animated experience is previewable without a backend.
+
+5. **API_BASE env var** — `NEXT_PUBLIC_API_URL` with localhost fallback so the deployed frontend points at App Runner instead of localhost.
+
+6. **Cleanup** — fortune tab initialises with a random fortune on mount (no blank state), dimmed text inside the dark panel bumped to readable contrast.
+
+Key files: `frontend/components/BoredPanel.tsx` (new), `frontend/components/TetrisGame.tsx` (new), `frontend/app/page.tsx` (ready state, fireworks, demo cycling, API_BASE).
+
+--- SESSION NOTES (Day 10, complete) ---
+
+- `pytest` is not in `backend/requirements.txt` — add it before Day 11 so the Docker image has it baked in for pipeline verification after deploy
+- Negotiation Playbook Agent (originally Day 8) still not built — deferred, will be a strong addition if time allows before presentation
+
+---
+
+## Day 11 — Terraform Deploy 🎯
 
 Goal: provision the full AWS stack with one command; get a live public URL.
 Personal AWS account — no work access dependencies, full admin control.
@@ -703,7 +731,7 @@ Full pipeline runs end-to-end in prod with the Negotiation Playbook panel visibl
 > "Any institution can fork this and have it running in 10 minutes."
 
 **Closing (30 sec):**
-> "Nine days. Five AI agents. Live on AWS. Fully auditable in LangSmith.
+> "Ten days. Five AI agents. Live on AWS. Fully auditable in LangSmith.
 > Drop in your own RFP policy files and it works for any procurement team."
 
 ---
