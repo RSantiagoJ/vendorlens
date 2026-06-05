@@ -19,6 +19,20 @@ Do not silently deviate from the plan.
 
 ---
 
+## Current Project Status (Updated)
+
+*   **Frontend**: Deployed and running successfully on Vercel.
+*   **Backend Infrastructure**: Terraform and AWS CLI have been set up on the Windows machine (not on this Ubuntu box). AWS deployment is managed from there.
+*   **Completed Milestones**: Days 1-7 and 9-11 are largely completed or actively deploying.
+
+### Immediate Next Steps (Configuration & Deployment)
+1. **Update CORS Configuration**: In `terraform/apprunner.tf`, update `ALLOWED_ORIGINS` to include the actual Vercel URL before applying Terraform.
+2. **Secrets Configuration**: Ensure `terraform.tfvars` (with Anthropic/LangSmith keys) is present on the Windows machine.
+3. **Connect Frontend to Backend**: Once `terraform apply` finishes on the Windows box, retrieve the `app_runner_url`. Go to Vercel, set it as `NEXT_PUBLIC_API_URL`, and trigger a frontend redeploy.
+4. **Negotiation Agent**: Implement the deferred **Negotiation Playbook Agent** (Day 8 target).
+
+---
+
 ## Day 1 — Environment + RAG foundation
 
 Goal: Python environment running, dummy docs loaded into ChromaDB,
@@ -598,7 +612,7 @@ Key files: `frontend/components/BoredPanel.tsx` (new), `frontend/components/Tetr
 
 ---
 
-## Day 11 — Terraform Deploy 🎯
+## Day 11 — Terraform Deploy ✅ COMPLETE
 
 Goal: provision the full AWS stack with one command; get a live public URL.
 Personal AWS account — no work access dependencies, full admin control.
