@@ -23,6 +23,7 @@ Expected output:
     All checks passed. Day 2 checkpoint complete.
 """
 
+import os
 import sys
 
 from dotenv import load_dotenv

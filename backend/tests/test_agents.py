@@ -98,38 +98,38 @@ def run_checks():
     print("CHECKPOINT ASSERTIONS")
     print(f"{'='*60}")
 
-    score_a = results["Vendor A (Blackboard)"]["scorecard"].overall
-    score_b = results["Vendor B (Canvas)"]["scorecard"].overall
-    score_c = results["Vendor C (Brightspace)"]["scorecard"].overall
-    high_a  = results["Vendor A (Blackboard)"]["high_count"]
+    score_a = results["Blackboard"]["scorecard"].overall
+    score_b = results["Canvas"]["scorecard"].overall
+    score_c = results["Brightspace"]["scorecard"].overall
+    high_a  = results["Blackboard"]["high_count"]
 
     print(f"\nOverall scores:")
-    print(f"  Vendor A (Blackboard) : {score_a}")
-    print(f"  Vendor B (Canvas)     : {score_b}")
-    print(f"  Vendor C (Brightspace): {score_c}")
-    print(f"  Vendor A HIGH flags   : {high_a}")
+    print(f"  Blackboard  : {score_a}")
+    print(f"  Canvas      : {score_b}")
+    print(f"  Brightspace : {score_c}")
+    print(f"  Blackboard HIGH flags: {high_a}")
 
     failures = []
 
     if score_b > score_a and score_b > score_c:
-        print("[PASS] Vendor B (Canvas) scored highest")
+        print("[PASS] Canvas scored highest")
     else:
         failures.append(
-            f"Score ordering FAILED: B={score_b} should be > A={score_a} and C={score_c}"
+            f"Score ordering FAILED: Canvas={score_b} should be > Blackboard={score_a} and Brightspace={score_c}"
         )
 
     if score_a < score_b and score_a < score_c:
-        print("[PASS] Vendor A (Blackboard) scored lowest")
+        print("[PASS] Blackboard scored lowest")
     else:
         failures.append(
-            f"Vendor A not lowest: A={score_a}, B={score_b}, C={score_c}"
+            f"Blackboard not lowest: Blackboard={score_a}, Canvas={score_b}, Brightspace={score_c}"
         )
 
     if high_a >= 3:
-        print(f"[PASS] Vendor A has {high_a} HIGH risk flags (≥ 3 expected)")
+        print(f"[PASS] Blackboard has {high_a} HIGH risk flags (≥ 3 expected)")
     else:
         failures.append(
-            f"Vendor A HIGH flags FAILED: expected ≥ 3, got {high_a}"
+            f"Blackboard HIGH flags FAILED: expected ≥ 3, got {high_a}"
         )
 
     print()
