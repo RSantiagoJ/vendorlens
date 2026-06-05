@@ -93,8 +93,10 @@ function HomeContent() {
     const shoot = (angle: number, x: number) =>
       confetti({ particleCount: 80, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 } });
     shoot(60, 0);
-    setTimeout(() => shoot(120, 1), 150);
-    setTimeout(() => shoot(90, 0.5), 300);
+    setTimeout(() => shoot(120, 1),    150);
+    setTimeout(() => shoot(75, 0.25),  300);
+    setTimeout(() => shoot(105, 0.75), 450);
+    setTimeout(() => shoot(90, 0.5),   600);
   }
 
   function reset() {

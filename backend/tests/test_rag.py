@@ -23,9 +23,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if not os.getenv("GOOGLE_API_KEY"):
-    sys.exit("ERROR: GOOGLE_API_KEY is not set. Add it to backend/.env")
-
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.core import VectorStoreIndex
 
