@@ -1,9 +1,12 @@
 import asyncio
 import json
 import os
+import tempfile
+import threading
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
@@ -28,6 +31,7 @@ from api.models import AnalysisResult, AnalyzeResponse, ProposalResult
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState
 from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
+from tools.chroma import load_index
 
 
 @asynccontextmanager
@@ -56,6 +60,9 @@ _executor = ThreadPoolExecutor(max_workers=4)
 # One cached pipeline per bundle — built on first use.
 _pipelines: dict[str, object] = {}
 
+# Serialise concurrent ChromaDB inserts from parallel requests.
+_ingest_lock = threading.Lock()
+
 
 def _get_pipeline(bundle_id: str = DEFAULT_BUNDLE):
     if bundle_id not in _pipelines:
@@ -63,8 +70,33 @@ def _get_pipeline(bundle_id: str = DEFAULT_BUNDLE):
     return _pipelines[bundle_id]
 
 
+def _ingest_file(filename: str, content: bytes, index) -> None:
+    """Write one uploaded file to a temp dir and insert its chunks into the shared index.
+
+    Uses LlamaIndex SimpleDirectoryReader so any supported format (.txt, .pdf, .docx, …)
+    is parsed natively — raw bytes are never decoded as UTF-8 here.
+    """
+    from llama_index.core import SimpleDirectoryReader
+    from llama_index.core.node_parser import SentenceSplitter
+
+    with tempfile.TemporaryDirectory() as tmp:
+        dest = Path(tmp) / filename
+        dest.write_bytes(content)
+        docs = SimpleDirectoryReader(
+            input_dir=tmp,
+            filename_as_id=True,
+            file_metadata=lambda p: {"file_name": Path(p).name},
+        ).load_data()
+        if not docs:
+            return
+        splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
+        nodes = splitter.get_nodes_from_documents(docs)
+        index.insert_nodes(nodes)
+
+
 # In-memory job store: job_id → {status, events, result, error}
 _jobs: dict[str, dict] = {}
+
 
 def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id: str) -> None:
     job = _jobs[job_id]
@@ -80,45 +112,57 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         seen_stages: set[str] = {"extracting"}
         total_risks = 0
 
-        pending = [
-            {"filename": name, "raw_text": content.decode("utf-8", errors="replace")}
-            for name, content in file_contents
-        ]
+        # Ingest uploaded files into ChromaDB so ExtractionAgent can retrieve them.
+        # Raw bytes are written to disk; LlamaIndex handles format-specific parsing.
+        index = load_index()
+        with _ingest_lock:
+            for name, content in file_contents:
+                _ingest_file(name, content, index)
+
+        pending = [{"filename": name} for name, _ in file_contents]
 
         initial_state = {
             "pending": pending,
-            "extracted": [],
-            "with_risks": [],
             "proposals": [],
             "memo": None,
             "status": "pending",
             "error": None,
         }
 
-        final = dict(initial_state)
+        final = {
+            "proposals": [],
+            "memo": None,
+            "status": "pending",
+            "error": None,
+        }
 
-        for chunk in _get_pipeline(bundle_id).stream(initial_state, stream_mode="updates"):
+        # stream_mode="updates" + subgraphs=True yields (namespace, {node: delta}) tuples.
+        # namespace == () means the parent graph; non-empty means inside vendor_subgraph.
+        # This lets us emit SSE events at each per-stage node completion, not just once
+        # per vendor after all three stages finish.
+        for ns, chunk in _get_pipeline(bundle_id).stream(
+            initial_state, stream_mode="updates", subgraphs=True
+        ):
             for node_name, updates in chunk.items():
-                if node_name == "vendor_node":
-                    vendor_nodes_done += 1
+                if node_name == "risk_node" and "risk" not in seen_stages:
+                    seen_stages.add("risk")
+                    emit("risk", {"status": "risk"})
+                elif node_name == "score_node":
                     for p in (updates or {}).get("proposals", []):
                         total_risks += len(p.get("risks") or [])
-                    # First vendor done → risk analysis is underway across the batch.
-                    if "risk" not in seen_stages:
-                        seen_stages.add("risk")
-                        emit("risk", {"status": "risk"})
-                    # Last vendor done → all scoring complete, memo is next.
-                    if vendor_nodes_done >= num_vendors and "scoring" not in seen_stages:
+                    vendor_nodes_done += 1
+                    if "scoring" not in seen_stages:
                         seen_stages.add("scoring")
                         emit("scoring", {"status": "scoring", "total_risks": total_risks})
                 elif node_name == "memo_node" and "memo" not in seen_stages:
                     seen_stages.add("memo")
                     emit("memo", {"status": "memo"})
 
-                if isinstance(updates, dict):
+                # Accumulate parent-level state only (ns == () is the parent graph).
+                if not ns and isinstance(updates, dict):
                     for k, v in updates.items():
-                        if k in ("extracted", "with_risks", "proposals") and isinstance(v, list):
-                            final[k] = final[k] + v
+                        if k == "proposals" and isinstance(v, list):
+                            final["proposals"] = final["proposals"] + v
                         else:
                             final[k] = v
 
