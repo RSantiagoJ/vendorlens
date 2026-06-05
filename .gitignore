@@ -45,4 +45,4 @@ Thumbs.db
 .claude/settings.local.json
 
 # Logs
-backend/raw_response_debug.txt
+backend/debug/

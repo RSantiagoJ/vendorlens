@@ -162,7 +162,9 @@ def parse_llm_json(raw: str):
 
     # On failure, dump the raw response to a file for debugging
     try:
-        debug_path = Path(__file__).parent.parent / "raw_response_debug.txt"
+        debug_dir = Path(__file__).parent.parent / "debug"
+        debug_dir.mkdir(exist_ok=True)
+        debug_path = debug_dir / "raw_response_debug.txt"
         debug_path.write_text(raw, encoding="utf-8")
     except Exception:
         pass
