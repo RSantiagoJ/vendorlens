@@ -64,8 +64,6 @@ def run_pipeline(count: int = 2):
 
     initial_state = {
         "pending": pending,
-        "extracted": [],
-        "with_risks": [],
         "proposals": [],
         "memo": None,
         "status": "pending",
