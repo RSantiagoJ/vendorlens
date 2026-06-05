@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, Group, Paper, Stack, Text } from "@mantine/core";
+import { Box, Button, Group, Paper, Stack, Text, Transition } from "@mantine/core";
+import { useReducedMotion } from "@mantine/hooks";
 import {
   IconCookie,
   IconDeviceGamepad2,
@@ -68,15 +69,28 @@ const TABS = [
 
 const PANEL_WIDTH = 260;
 
+const tabHeights = {
+  game: 511,
+  confetti: 192,
+  fortune: 168,
+};
+
 export function BoredPanel() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("game");
+  const [visibleTab, setVisibleTab] = useState<Tab>("game");
+  const [mounted, setMounted] = useState(true);
   const [fortune, setFortune] = useState<string>(
     () => FORTUNES[Math.floor(Math.random() * FORTUNES.length)]
   );
 
+  const reduceMotion = useReducedMotion();
+  const duration = reduceMotion ? 0 : 150;
+
   function handleTab(t: Tab) {
+    if (t === tab) return;
     setTab(t);
+    setMounted(false);
   }
 
   function pickFortune() {
@@ -129,10 +143,9 @@ export function BoredPanel() {
                   textAlign: "center",
                   cursor: "pointer",
                   background: tab === id ? "rgba(255,255,255,0.06)" : "transparent",
-                  borderBottom: tab === id
-                    ? "2px solid var(--mantine-color-blue-4)"
-                    : "2px solid transparent",
-                  transition: "background 0.15s",
+                  borderBottom: "2px solid",
+                  borderColor: tab === id ? "var(--mantine-color-blue-4)" : "transparent",
+                  transition: reduceMotion ? "none" : "background 0.15s, border-color 0.15s",
                 }}
               >
                 <Stack gap={3} align="center">
@@ -153,74 +166,96 @@ export function BoredPanel() {
           </Group>
 
           {/* Content */}
-          {tab === "game" && <TetrisGame />}
+          <Box
+            style={{
+              minHeight: tabHeights[visibleTab],
+              transition: reduceMotion ? "none" : "min-height 0.2s ease-in-out",
+              overflow: "hidden",
+            }}
+          >
+            <Transition
+              mounted={mounted}
+              transition="fade"
+              duration={duration}
+              onExited={() => {
+                setVisibleTab(tab);
+                setMounted(true);
+              }}
+            >
+              {(styles) => (
+                <Box style={styles}>
+                  {visibleTab === "game" && <TetrisGame />}
 
-          {tab === "confetti" && (
-            <Stack gap="sm" p="md" align="center">
-              <Text size="xs" ta="center" style={{ color: "rgba(255,255,255,0.65)" }}>
-                No one will know.
-              </Text>
-              <Button
-                fullWidth
-                size="sm"
-                variant="light"
-                color="blue"
-                onClick={fireBurst}
-              >
-                🎉 Burst
-              </Button>
-              <Button
-                fullWidth
-                size="sm"
-                variant="light"
-                color="orange"
-                onClick={fireFireworks}
-              >
-                🎆 Fireworks
-              </Button>
-              <Button
-                fullWidth
-                size="sm"
-                variant="light"
-                color="red"
-                onClick={fireSchoolPride}
-              >
-                🎓 School Pride
-              </Button>
-            </Stack>
-          )}
+                  {visibleTab === "confetti" && (
+                    <Stack gap="sm" p="md" align="center">
+                      <Text size="xs" ta="center" style={{ color: "rgba(255,255,255,0.65)" }}>
+                        No one will know.
+                      </Text>
+                      <Button
+                        fullWidth
+                        size="sm"
+                        variant="light"
+                        color="blue"
+                        onClick={fireBurst}
+                      >
+                        🎉 Burst
+                      </Button>
+                      <Button
+                        fullWidth
+                        size="sm"
+                        variant="light"
+                        color="orange"
+                        onClick={fireFireworks}
+                      >
+                        🎆 Fireworks
+                      </Button>
+                      <Button
+                        fullWidth
+                        size="sm"
+                        variant="light"
+                        color="red"
+                        onClick={fireSchoolPride}
+                      >
+                        🎓 School Pride
+                      </Button>
+                    </Stack>
+                  )}
 
-          {tab === "fortune" && (
-            <Stack gap="md" p="md" align="center">
-              <Paper
-                p="sm"
-                radius="md"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  width: "100%",
-                }}
-              >
-                <Text
-                  size="sm"
-                  c="white"
-                  ta="center"
-                  style={{ lineHeight: 1.55, fontStyle: "italic" }}
-                >
-                  &ldquo;{fortune}&rdquo;
-                </Text>
-              </Paper>
-              <Button
-                fullWidth
-                size="xs"
-                variant="light"
-                color="blue"
-                onClick={pickFortune}
-              >
-                Another one
-              </Button>
-            </Stack>
-          )}
+                  {visibleTab === "fortune" && (
+                    <Stack gap="md" p="md" align="center">
+                      <Paper
+                        p="sm"
+                        radius="md"
+                        style={{
+                          background: "rgba(255,255,255,0.06)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          width: "100%",
+                        }}
+                      >
+                        <Text
+                          size="sm"
+                          c="white"
+                          ta="center"
+                          style={{ lineHeight: 1.55, fontStyle: "italic" }}
+                        >
+                          &ldquo;{fortune}&rdquo;
+                        </Text>
+                      </Paper>
+                      <Button
+                        fullWidth
+                        size="xs"
+                        variant="light"
+                        color="blue"
+                        onClick={pickFortune}
+                      >
+                        Another one
+                      </Button>
+                    </Stack>
+                  )}
+                </Box>
+              )}
+            </Transition>
+          </Box>
         </Paper>
       )}
 
