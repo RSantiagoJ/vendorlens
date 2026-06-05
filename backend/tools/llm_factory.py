@@ -160,4 +160,11 @@ def parse_llm_json(raw: str):
             except json.JSONDecodeError:
                 continue
 
+    # On failure, dump the raw response to a file for debugging
+    try:
+        debug_path = Path(__file__).parent.parent / "raw_response_debug.txt"
+        debug_path.write_text(raw, encoding="utf-8")
+    except Exception:
+        pass
+
     raise ValueError(f"No valid JSON found in LLM response. First 200 chars: {raw[:200]!r}")
