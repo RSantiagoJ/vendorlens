@@ -68,11 +68,12 @@ const PANEL_WIDTH = 260;
 export function BoredPanel() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("game");
-  const [fortune, setFortune] = useState<string | null>(null);
+  const [fortune, setFortune] = useState<string>(
+    () => FORTUNES[Math.floor(Math.random() * FORTUNES.length)]
+  );
 
   function handleTab(t: Tab) {
     setTab(t);
-    if (t === "fortune" && !fortune) pickFortune();
   }
 
   function pickFortune() {
@@ -188,30 +189,24 @@ export function BoredPanel() {
 
           {tab === "fortune" && (
             <Stack gap="md" p="md" align="center">
-              {fortune ? (
-                <Paper
-                  p="sm"
-                  radius="md"
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    width: "100%",
-                  }}
+              <Paper
+                p="sm"
+                radius="md"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  width: "100%",
+                }}
+              >
+                <Text
+                  size="sm"
+                  c="white"
+                  ta="center"
+                  style={{ lineHeight: 1.55, fontStyle: "italic" }}
                 >
-                  <Text
-                    size="sm"
-                    c="white"
-                    ta="center"
-                    style={{ lineHeight: 1.55, fontStyle: "italic" }}
-                  >
-                    &ldquo;{fortune}&rdquo;
-                  </Text>
-                </Paper>
-              ) : (
-                <Text size="xs" c="dimmed" ta="center">
-                  Your procurement wisdom awaits.
+                  &ldquo;{fortune}&rdquo;
                 </Text>
-              )}
+              </Paper>
               <Button
                 fullWidth
                 size="xs"
@@ -219,7 +214,7 @@ export function BoredPanel() {
                 color="blue"
                 onClick={pickFortune}
               >
-                {fortune ? "Another one" : "Reveal fortune"}
+                Another one
               </Button>
             </Stack>
           )}

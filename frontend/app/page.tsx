@@ -34,7 +34,7 @@ import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const PIPELINE_STEPS = [
   { label: "Extract",      Icon: IconSearch      },
@@ -75,6 +75,17 @@ export default function Home() {
     setTimeout(() => shoot(120, 1), 150);
     setTimeout(() => shoot(90, 0.5), 300);
   }, [appState]);
+
+  useEffect(() => {
+    if (!isProcessingDemo) return;
+    const stages: Stage[] = ["extracting", "risk", "scoring", "memo"];
+    let i = 0;
+    const id = setInterval(() => {
+      i = (i + 1) % stages.length;
+      setStage(stages[i]);
+    }, 2500);
+    return () => clearInterval(id);
+  }, [isProcessingDemo]);
 
   function revealResults() {
     setAppState("done");
