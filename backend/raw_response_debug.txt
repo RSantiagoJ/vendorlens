@@ -1,187 +1,172 @@
 [
   {
-    "clause": "Security Certification",
+    "clause": "security_certifications",
     "severity": "HIGH",
-    "explanation": "Anthology holds only a SOC 2 Type I certification, with SOC 2 Type II described as 'in progress, expected Q3 2026.' ISO 27001 is not held. Neither a SOC 2 Type I nor a certification 'in progress' satisfies the institution's requirement.",
-    "recommendation": "Require Anthology to provide a current SOC 2 Type II or ISO 27001 certificate before contract execution, or escalate to CISO for a formal risk exception.",
+    "explanation": "Anthology holds only a SOC 2 Type I certification, with SOC 2 Type II described as 'in progress' and ISO 27001 not held. Policy explicitly states that SOC 2 Type I and certifications 'in progress' do not satisfy the institution's certification requirement.",
+    "recommendation": "Require Anthology to provide a current SOC 2 Type II or ISO 27001 certification before contract execution, or escalate to CISO for a formal waiver decision.",
     "policy_reference": "Security Policy / Section 2: Security Certification Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "SOC 2 Type II (current) OR ISO 27001 certification required. SOC 2 Type I does not satisfy this requirement. Certifications in progress do not satisfy this requirement. No current SOC 2 Type II or ISO 27001 certification (SOC 2 Type I or 'in progress' does NOT satisfy this requirement)."
   },
   {
-    "clause": "Data Processing Agreement (DPA)",
+    "clause": "data_processing_agreement",
     "severity": "HIGH",
-    "explanation": "The DPA is described as 'available upon request, not provided as standard' and does not explicitly address Massachusetts Ch. 93H or Ch. 66A, both of which are mandatory under institutional policy. A DPA that omits required statutory coverage is insufficient for contract execution.",
-    "recommendation": "Require Anthology to provide a fully executed DPA prior to contract signing that explicitly addresses FERPA, GLBA, Massachusetts Ch. 66A, and Ch. 93H.",
+    "explanation": "The DPA is described as 'available upon request, not provided as standard' and does not explicitly address Massachusetts Ch. 93H or Ch. 66A, both of which are required by institutional policy. The absence of a DPA provided at contract execution is a policy blocker.",
+    "recommendation": "Require Anthology to provide a fully executed DPA prior to contract execution that explicitly covers Massachusetts Ch. 66A, Ch. 93H, FERPA, and GLBA.",
     "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "A Data Processing Agreement (DPA) is required before contract execution. DPA must address: Massachusetts Ch. 66A, Ch. 93H, FERPA, GLBA. No Data Processing Agreement (DPA) provided or mentioned."
   },
   {
-    "clause": "Disaster Recovery Documentation",
+    "clause": "incident_response_docs",
     "severity": "HIGH",
-    "explanation": "Disaster Recovery documentation is only available after NDA execution, meaning it has not been provided as part of the procurement process. Policy requires this documentation to be reviewed before contract execution.",
-    "recommendation": "Require Anthology to provide full Disaster Recovery documentation (under NDA if necessary) for CISO review prior to contract execution.",
-    "policy_reference": "Security Policy / Section 11: High Severity Risk Triggers",
-    "policy_excerpt": "No Incident Response or Disaster Recovery documentation provided."
+    "explanation": "The Incident Response plan is 'available upon request' and Disaster Recovery documentation is only accessible 'after NDA execution,' meaning neither is provided as part of the standard contract package. Policy requires both to be reviewed by the CISO before contract execution.",
+    "recommendation": "Require Anthology to provide both the Incident Response plan and Disaster Recovery documentation in full prior to contract execution, without NDA precondition.",
+    "policy_reference": "Security Policy / Section 11: High Severity Risk Triggers / Section 1: Security Vendor Management",
+    "policy_excerpt": "No Incident Response or Disaster Recovery documentation provided. Incident Response and Disaster Recovery documentation [must be reviewed by the University CISO]."
   },
   {
-    "clause": "Vendor Use of University Data (Product Improvement / AI Training)",
+    "clause": "data_ownership — Anthology use of anonymized data for product improvement, benchmarking, and AI training",
     "severity": "HIGH",
-    "explanation": "Anthology uses anonymized usage and engagement data for product improvement, benchmarking studies, and AI model training. Opting out requires a written request evaluated case-by-case, with no guarantee of approval. This constitutes use of university data beyond service delivery without CIO approval.",
-    "recommendation": "Require Anthology to remove all data uses beyond direct service delivery, or obtain explicit written CIO approval and contractually guaranteed opt-out rights before signing.",
+    "explanation": "Anthology uses anonymized usage and engagement data for product improvement, benchmarking studies, and AI model training, with opt-out only available on a case-by-case basis. Policy prohibits vendor use of university data beyond service delivery without explicit CIO approval.",
+    "recommendation": "Require Anthology to remove all rights to use university data for product improvement, benchmarking, and AI training, or obtain explicit written CIO approval before signing.",
     "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "Vendor may not use university data for any purpose beyond direct service delivery without explicit CIO approval. Vendor use of university data beyond service delivery (product improvement, benchmarking, AI training, anonymized studies) without CIO approval."
   },
   {
-    "clause": "IP Ownership — Platform Configurations and Work Product",
+    "clause": "data_ownership — Anthology retention of aggregated analytics and usage metadata",
     "severity": "HIGH",
-    "explanation": "Platform configurations, course templates, and workflow customizations created during implementation are deemed Anthology proprietary work product, meaning the university does not own them. This directly contradicts the institution's policy that IP ownership of configurations and work product must remain with the university.",
-    "recommendation": "Require Anthology to revise the IP clause so that all configurations, templates, and customizations created during or after implementation are owned by the university.",
+    "explanation": "Anthology retains rights to aggregated analytics and usage metadata derived from university data, meaning the university does not retain full ownership of all institutional data at all times as required by policy.",
+    "recommendation": "Require Anthology to relinquish all rights to aggregated analytics and usage metadata derived from university data, confirming the university retains full ownership of all institutional data.",
+    "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
+    "policy_excerpt": "University retains full ownership of all institutional data at all times. University data not explicitly owned by the university."
+  },
+  {
+    "clause": "overage_fees / data_ownership — bulk data export at additional cost post-termination",
+    "severity": "HIGH",
+    "explanation": "Bulk data export post-termination is listed as available only via professional services at additional cost, which directly violates the policy requirement that university data be exportable in standard formats at no cost within 10 business days of termination.",
+    "recommendation": "Require Anthology to provide complete data export in standard formats (IMS Common Cartridge and CSV) at no additional cost within 10 business days of contract termination.",
+    "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
+    "policy_excerpt": "University data must be exportable in standard formats at no cost within 10 business days of termination. Data not exportable in standard formats at no cost upon termination."
+  },
+  {
+    "clause": "data_ownership — export timeline of 60 days post-termination",
+    "severity": "HIGH",
+    "explanation": "The contract specifies data export delivery within 60 days post-termination, which exceeds the policy-mandated maximum of 10 business days.",
+    "recommendation": "Require Anthology to contractually commit to delivering all data exports within 10 business days of termination at no additional cost.",
+    "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
+    "policy_excerpt": "University data must be exportable in standard formats at no cost within 10 business days of termination. Data not exportable in standard formats at no cost upon termination."
+  },
+  {
+    "clause": "ip_ownership — platform configurations, course templates, and workflow customizations",
+    "severity": "HIGH",
+    "explanation": "Anthology claims ownership of platform configurations, course templates, and workflow customizations created during implementation as 'Anthology proprietary work product,' which violates the policy requirement that IP ownership of configurations and work product must remain with the university.",
+    "recommendation": "Require Anthology to amend the contract so that all configurations, course templates, and workflow customizations created for or by the university remain the exclusive intellectual property of the university.",
     "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "IP ownership of configurations and work product must remain with university. IP ownership of configurations or work product transferred to vendor."
   },
   {
-    "clause": "Liability Cap",
+    "clause": "price_escalation — automatic 6% annual increase and unilateral add-on pricing adjustment",
     "severity": "HIGH",
-    "explanation": "The maximum liability cap is $50,000 (with data breach liability capped further at $25,000 per incident), far below the institutional minimum of $500,000. The cap also explicitly excludes data loss, consequential damages, and FERPA-related claims, which are among the highest-risk scenarios for a university LMS.",
-    "recommendation": "Require Anthology to raise the liability cap to a minimum of $500,000 and remove exclusions for data loss, FERPA-related claims, and consequential damages.",
+    "explanation": "The contract applies a 6% price escalation automatically in Years 2 and 3, and Anthology reserves the right to adjust add-on module pricing with only 60 days' written notice — both constitute unilateral modification of pricing terms prohibited by policy.",
+    "recommendation": "Require Anthology to remove automatic price escalation and any unilateral right to modify add-on pricing, replacing them with mutually agreed, fixed pricing terms for the contract duration.",
+    "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
+    "policy_excerpt": "Vendors may not modify terms or pricing unilaterally. Vendor right to modify pricing or terms unilaterally."
+  },
+  {
+    "clause": "liability_cap",
+    "severity": "HIGH",
+    "explanation": "The maximum liability cap is $50,000 (with a separate $25,000 per-incident data breach cap), both far below the policy-mandated minimum of $500,000, and the cap explicitly excludes data loss, consequential damages, and FERPA-related claims.",
+    "recommendation": "Require Anthology to raise the liability cap to a minimum of $500,000, inclusive of data breach and FERPA-related claims, and remove exclusions for data loss and consequential damages.",
     "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "Liability cap minimum: $500,000. Liability cap below $500,000 or not specified."
   },
   {
-    "clause": "Auto-Renewal Opt-Out Window",
+    "clause": "renewal_terms — 30-day auto-renewal opt-out window",
     "severity": "HIGH",
-    "explanation": "The contract requires only 30 days' notice to opt out of auto-renewal, which is less than the institutional minimum of 60 days. This creates a risk that the university could be automatically renewed into another term without adequate time to evaluate alternatives.",
+    "explanation": "The auto-renewal opt-out notice period is 30 days, which is shorter than the policy-required minimum of 60 days, creating a risk that the institution could be locked into an unwanted renewal term.",
     "recommendation": "Require Anthology to extend the auto-renewal opt-out notice period to a minimum of 60 days prior to the renewal date.",
     "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "Auto-renewal opt-out: minimum 60 days notice required. Auto-renewal opt-out window shorter than 60 days."
   },
   {
-    "clause": "Termination for Convenience — Early Termination Fee",
+    "clause": "termination_clause — 180-day notice and 40% remaining value termination fee",
     "severity": "HIGH",
-    "explanation": "The contract requires 180 days' written notice for termination for convenience plus payment of 40% of the remaining contract value as a termination fee, both of which are expressly prohibited by institutional policy. On a $2.64M+ annual contract, this fee could represent millions of dollars.",
-    "recommendation": "Require Anthology to reduce the termination notice period to a maximum of 90 days and eliminate the early termination fee entirely.",
+    "explanation": "The contract requires 180 days' written notice for termination for convenience plus payment of 40% of remaining contract value, both of which violate policy prohibiting termination fees and requiring a maximum notice period of 90 days.",
+    "recommendation": "Require Anthology to reduce the termination for convenience notice period to a maximum of 90 days and remove all termination fees and financial penalties.",
     "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "Termination for convenience: maximum 90 days notice, no financial penalty. Early termination fees not permitted. Termination penalty or early termination fee present."
   },
   {
-    "clause": "Governing Law",
+    "clause": "governing_law — State of North Carolina",
     "severity": "HIGH",
-    "explanation": "The contract specifies the State of North Carolina as the governing law jurisdiction, which conflicts with the institution's requirement that all contracts be governed by the Commonwealth of Massachusetts.",
+    "explanation": "The contract specifies the State of North Carolina as the governing law jurisdiction, which conflicts with the policy requirement that the governing law must be the Commonwealth of Massachusetts.",
     "recommendation": "Require Anthology to amend the governing law clause to specify the Commonwealth of Massachusetts.",
     "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "Governing law: Commonwealth of Massachusetts. Governing law not Commonwealth of Massachusetts."
   },
   {
-    "clause": "Dispute Resolution Jurisdiction",
+    "clause": "governing_law — dispute resolution jurisdiction",
     "severity": "HIGH",
-    "explanation": "No Massachusetts state court jurisdiction for dispute resolution is specified in the contract, and the governing law is North Carolina, implying disputes would be resolved outside Massachusetts courts. This is a direct policy violation.",
-    "recommendation": "Require Anthology to specify that all disputes will be resolved in Massachusetts state courts.",
+    "explanation": "Because governing law is set to North Carolina, dispute resolution is implicitly not in Massachusetts state courts, which violates the policy requirement for disputes to be resolved in Massachusetts courts.",
+    "recommendation": "Require Anthology to specify Massachusetts state courts as the exclusive venue for dispute resolution in addition to amending the governing law clause.",
     "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
     "policy_excerpt": "Disputes: Massachusetts state courts. Dispute resolution not in Massachusetts courts."
   },
   {
-    "clause": "Price Escalation — Automatic 6% Annual Increases",
-    "severity": "HIGH",
-    "explanation": "The contract applies a 6% price escalation automatically in Years 2 and 3 without any negotiation or university consent mechanism, constituting unilateral modification of pricing terms, which is prohibited by institutional policy.",
-    "recommendation": "Require Anthology to remove automatic price escalation clauses or cap increases at a fixed CPI-linked rate subject to university approval.",
-    "policy_reference": "Security Policy / Section 4: Contract Term Requirements / Section 11: High Severity Risk Triggers",
-    "policy_excerpt": "Vendors may not modify terms or pricing unilaterally. Vendor right to modify pricing or terms unilaterally."
-  },
-  {
-    "clause": "Data Export — Bulk Export at Additional Cost Post-Termination",
-    "severity": "HIGH",
-    "explanation": "While standard export formats are available within 60 days post-termination, bulk data export requires professional services at additional cost. Policy requires that university data be exportable in standard formats at no cost within 10 business days of termination.",
-    "recommendation": "Require Anthology to provide complete bulk data export in standard formats at no cost within 10 business days of termination, with no professional services fees.",
-    "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
-    "policy_excerpt": "University data must be exportable in standard formats at no cost within 10 business days of termination. Data not exportable in standard formats at no cost upon termination."
-  },
-  {
-    "clause": "Data Ownership — Aggregated Analytics and Usage Metadata",
-    "severity": "HIGH",
-    "explanation": "Anthology retains rights to aggregated analytics and usage metadata derived from university data. Policy requires the university to retain full ownership of all institutional data at all times, with no carve-outs for derived or aggregated data.",
-    "recommendation": "Require Anthology to relinquish all claims to aggregated analytics and usage metadata derived from university data, or explicitly define this as university-owned data.",
-    "policy_reference": "Security Policy / Section 3: Data Processing and Governance / Section 11: High Severity Risk Triggers",
-    "policy_excerpt": "University retains full ownership of all institutional data at all times. University data not explicitly owned by the university."
-  },
-  {
-    "clause": "Incident Response Documentation",
+    "clause": "termination_clause — 90-day cure period for termination for cause with no refund of prepaid fees",
     "severity": "MEDIUM",
-    "explanation": "The Incident Response plan is listed as 'available upon request' but has not been provided as part of the procurement package. While technically available, it has not been reviewed by the CISO as required prior to contract execution.",
-    "recommendation": "Request the Incident Response plan immediately and confirm CISO review and approval before contract execution.",
-    "policy_reference": "Security Policy / Section 1: Security Vendor Management",
-    "policy_excerpt": "The University CISO reviews: Incident Response and Disaster Recovery documentation."
+    "explanation": "The 90-day cure period for termination for cause is lengthy and combined with a no-refund policy on prepaid fees, potentially leaving the university financially exposed if a material breach is not cured within that window.",
+    "recommendation": "Negotiate to shorten the cure period for material breaches (e.g., security incidents, data loss) and require pro-rata refund of prepaid fees upon termination for cause after the cure period expires."
   },
   {
-    "clause": "Penetration Testing — Results Not Shared",
+    "clause": "sla_uptime — 99% uptime with up to 87 hours downtime per year and 8 hours monthly maintenance excluded",
     "severity": "MEDIUM",
-    "explanation": "Anthology conducts annual penetration testing but does not share results with customers. This prevents the CISO from assessing open vulnerabilities or remediation status as part of the required vendor security review.",
-    "recommendation": "Require Anthology to provide annual penetration test executive summaries or attestation letters confirming scope, findings severity, and remediation timelines.",
-    "policy_reference": "Security Policy / Section 1: Security Vendor Management",
-    "policy_excerpt": "The University CISO reviews: security posture... Open issues or remediation items with the vendor."
+    "explanation": "A 99% uptime SLA allowing approximately 87 hours of unplanned downtime annually, plus up to 96 additional hours of excluded scheduled maintenance per year, may be insufficient for a mission-critical LMS supporting 60,000 FTE students.",
+    "recommendation": "Negotiate a minimum 99.9% uptime SLA with scheduled maintenance windows counted against the SLA or limited in frequency and duration, and require financial penalties for SLA breaches."
   },
   {
-    "clause": "Encryption Standards — AES-128 at Rest",
+    "clause": "sla_response_times — best effort only, no contractual SLA",
     "severity": "MEDIUM",
-    "explanation": "Anthology uses AES-128 encryption at rest, which is below the AES-256 standard commonly required for sensitive educational data including FERPA-protected student records. While not explicitly enumerated in the provided policy, this represents a meaningful security posture gap for a platform storing sensitive data at scale.",
-    "recommendation": "Request that Anthology upgrade encryption at rest to AES-256 or provide a formal risk justification acceptable to the CISO.",
-    "policy_reference": "Security Policy / Section 1: Security Vendor Management",
-    "policy_excerpt": "The University CISO reviews: Integration of security best practices."
+    "explanation": "No contractually defined support response time SLAs are included, leaving the university with no enforceable recourse for slow incident or support resolution on a $2.6M/year platform.",
+    "recommendation": "Negotiate defined, contractually binding response and resolution time SLAs for critical, high, medium, and low severity incidents with associated financial remedies for breach."
   },
   {
-    "clause": "SLA — No Contractual Response Time Commitments",
+    "clause": "sla_penalties — no financial penalties for SLA breach",
     "severity": "MEDIUM",
-    "explanation": "Support response times are described as 'best effort' with no contractually defined SLAs, and there are no financial penalties for SLA breaches. For a mission-critical LMS serving 60,000 FTE, this leaves the university with no contractual recourse for service degradation.",
-    "recommendation": "Require Anthology to include defined response time SLAs (e.g., P1 within 1 hour, P2 within 4 hours) with financial remedies for breach.",
-    "policy_reference": "Contract Terms",
-    "policy_excerpt": null
+    "explanation": "The contract includes no financial penalties or service credits for SLA breaches, removing any meaningful incentive for Anthology to maintain uptime commitments.",
+    "recommendation": "Negotiate service credit provisions (e.g., percentage of monthly fees) triggered automatically upon SLA breach without requiring the university to file a claim."
   },
   {
-    "clause": "Uptime SLA — 99% Target with Maintenance Exclusions",
+    "clause": "overage_fees — PeopleSoft/Ellucian grade passback via middleware at additional cost",
     "severity": "MEDIUM",
-    "explanation": "The 99% uptime target allows approximately 87 hours of downtime per year, and scheduled maintenance (up to 8 hours/month, or 96 hours/year) is excluded from this calculation entirely. Effective availability could be materially lower than the stated SLA implies.",
-    "recommendation": "Negotiate a 99.9% uptime SLA inclusive of scheduled maintenance windows, with financial penalties for breach.",
-    "policy_reference": "Contract Terms",
-    "policy_excerpt": null
+    "explanation": "Grade passback to PeopleSoft and Ellucian SIS requires additional professional services cost and an 8–12 week implementation window, which may represent a significant hidden cost and timeline risk given the institution's likely use of these systems.",
+    "recommendation": "Request Anthology to include PeopleSoft/Ellucian middleware integration in the base contract price or provide a fixed-fee estimate with guaranteed timelines before signing."
   },
   {
-    "clause": "Post-Termination Data Export Window — 60 Days vs. Required 10 Business Days",
-    "severity": "HIGH",
-    "explanation": "Standard data export is available within a 60-day post-termination window, which exceeds the institution's policy requirement of 10 business days. This delay could leave the university without access to critical student and course data during a transition period.",
-    "recommendation": "Require Anthology to reduce the post-termination data export window to 10 business days at no additional cost.",
-    "policy_reference": "Security Policy / Section 3: Data Processing and Governance",
-    "policy_excerpt": "University data must be exportable in standard formats at no cost within 10 business days of termination."
-  },
-  {
-    "clause": "Non-Negotiable Contract Length",
+    "clause": "overage_fees — REST API write access requires Anthology partner agreement at additional cost",
     "severity": "MEDIUM",
-    "explanation": "The vendor describes the 3-year term as 'non-negotiable,' which, combined with onerous termination penalties and automatic pricing escalation, significantly limits the university's flexibility. While a fixed term itself is not prohibited, the combination of factors creates compounding risk.",
-    "recommendation": "Push back on the 'non-negotiable' characterization and seek legal counsel review to ensure the university retains adequate exit rights throughout the term.",
-    "policy_reference": "Contract Terms",
-    "policy_excerpt": null
+    "explanation": "Write access to the REST API requires a separate Anthology partner agreement and incurs additional cost, which could restrict the university's ability to build integrations and automate workflows without unexpected expense.",
+    "recommendation": "Negotiate inclusion of full REST API access (read and write) within the base contract terms at no additional cost, or obtain a fixed-fee quote for the partner agreement before signing."
   },
   {
-    "clause": "Sandbox / Testing Environment — Not Included Post-Signing",
-    "severity": "LOW",
-    "explanation": "A full sandbox for post-signing testing and development is not included in the standard contract. This limits the university's ability to safely test integrations, upgrades, and configurations before deploying to production.",
-    "recommendation": "Negotiate inclusion of a persistent sandbox or non-production environment at no additional cost as part of the base contract.",
-    "policy_reference": "Contract Terms",
-    "policy_excerpt": null
+    "clause": "security_certifications — penetration testing results not shared with customers",
+    "severity": "MEDIUM",
+    "explanation": "Anthology conducts annual penetration testing but does not share results with customers, limiting the university's ability to assess residual security risk and fulfill its own compliance obligations.",
+    "recommendation": "Require Anthology to provide annual penetration testing executive summaries or remediation status reports to the university as a contractual obligation."
   },
   {
-    "clause": "REST API Write Access — Requires Anthology Partner Agreement",
-    "severity": "LOW",
-    "explanation": "Write access to the REST API requires a separate Anthology partner agreement at additional cost, which may limit the university's ability to build integrations or automate workflows without incurring unexpected fees.",
-    "recommendation": "Request full REST API access (read and write) be included in the base contract or clarify the cost and terms of the partner agreement prior to signing.",
-    "policy_reference": "Contract Terms",
-    "policy_excerpt": null
+    "clause": "data_processing_agreement — DPA not provided as standard and must be requested",
+    "severity": "MEDIUM",
+    "explanation": "Beyond the HIGH-severity concern about missing Massachusetts law coverage, the fact that the DPA is not provided as standard and must be separately requested adds friction and risk to the contracting process.",
+    "recommendation": "Require Anthology to attach the fully executed DPA as an exhibit to the master agreement rather than treating it as a separately requested document."
   },
   {
-    "clause": "Accessibility — Known WCAG 2.1 AA Gaps Without Remediation Timeline",
-    "severity": "LOW",
-    "explanation": "Anthology acknowledges known gaps in WCAG 2.1 AA compliance (math equation editor, certain content editor components) but does not disclose a remediation timeline, which may create compliance risk under Section 508 and applicable accessibility obligations.",
-    "recommendation": "Request a written accessibility roadmap with committed remediation dates for all known WCAG 2.1 AA gaps before contract execution.",
-    "policy_reference": "Contract Terms",
-    "policy_excerpt": null
+    "clause": "accessibility_vpat — known WCAG 2.1 AA gaps with no disclosed remediation timeline",
+    "severity": "MEDIUM",
+    "explanation": "Anthology acknowledges known accessibility gaps in the math equation editor and content editor components, and does not provide a remediation timeline, which could expose the university to ADA and Section 508 compliance risk.",
+    "recommendation": "Require Anthology to provide a written remediation plan with committed timelines for all known WCAG 2.1 AA and Section 508 gaps before contract execution."
   },
   {
-    "clause": "LTI 1.3
+    "clause": "contract_length — 3 years, non-negotiable",
+    "severity": "MEDIUM",
+    "explanation": "A non-negotiable 3-year term combined with onerous termination conditions (180-day notice plus 40% fee) significantly limits the university's flexibility to exit if service quality deteriorates or a better option emerges.",
+    "recommendation": "Negotiate to make the 3-year term negotiable, or at minimum secure termination for convenience rights at no penalty after Year 1 in conjunction with removal of the

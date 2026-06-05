@@ -125,5 +125,9 @@ def run_checks():
         print("All checks passed. Day 1 checkpoint complete.")
 
 
+def test_run():
+    run_checks()
+
+
 if __name__ == "__main__":
     run_checks()

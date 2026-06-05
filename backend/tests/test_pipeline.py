@@ -30,14 +30,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--count", type=int, default=2, choices=[1, 2, 3],
-                    help="Number of vendor proposals to run (default: 2)")
-args = parser.parse_args()
-
-if not os.getenv("ANTHROPIC_API_KEY"):
-    sys.exit("ERROR: ANTHROPIC_API_KEY is not set in backend/.env")
-
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState, VendorLensState
 from tools.chroma import BASE_DIR
@@ -51,7 +43,7 @@ VENDORS = [
 ]
 
 
-def run_pipeline():
+def run_pipeline(count: int = 2):
     print("Building pipeline (loads index + initializes agents)...")
     try:
         graph = build_pipeline()
@@ -64,7 +56,7 @@ def run_pipeline():
 
     # Load raw text for each vendor file
     pending = []
-    for filename in VENDORS[: args.count]:
+    for filename in VENDORS[:count]:
         path = DATA_DIR / filename
         if not path.exists():
             sys.exit(f"ERROR: {path} not found. Check data/vendor_proposals/lms/")
@@ -134,5 +126,16 @@ def run_pipeline():
         print(f"Project: {os.getenv('LANGCHAIN_PROJECT', 'vendorlens')}")
 
 
-if __name__ == "__main__":
+def test_run():
+    import pytest
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        pytest.skip("ANTHROPIC_API_KEY not set")
     run_pipeline()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--count", type=int, default=2, choices=[1, 2, 3],
+                        help="Number of vendor proposals to run (default: 2)")
+    args = parser.parse_args()
+    run_pipeline(count=args.count)

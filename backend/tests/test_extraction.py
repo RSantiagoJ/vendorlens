@@ -133,5 +133,12 @@ def run_checks():
         print("All checks passed. Day 2 checkpoint complete.")
 
 
+def test_run():
+    import pytest
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        pytest.skip("ANTHROPIC_API_KEY not set")
+    run_checks()
+
+
 if __name__ == "__main__":
     run_checks()

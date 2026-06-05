@@ -23,9 +23,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if not os.getenv("ANTHROPIC_API_KEY"):
-    sys.exit("ERROR: ANTHROPIC_API_KEY is not set in backend/.env")
-
 from agents.extraction_agent import ExtractionAgent
 from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
@@ -142,6 +139,13 @@ def run_checks():
         sys.exit(1)
     else:
         print("All checks passed. Day 3 checkpoint complete.")
+
+
+def test_run():
+    import pytest
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        pytest.skip("ANTHROPIC_API_KEY not set")
+    run_checks()
 
 
 if __name__ == "__main__":

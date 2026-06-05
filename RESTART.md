@@ -30,6 +30,14 @@ docker compose down && docker compose up --build
 docker compose ps
 ```
 
+## Run backend tests
+```bash
+# PYTHONPATH is required — Python resolves imports from /app, not the script dir
+docker compose exec backend bash -c "cd /app && PYTHONPATH=/app python tests/test_pipeline.py --count 1"  # 1 vendor (~$0.05)
+docker compose exec backend bash -c "cd /app && PYTHONPATH=/app python tests/test_pipeline.py"            # 2 vendors (~$0.10)
+docker compose exec backend bash -c "cd /app && PYTHONPATH=/app python tests/test_agents.py"
+```
+
 ## View logs
 ```bash
 docker compose logs -f backend     # backend only
