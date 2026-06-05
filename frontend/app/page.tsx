@@ -39,10 +39,10 @@ import { useCallback, useEffect, useState } from "react";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const PIPELINE_STEPS = [
-  { label: "Extract",      Icon: IconSearch      },
-  { label: "Risk Analysis",Icon: IconShieldCheck  },
-  { label: "Scoring",      Icon: IconChartBar     },
-  { label: "Recommendation",Icon: IconFileText    },
+  { label: "Extract",        sub: "Parse proposals",        Icon: IconSearch      },
+  { label: "Risk Analysis",  sub: "Flag policy violations", Icon: IconShieldCheck  },
+  { label: "Scoring",        sub: "Rank by RFP criteria",   Icon: IconChartBar     },
+  { label: "Recommendation", sub: "Generate memo",          Icon: IconFileText    },
 ];
 
 type AppState = "idle" | "uploading" | "processing" | "ready" | "done" | "error";
@@ -244,11 +244,19 @@ export default function Home() {
                   flags, scoring, and a recommendation memo in under a minute.
                 </Text>
                 {bundles.length > 0 && (
-                  <Group gap="xs" justify="center">
+                  <Group gap="sm" justify="center" mt="xs" wrap="wrap">
                     {bundles.map((b) => (
-                      <Badge key={b.id} variant="light" color="umblue" size="md" radius="sm">
-                        {b.label}
-                      </Badge>
+                      <Paper
+                        key={b.id} p="sm" radius="md" withBorder bg="white"
+                        style={{ minWidth: 155, maxWidth: 175, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
+                      >
+                        <Badge variant="filled" color="umblue" size="sm" mb={6} radius="sm">
+                          {b.label}
+                        </Badge>
+                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.45 }}>
+                          {b.description}
+                        </Text>
+                      </Paper>
                     ))}
                   </Group>
                 )}
@@ -257,18 +265,21 @@ export default function Home() {
 
               {/* Pipeline steps visual */}
               <Group justify="center" gap={0} wrap="nowrap">
-                {PIPELINE_STEPS.map(({ label, Icon }, i) => (
+                {PIPELINE_STEPS.map(({ label, sub, Icon }, i) => (
                   <Group key={label} gap={0} align="flex-start" wrap="nowrap">
-                    <Stack align="center" gap={8} style={{ width: 104 }}>
+                    <Stack align="center" gap={6} style={{ width: 112 }}>
                       <ThemeIcon size={48} radius="xl" variant="light" color="umblue">
                         <Icon size={22} />
                       </ThemeIcon>
-                      <Text size="xs" fw={600} ta="center" c="dimmed" style={{ lineHeight: 1.3 }}>
+                      <Text size="xs" fw={700} ta="center" c="dark" style={{ lineHeight: 1.3 }}>
                         {label}
+                      </Text>
+                      <Text size="xs" ta="center" c="dimmed" style={{ lineHeight: 1.2 }}>
+                        {sub}
                       </Text>
                     </Stack>
                     {i < PIPELINE_STEPS.length - 1 && (
-                      <Box style={{ paddingTop: 16, color: "var(--mantine-color-gray-4)", flexShrink: 0 }}>
+                      <Box style={{ paddingTop: 14, color: "var(--mantine-color-gray-4)", flexShrink: 0 }}>
                         <IconArrowRight size={16} />
                       </Box>
                     )}

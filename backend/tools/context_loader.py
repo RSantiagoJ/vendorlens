@@ -15,20 +15,20 @@ from tools.chroma import BASE_DIR
 BUNDLES: dict[str, dict] = {
     "lms": {
         "id": "lms",
-        "label": "LMS Platform RFP",
-        "description": "Learning Management System evaluation for multi-campus university",
+        "label": "LMS",
+        "description": "Learning Management System — multi-campus university evaluation",
         "dir": "context_bundles/lms",
     },
     "payroll": {
         "id": "payroll",
-        "label": "Payroll Processing RFP",
-        "description": "Full-service payroll processor evaluation for accuracy, compliance, and integration",
+        "label": "Payroll",
+        "description": "Payroll processing — accuracy, compliance, and HR integration",
         "dir": "context_bundles/payroll",
     },
     "erp": {
         "id": "erp",
-        "label": "Finance & HR Platform RFP",
-        "description": "Enterprise ERP evaluation for financial management, HR, and payroll",
+        "label": "ERP",
+        "description": "Enterprise Resource Planning — finance, HR, and payroll platform",
         "dir": "context_bundles/erp",
     },
 }
