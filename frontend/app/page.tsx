@@ -15,7 +15,6 @@ import { Logo } from "@/logo";
 import {
   Alert,
   AppShell,
-  Badge,
   Box,
   Button,
   Container,
@@ -31,7 +30,14 @@ import {
   IconAlertCircle, IconCircleCheck, IconRefresh,
   IconSearch, IconShieldCheck, IconChartBar, IconFileText, IconArrowRight,
   IconAward, IconAlertTriangle, IconBuilding,
+  IconDeviceLaptop, IconCoins, IconBuildingBank,
 } from "@tabler/icons-react";
+
+const BUNDLE_ICONS: Record<string, ReturnType<typeof IconDeviceLaptop>> = {
+  lms:     <IconDeviceLaptop size={18} />,
+  payroll: <IconCoins size={18} />,
+  erp:     <IconBuildingBank size={18} />,
+};
 import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -248,12 +254,15 @@ export default function Home() {
                     {bundles.map((b) => (
                       <Paper
                         key={b.id} p="sm" radius="md" withBorder bg="white"
-                        style={{ minWidth: 155, maxWidth: 175, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
+                        style={{ minWidth: 148, maxWidth: 168, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}
                       >
-                        <Badge variant="filled" color="umblue" size="sm" mb={6} radius="sm">
-                          {b.label}
-                        </Badge>
-                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.45 }}>
+                        <Group gap={7} mb={5} wrap="nowrap">
+                          <ThemeIcon size={26} radius="md" variant="light" color="umblue">
+                            {BUNDLE_ICONS[b.id] ?? <IconBuilding size={14} />}
+                          </ThemeIcon>
+                          <Text size="sm" fw={700} c="dark">{b.label}</Text>
+                        </Group>
+                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.4 }}>
                           {b.description}
                         </Text>
                       </Paper>

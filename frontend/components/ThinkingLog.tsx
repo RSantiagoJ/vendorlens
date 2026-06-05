@@ -223,7 +223,7 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
         >
           <IconTerminal2 size={14} color="rgba(255,255,255,0.7)" />
         </ThemeIcon>
-        <Text size="xs" fw={600} tt="uppercase" style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.05em" }}>
+        <Text size="xs" fw={600} tt="uppercase" style={{ color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em" }}>
           Live activity
         </Text>
       </Group>
@@ -247,8 +247,8 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
                   color: entry.completion
                     ? "var(--mantine-color-umgreen-4)"
                     : isDimmed
-                    ? "rgba(255,255,255,0.22)"
-                    : "rgba(255,255,255,0.82)",
+                    ? "rgba(255,255,255,0.42)"
+                    : "rgba(255,255,255,0.88)",
                   display: "flex",
                   alignItems: "baseline",
                   gap: 8,

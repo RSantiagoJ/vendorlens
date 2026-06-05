@@ -16,19 +16,19 @@ BUNDLES: dict[str, dict] = {
     "lms": {
         "id": "lms",
         "label": "LMS",
-        "description": "Learning Management System — multi-campus university evaluation",
+        "description": "Learning Management System for multi-campus delivery",
         "dir": "context_bundles/lms",
     },
     "payroll": {
         "id": "payroll",
         "label": "Payroll",
-        "description": "Payroll processing — accuracy, compliance, and HR integration",
+        "description": "Payroll processing, compliance, and HR integration",
         "dir": "context_bundles/payroll",
     },
     "erp": {
         "id": "erp",
         "label": "ERP",
-        "description": "Enterprise Resource Planning — finance, HR, and payroll platform",
+        "description": "Enterprise Resource Planning — finance, HR, and ops",
         "dir": "context_bundles/erp",
     },
 }

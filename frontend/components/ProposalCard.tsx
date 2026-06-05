@@ -319,36 +319,73 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
                   <Tooltip
                     key={i}
                     label={
-                      <Stack gap={4} p={4}>
-                        <Text size="xs" fw={600}>{risk.clause}</Text>
-                        <Text size="xs">{risk.explanation}</Text>
-                        {risk.recommendation && (
-                          <Text size="xs" style={{ fontStyle: "italic", opacity: 0.75 }}>
-                            → {risk.recommendation}
+                      <Stack gap={8} p={4}>
+                        {/* Header */}
+                        <Group gap={6} align="center">
+                          <Badge size="xs" color={RISK_COLORS[risk.severity]} variant={risk.severity === "HIGH" ? "filled" : "light"} radius="sm">
+                            {risk.severity}
+                          </Badge>
+                          <Text size="xs" fw={700} style={{ color: "rgba(255,255,255,0.95)" }}>{risk.clause}</Text>
+                        </Group>
+
+                        {/* Risk explanation */}
+                        <Box>
+                          <Text size="xs" tt="uppercase" mb={3} style={{ letterSpacing: "0.05em", fontSize: 9, color: "rgba(255,255,255,0.65)" }}>
+                            Risk
                           </Text>
-                        )}
-                        {risk.policy_excerpt && (
+                          <Text size="xs" style={{ color: "rgba(255,255,255,0.88)", lineHeight: 1.5 }}>
+                            {risk.explanation}
+                          </Text>
+                        </Box>
+
+                        {/* Policy context */}
+                        {(risk.policy_excerpt || risk.policy_reference) && (
                           <Box
-                            mt={4}
-                            p={6}
+                            p={8}
                             style={{
-                              background: "rgba(255,255,255,0.08)",
+                              background: "rgba(255,255,255,0.07)",
                               borderRadius: 4,
-                              borderLeft: "2px solid rgba(255,255,255,0.25)",
+                              borderLeft: "2px solid rgba(255,255,255,0.2)",
                             }}
                           >
-                            <Text size="xs" c="dimmed" mb={2} tt="uppercase" style={{ letterSpacing: "0.04em", fontSize: 9 }}>
-                              Policy
+                            <Group justify="space-between" align="center" mb={risk.policy_excerpt ? 4 : 0}>
+                              <Text size="xs" tt="uppercase" style={{ letterSpacing: "0.05em", fontSize: 9, color: "rgba(255,255,255,0.65)" }}>
+                                Policy
+                              </Text>
+                              <Text size="xs" style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", fontFamily: "monospace" }}>
+                                {risk.policy_reference}
+                              </Text>
+                            </Group>
+                            {risk.policy_excerpt && (
+                              <Text size="xs" style={{ fontStyle: "italic", color: "rgba(255,255,255,0.82)", lineHeight: 1.5 }}>
+                                "{risk.policy_excerpt}"
+                              </Text>
+                            )}
+                          </Box>
+                        )}
+
+                        {/* Suggested action */}
+                        {risk.recommendation && (
+                          <Box
+                            p={8}
+                            style={{
+                              background: "rgba(26, 163, 145, 0.12)",
+                              borderRadius: 4,
+                              borderLeft: "2px solid rgba(26, 163, 145, 0.5)",
+                            }}
+                          >
+                            <Text size="xs" tt="uppercase" mb={3} style={{ letterSpacing: "0.05em", fontSize: 9, color: "rgba(26,163,145,0.9)" }}>
+                              Suggested Action
                             </Text>
-                            <Text size="xs" style={{ fontStyle: "italic", opacity: 0.85, lineHeight: 1.45 }}>
-                              "{risk.policy_excerpt}"
+                            <Text size="xs" style={{ color: "rgba(255,255,255,0.88)", lineHeight: 1.5 }}>
+                              {risk.recommendation}
                             </Text>
                           </Box>
                         )}
                       </Stack>
                     }
                     multiline
-                    w={300}
+                    w={320}
                     withArrow
                     position="top"
                   >
