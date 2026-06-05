@@ -35,10 +35,8 @@ parser.add_argument("--count", type=int, default=2, choices=[1, 2, 3],
                     help="Number of vendor proposals to run (default: 2)")
 args = parser.parse_args()
 
-if not os.getenv("GOOGLE_API_KEY"):
-    sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
 if not os.getenv("ANTHROPIC_API_KEY"):
-    sys.exit("ERROR: ANTHROPIC_API_KEY is not set in backend/.env (required for MemoAgent)")
+    sys.exit("ERROR: ANTHROPIC_API_KEY is not set in backend/.env")
 
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState, VendorLensState

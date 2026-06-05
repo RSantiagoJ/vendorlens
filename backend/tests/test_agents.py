@@ -23,8 +23,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if not os.getenv("GOOGLE_API_KEY"):
-    sys.exit("ERROR: GOOGLE_API_KEY is not set in backend/.env")
+if not os.getenv("ANTHROPIC_API_KEY"):
+    sys.exit("ERROR: ANTHROPIC_API_KEY is not set in backend/.env")
 
 from agents.extraction_agent import ExtractionAgent
 from agents.risk_agent import RiskAgent
