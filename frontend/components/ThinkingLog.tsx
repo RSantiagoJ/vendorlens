@@ -209,7 +209,7 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
   if (displayEntries.length === 0) return null;
 
   return (
-    <Paper p="md" radius="md" withBorder bg="white" w="100%" maw={640} mx="auto" className="fadeIn">
+    <Paper p="md" radius="md" withBorder bg="white" w="100%" className="fadeIn">
       <Group gap="sm" mb="sm">
         <ThemeIcon size={24} variant="light" color="umblue" radius="sm">
           <IconTerminal2 size={14} />

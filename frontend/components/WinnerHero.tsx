@@ -80,9 +80,9 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
         }}
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "var(--mantine-spacing-xl)", alignItems: "center", position: "relative" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--mantine-spacing-xl)", alignItems: "flex-start", position: "relative" }}>
         {/* Left — identity + score */}
-        <Stack gap="md">
+        <Stack gap="md" style={{ flex: "1 1 280px" }}>
           <Group gap="xs">
             <ThemeIcon size={22} variant="filled" color="umgreen" radius="xl">
               <IconAward size={13} />

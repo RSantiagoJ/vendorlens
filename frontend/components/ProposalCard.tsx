@@ -292,11 +292,13 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
                   </Text>
                 </Group>
                 <Group gap="xs">
-                  {(["HIGH", "MEDIUM", "LOW"] as const).map((s) => (
-                    <Badge key={s} color={RISK_COLORS[s]} variant={s === "HIGH" ? "filled" : "light"} size="xs" radius="sm">
-                      {s}
-                    </Badge>
-                  ))}
+                  {(["HIGH", "MEDIUM", "LOW"] as const)
+                    .filter((s) => sortedRisks.some((r) => r.severity === s))
+                    .map((s) => (
+                      <Badge key={s} color={RISK_COLORS[s]} variant={s === "HIGH" ? "filled" : "light"} size="xs" radius="sm">
+                        {s}
+                      </Badge>
+                    ))}
                 </Group>
               </Group>
               <Group gap="xs" wrap="wrap">

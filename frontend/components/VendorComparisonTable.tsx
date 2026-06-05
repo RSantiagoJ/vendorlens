@@ -203,43 +203,50 @@ export function VendorComparisonTable({ proposals, winner }: Props) {
               </td>
             </tr>
 
-            {(["HIGH", "MEDIUM", "LOW"] as const).map((severity) => (
-              <tr key={severity}>
-                <td style={labelCell}>
-                  <Badge
-                    color={RISK_COLORS[severity]}
-                    variant={severity === "HIGH" ? "filled" : "light"}
-                    size="xs"
-                    radius="sm"
-                  >
-                    {severity}
-                  </Badge>
-                </td>
-                {proposals.map((p) => {
-                  const isWin = winner?.filename === p.filename;
-                  const count = (p.risks ?? []).filter((r) => r.severity === severity).length;
-                  return (
-                    <td key={p.filename} style={dataCell(isWin)}>
-                      <Text
-                        size="sm"
-                        fw={count > 0 && severity === "HIGH" ? 700 : 500}
-                        c={
-                          count === 0
-                            ? "dimmed"
-                            : severity === "HIGH"
-                            ? "ummaroon.6"
-                            : severity === "MEDIUM"
-                            ? "umyellow.7"
-                            : "dark"
-                        }
-                      >
-                        {count}
-                      </Text>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+            {(["HIGH", "MEDIUM", "LOW"] as const).map((severity) => {
+              const total = proposals.reduce(
+                (sum, p) => sum + (p.risks ?? []).filter((r) => r.severity === severity).length,
+                0
+              );
+              if (total === 0) return null;
+              return (
+                <tr key={severity}>
+                  <td style={labelCell}>
+                    <Badge
+                      color={RISK_COLORS[severity]}
+                      variant={severity === "HIGH" ? "filled" : "light"}
+                      size="xs"
+                      radius="sm"
+                    >
+                      {severity}
+                    </Badge>
+                  </td>
+                  {proposals.map((p) => {
+                    const isWin = winner?.filename === p.filename;
+                    const count = (p.risks ?? []).filter((r) => r.severity === severity).length;
+                    return (
+                      <td key={p.filename} style={dataCell(isWin)}>
+                        <Text
+                          size="sm"
+                          fw={count > 0 && severity === "HIGH" ? 700 : 500}
+                          c={
+                            count === 0
+                              ? "dimmed"
+                              : severity === "HIGH"
+                              ? "ummaroon.6"
+                              : severity === "MEDIUM"
+                              ? "umyellow.7"
+                              : "dark"
+                          }
+                        >
+                          {count}
+                        </Text>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
 
             {/* ── Contract terms ─────────────────────────────────────── */}
             <tr>

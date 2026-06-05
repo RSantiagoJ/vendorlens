@@ -114,8 +114,6 @@ export function AgentProgressBar({ stage }: Props) {
       withBorder
       bg="white"
       w="100%"
-      maw={640}
-      mx="auto"
     >
       <Text
         fw={600}

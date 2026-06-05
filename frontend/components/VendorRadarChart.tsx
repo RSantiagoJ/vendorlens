@@ -45,7 +45,7 @@ export function VendorRadarChart({ proposals }: Props) {
         <Text size="sm" c="dimmed">— scores by dimension (0–10)</Text>
       </Group>
       <ResponsiveContainer width="100%" height={400}>
-        <RadarChart data={data} cx="50%" cy="50%" outerRadius="72%">
+        <RadarChart data={data} cx="50%" cy="50%" outerRadius="65%">
           <PolarGrid stroke="#dee2e6" />
           <PolarAngleAxis
             dataKey="dimension"

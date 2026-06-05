@@ -250,7 +250,7 @@ export default function Home() {
                       </Text>
                     </Stack>
                     {i < PIPELINE_STEPS.length - 1 && (
-                      <Box style={{ paddingTop: 14, color: "var(--mantine-color-gray-4)", flexShrink: 0 }}>
+                      <Box style={{ paddingTop: 16, color: "var(--mantine-color-gray-4)", flexShrink: 0 }}>
                         <IconArrowRight size={16} />
                       </Box>
                     )}
@@ -291,14 +291,16 @@ export default function Home() {
                 </Box>
               )}
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--mantine-spacing-md)", alignItems: "flex-start" }}>
-                <AgentProgressBar stage={appState === "done" || appState === "ready" ? "done" : stage} />
-                <ThinkingLog
-                  stage={appState === "done" || appState === "ready" ? "done" : stage}
-                  vendorNames={vendorNames}
-                  totalRisks={totalRisks}
-                />
-              </div>
+              {appState !== "done" && (
+                <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md" style={{ alignItems: "flex-start" }}>
+                  <AgentProgressBar stage={appState === "ready" ? "done" : stage} />
+                  <ThinkingLog
+                    stage={appState === "ready" ? "done" : stage}
+                    vendorNames={vendorNames}
+                    totalRisks={totalRisks}
+                  />
+                </SimpleGrid>
+              )}
 
               {(appState === "processing" || appState === "ready") && <BoredPanel />}
 
