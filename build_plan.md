@@ -704,6 +704,50 @@ Full pipeline runs end-to-end in prod with the Negotiation Playbook panel visibl
 
 ---
 
+## Post-Terraform (optional) — Vendor Proposal Story Tuning
+
+Goal: make the dummy proposals land harder in the demo by ensuring the numbers
+and narrative contrast is as sharp and legible as possible for a non-technical audience.
+
+This is not required for the system to function. Do it if there is time before the
+presentation and the current output feels flat or too close across vendors.
+
+### What to look for
+
+**Score spread** — the winning vendor should clearly pull away on at least 3–4 dimensions.
+If the gap between first and second place is less than ~1.0 overall, widen it by adjusting
+the proposal text so agents extract more/less favorable signals.
+
+**Risk contrast** — Vendor A (Blackboard) should hit 5–7 HIGH flags; the winner should hit 0–1.
+If the live run returns fewer HIGH flags on Vendor A, strengthen the problematic clause language
+(short opt-out window, weak liability cap, data-use language, governing law).
+
+**Pricing story** — a clear pricing tier (cheap with catches, expensive but clean, middle ground)
+makes the memo more persuasive. If all three vendors land in the same price band, adjust one
+to be notably higher or lower.
+
+**Memo punch** — run the pipeline once on prod and read the memo out loud. If it wouldn't
+hold a room for 30 seconds, find which input signals are weak and tune the relevant proposal.
+
+### Files to edit
+
+```
+backend/data/vendor_proposals/lms/blackboard.txt    — sharpen risk-triggering clauses
+backend/data/vendor_proposals/lms/canvas.txt        — reinforce strengths (pricing, compliance, DPA)
+backend/data/vendor_proposals/lms/brightspace.txt   — keep as middle ground, one clear weakness
+backend/data/vendor_proposals/payroll/              — same pass if payroll bundle is in the demo
+backend/data/vendor_proposals/erp/                  — same pass if ERP bundle is in the demo
+```
+
+After edits, re-ingest and do a live run to confirm the pipeline reads the changes as intended:
+
+```bash
+sudo docker compose run backend python3 -m scripts.ingest
+# then POST to /analyze and read the SSE output
+```
+
+---
+
 ### Final demo script (10 minutes, all 10 days)
 
 **Opening (30 sec):**
