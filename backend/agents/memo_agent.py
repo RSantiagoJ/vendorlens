@@ -43,7 +43,7 @@ class MemoAgent:
                     for r in (p.risks or []) if r.severity == "HIGH"
                 ],
                 "scores": {
-                    k: (v.score if hasattr(v, "score") else v)
+                    k: (v["score"] if isinstance(v, dict) and "score" in v else v)
                     for k, v in p.scores.model_dump().items()
                 } if p.scores else None,
             }
