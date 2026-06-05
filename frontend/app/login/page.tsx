@@ -6,7 +6,7 @@ async function login(formData: FormData) {
   if ((formData.get('password') as string) === process.env.AUTH_PASSWORD) {
     (await cookies()).set('auth', '1', {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,
     });
