@@ -50,7 +50,7 @@ def make_claude_llm(cache: bool = False):
         raise ValueError("ANTHROPIC_API_KEY is not set in backend/.env")
     from langchain_anthropic import ChatAnthropic
     extra = {"betas": ["prompt-caching-2024-07-31"]} if cache else {}
-    llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=4096, api_key=key, **extra)
+    llm = ChatAnthropic(model="claude-sonnet-4-6", max_tokens=16384, api_key=key, **extra)
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
 
 
