@@ -15,4 +15,9 @@ RUN python -c "from llama_index.embeddings.fastembed import FastEmbedEmbedding; 
 
 COPY . .
 
+# Bake ChromaDB vectors into the image at build time.
+# FastEmbed runs locally — no API key needed. App Runner has no persistent disk,
+# so vectors must ship with the image.
+RUN python -m scripts.ingest
+
 CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}

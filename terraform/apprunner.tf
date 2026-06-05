@@ -28,7 +28,7 @@ resource "aws_apprunner_service" "vendorlens" {
           LANGCHAIN_TRACING_V2 = "true"
           LANGCHAIN_PROJECT    = "vendorlens"
           # Comma-separated allowed CORS origins — add your Vercel URL after deploy
-          ALLOWED_ORIGINS = "http://localhost:3000"
+          ALLOWED_ORIGINS = "http://localhost:3000,https://vendorlens-beryl.vercel.app"
         }
 
         runtime_environment_secrets = {
