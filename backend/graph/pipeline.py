@@ -1,25 +1,23 @@
 """
-graph/pipeline.py — Day 4
+graph/pipeline.py
 
 LangGraph pipeline orchestrating all four VendorLens agents.
 
 Architecture:
   START
     └─ fan_out_vendors   (conditional edge → Send per proposal)
-         ├─ vendor_node ─┐   each node runs extract→risk→score sequentially
-         ├─ vendor_node  ├── parallel; fan-in via operator.add → proposals
-         └─ vendor_node ─┘
+         ├─ vendor_subgraph ─┐   each subgraph: extract_node → risk_node → score_node
+         ├─ vendor_subgraph  ├── parallel; fan-in via operator.add → proposals
+         └─ vendor_subgraph ─┘
                   ↓
             memo_node     (sequential; writes `memo`)
                   ↓
                 END
 
-Each vendor_node processes one proposal end-to-end (extraction → risk → scoring)
-so all three pipeline stages run concurrently across vendors instead of in
-barrier-synchronized waves that caused duplicate LLM calls.
-
-LangSmith tracing is automatic when LANGCHAIN_TRACING_V2=true and
-LANGCHAIN_API_KEY are set in backend/.env.
+Using a subgraph per vendor (rather than a single monolithic node) lets the
+FastAPI SSE stream observe per-stage state updates via stream_mode="updates",
+subgraphs=True, so the UI can show extraction → risk → scoring progression
+in real time instead of jumping straight to done.
 """
 
 import logging
@@ -40,12 +38,12 @@ from agents.extraction_agent import ExtractionAgent
 from agents.memo_agent import MemoAgent
 from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
-from graph.state import ProposalState
+from graph.state import ProposalData, ProposalState, RiskFlag
 from tools.chroma import load_index
 
 
 # ---------------------------------------------------------------------------
-# Graph state
+# State schemas
 # ---------------------------------------------------------------------------
 
 def _last(_, b):
@@ -53,13 +51,20 @@ def _last(_, b):
 
 
 class PipelineState(TypedDict):
-    pending: List[dict]                               # raw {filename, raw_text} — input only
-    extracted: Annotated[List[dict], operator.add]    # fan-in from parallel extraction_nodes
-    with_risks: Annotated[List[dict], operator.add]   # fan-in from parallel risk_nodes
-    proposals: Annotated[List[dict], operator.add]    # fan-in from parallel scoring_nodes
+    pending: List[dict]                               # raw {filename} dicts — input only
+    proposals: Annotated[List[dict], operator.add]    # fan-in from parallel vendor_subgraphs
     memo: Optional[str]
-    status: Annotated[str, _last]                     # parallel-safe: last write wins
-    error: Annotated[Optional[str], _last]            # parallel-safe: last write wins
+    status: Annotated[str, _last]
+    error: Annotated[Optional[str], _last]
+
+
+class VendorSubgraphState(TypedDict, total=False):
+    filename: str                                     # required — always in Send payload
+    raw_text: Optional[str]                           # optional — passed through to ProposalState
+    extracted: Optional[dict]                         # set by extract_node
+    risks: Optional[list]                             # set by risk_node
+    error: Optional[str]                              # set on any stage failure
+    proposals: Annotated[List[dict], operator.add]    # set by score_node; fan-in'd to parent
 
 
 # ---------------------------------------------------------------------------
@@ -67,14 +72,7 @@ class PipelineState(TypedDict):
 # ---------------------------------------------------------------------------
 
 def build_pipeline(bundle_id: str = "lms"):
-    """Initialize all agents and compile the LangGraph pipeline for a given bundle.
-
-    Args:
-        bundle_id: Context bundle to use for risk and scoring agents (e.g. "lms", "payroll", "erp").
-
-    Returns:
-        Compiled LangGraph CompiledStateGraph ready to invoke.
-    """
+    """Initialize all agents and compile the LangGraph pipeline for a given bundle."""
     logger.info("Loading ChromaDB index (bundle: %s)", bundle_id)
     index = load_index()
     extraction_agent = ExtractionAgent(index)
@@ -84,32 +82,72 @@ def build_pipeline(bundle_id: str = "lms"):
     logger.info("Agents initialized")
 
     # -----------------------------------------------------------------------
-    # Fan-out dispatchers (conditional edges — return Send objects)
+    # Vendor subgraph nodes
+    # -----------------------------------------------------------------------
+
+    def extract_node(state: VendorSubgraphState) -> dict:
+        filename = state["filename"]
+        try:
+            proposal_data = extraction_agent.extract(filename)
+            return {"extracted": proposal_data.model_dump()}
+        except Exception as e:
+            logger.exception("extract_node failed for %s", filename)
+            return {"error": str(e)}
+
+    def risk_node(state: VendorSubgraphState) -> dict:
+        if state.get("error"):
+            return {}
+        try:
+            proposal_data = ProposalData(**state["extracted"])
+            risks = risk_agent.analyze(proposal_data)
+            return {"risks": [r.model_dump() for r in risks]}
+        except Exception as e:
+            logger.exception("risk_node failed for %s", state["filename"])
+            return {"error": str(e)}
+
+    def score_node(state: VendorSubgraphState) -> dict:
+        filename = state["filename"]
+        raw_text = state.get("raw_text")
+        if state.get("error"):
+            proposal = ProposalState(filename=filename, raw_text=raw_text, error=state["error"])
+            return {"proposals": [proposal.model_dump()]}
+        try:
+            proposal_data = ProposalData(**state["extracted"])
+            risks = [RiskFlag(**r) for r in (state.get("risks") or [])]
+            scores = scoring_agent.score(proposal_data, risks)
+            proposal = ProposalState(
+                filename=filename,
+                raw_text=raw_text,
+                extracted=proposal_data,
+                risks=risks,
+                scores=scores,
+            )
+            return {"proposals": [proposal.model_dump()]}
+        except Exception as e:
+            logger.exception("score_node failed for %s", filename)
+            proposal = ProposalState(filename=filename, raw_text=raw_text, error=str(e))
+            return {"proposals": [proposal.model_dump()]}
+
+    # -----------------------------------------------------------------------
+    # Vendor subgraph assembly
+    # -----------------------------------------------------------------------
+
+    vendor_sg = StateGraph(VendorSubgraphState)
+    vendor_sg.add_node("extract_node", extract_node)
+    vendor_sg.add_node("risk_node", risk_node)
+    vendor_sg.add_node("score_node", score_node)
+    vendor_sg.add_edge(START, "extract_node")
+    vendor_sg.add_edge("extract_node", "risk_node")
+    vendor_sg.add_edge("risk_node", "score_node")
+    vendor_sg.add_edge("score_node", END)
+    vendor_subgraph = vendor_sg.compile()
+
+    # -----------------------------------------------------------------------
+    # Parent graph
     # -----------------------------------------------------------------------
 
     def fan_out_vendors(state: PipelineState) -> List[Send]:
-        return [Send("vendor_node", p) for p in state["pending"]]
-
-    # -----------------------------------------------------------------------
-    # Node definitions (closures capture the agent singletons above)
-    # -----------------------------------------------------------------------
-
-    def vendor_node(raw: dict) -> dict:
-        """Process one vendor end-to-end: extract → risk → score."""
-        filename = raw["filename"]
-        raw_text = raw["raw_text"]
-        try:
-            proposal_data = extraction_agent.extract(filename)
-            proposal = ProposalState(filename=filename, raw_text=raw_text, extracted=proposal_data)
-            risks = risk_agent.analyze(proposal_data)
-            proposal = proposal.model_copy(update={"risks": risks})
-            scores = scoring_agent.score(proposal_data, risks)
-            proposal = proposal.model_copy(update={"scores": scores})
-            return {"proposals": [proposal.model_dump()]}
-        except Exception as e:
-            logger.exception("vendor_node failed for %s", filename)
-            proposal = ProposalState(filename=filename, raw_text=raw_text, error=str(e))
-            return {"proposals": [proposal.model_dump()]}
+        return [Send("vendor_subgraph", p) for p in state["pending"]]
 
     def memo_node(state: PipelineState) -> dict:
         try:
@@ -137,17 +175,11 @@ def build_pipeline(bundle_id: str = "lms"):
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    # -----------------------------------------------------------------------
-    # Graph assembly
-    # -----------------------------------------------------------------------
-
     graph = StateGraph(PipelineState)
-
-    graph.add_node("vendor_node", vendor_node)
+    graph.add_node("vendor_subgraph", vendor_subgraph)
     graph.add_node("memo_node", memo_node)
-
-    graph.add_conditional_edges(START, fan_out_vendors, ["vendor_node"])
-    graph.add_edge("vendor_node", "memo_node")
+    graph.add_conditional_edges(START, fan_out_vendors, ["vendor_subgraph"])
+    graph.add_edge("vendor_subgraph", "memo_node")
     graph.add_edge("memo_node", END)
 
     return graph.compile()
