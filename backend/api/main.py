@@ -123,6 +123,13 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
                             final[k] = v
 
         proposals = [ProposalState(**p) for p in final.get("proposals", [])]
+        failed_count = sum(1 for p in proposals if p.scores is None)
+        if failed_count == 0:
+            final_status = "done"
+        elif failed_count == len(proposals):
+            final_status = "error"
+        else:
+            final_status = "partial"
         result = AnalysisResult(
             job_id=job_id,
             bundle_id=bundle_id,
@@ -133,22 +140,24 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
                     extracted=p.extracted,
                     risks=p.risks,
                     scores=p.scores,
+                    error=p.error,
                 )
                 for p in proposals
             ],
             memo=final.get("memo"),
-            status="done",
+            status=final_status,
             error=final.get("error"),
         )
 
-        job["result"] = result.model_dump()
+        result_dict = result.model_dump()
+        job["result"] = result_dict
+        emit("done", result_dict)
         job["status"] = "done"
-        emit("done", result.model_dump())
 
     except Exception as exc:
+        emit("error", {"status": "error", "error": str(exc)})
         job["status"] = "error"
         job["error"] = str(exc)
-        emit("error", {"status": "error", "error": str(exc)})
 
 
 # ---------------------------------------------------------------------------

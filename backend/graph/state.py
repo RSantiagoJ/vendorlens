@@ -92,6 +92,7 @@ class ProposalState(BaseModel):
     extracted: Optional[ProposalData] = None
     risks: Optional[List[RiskFlag]] = None
     scores: Optional[ScoreCard] = None
+    error: Optional[str] = None  # set when vendor_node processing fails
 
 
 # ---------------------------------------------------------------------------

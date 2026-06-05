@@ -65,6 +65,7 @@ export interface ProposalResult {
   extracted: ProposalData | null;
   risks: RiskFlag[] | null;
   scores: ScoreCard | null;
+  error: string | null;
 }
 
 export interface AnalysisResult {

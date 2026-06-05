@@ -42,7 +42,7 @@ docker compose logs -f             # everything
 ## Production (AWS — App Runner + Vercel)
 
 ### Where the app lives
-- **Frontend (Vercel):** TBD — deploy with `cd frontend && npx vercel deploy --prod`
+- **Frontend (Vercel):** https://vendorlens-beryl.vercel.app
 - **Backend (App Runner):** https://brpste4mu9.us-east-1.awsapprunner.com
 - **Health check:** https://brpste4mu9.us-east-1.awsapprunner.com/health → `{"status":"ok"}`
 - **ECR repo:** `438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend`

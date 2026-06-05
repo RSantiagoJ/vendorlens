@@ -149,10 +149,13 @@ function HomeContent() {
 
       es.addEventListener("done", (e) => {
         es.close();
-        setStage("done");
         const data: AnalysisResult = JSON.parse((e as MessageEvent).data);
         setResult(data);
-        setAppState("ready");
+        setStage("memo");
+        setTimeout(() => {
+          setStage("done");
+          setAppState("ready");
+        }, 800);
       });
 
       es.addEventListener("error", (e) => {

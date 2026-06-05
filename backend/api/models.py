@@ -13,6 +13,7 @@ class ProposalResult(BaseModel):
     extracted: ProposalData | None = None
     risks: list[RiskFlag] | None = None
     scores: ScoreCard | None = None
+    error: str | None = None
 
 
 class AnalysisResult(BaseModel):

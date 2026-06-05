@@ -107,13 +107,32 @@ def build_pipeline(bundle_id: str = "lms"):
             proposal = proposal.model_copy(update={"scores": scores})
             return {"proposals": [proposal.model_dump()]}
         except Exception as e:
-            proposal = ProposalState(filename=filename, raw_text=raw_text)
-            return {"proposals": [proposal.model_dump()], "error": str(e)}
+            logger.exception("vendor_node failed for %s", filename)
+            proposal = ProposalState(filename=filename, raw_text=raw_text, error=str(e))
+            return {"proposals": [proposal.model_dump()]}
 
     def memo_node(state: PipelineState) -> dict:
         try:
-            proposals = [ProposalState(**p) for p in state["proposals"]]
-            memo = memo_agent.write(proposals)
+            all_proposals = [ProposalState(**p) for p in state["proposals"]]
+            good = [p for p in all_proposals if p.scores is not None]
+            failed = [p for p in all_proposals if p.scores is None]
+
+            if not good:
+                errors = "; ".join(
+                    f"{p.filename}: {p.error or 'unknown error'}" for p in failed
+                )
+                return {"status": "error", "error": f"All vendors failed processing: {errors}"}
+
+            memo = memo_agent.write(good)
+
+            if failed:
+                names = ", ".join(p.filename for p in failed)
+                return {
+                    "memo": memo,
+                    "status": "done",
+                    "error": f"Excluded from memo (processing failed): {names}",
+                }
+
             return {"memo": memo, "status": "done"}
         except Exception as e:
             return {"status": "error", "error": str(e)}
