@@ -32,6 +32,16 @@ body {
   animation: stagePulse 2s ease-in-out infinite;
 }
 
+.dim-row {
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin: 0 -5px;
+  transition: background 100ms ease;
+}
+.dim-row:hover {
+  background: var(--mantine-color-gray-0);
+}
+
 /* Memo markdown rendering */
 .memo-content h1 {
   font-size: 1.5rem;

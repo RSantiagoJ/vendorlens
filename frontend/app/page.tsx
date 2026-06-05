@@ -69,15 +69,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (appState !== "done") return;
-    const shoot = (angle: number, x: number) =>
-      confetti({ particleCount: 80, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 } });
-    shoot(60, 0);
-    setTimeout(() => shoot(120, 1), 150);
-    setTimeout(() => shoot(90, 0.5), 300);
-  }, [appState]);
-
-  useEffect(() => {
     if (!isProcessingDemo) return;
     const stages: Stage[] = ["extracting", "risk", "scoring", "memo"];
     let i = 0;
@@ -90,6 +81,11 @@ export default function Home() {
 
   function revealResults() {
     setAppState("done");
+    const shoot = (angle: number, x: number) =>
+      confetti({ particleCount: 80, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 } });
+    shoot(60, 0);
+    setTimeout(() => shoot(120, 1), 150);
+    setTimeout(() => shoot(90, 0.5), 300);
   }
 
   function reset() {

@@ -254,7 +254,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
                   <Popover.Target>
                     <Box
                       onClick={() => setOpenRationale(isOpen ? null : key)}
-                      style={{ cursor: "pointer" }}
+                      className="dim-row"
                     >
                       <Group justify="space-between" mb={2}>
                         <Text size="xs" c="dimmed">{label}</Text>

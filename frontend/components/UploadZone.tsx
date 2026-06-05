@@ -98,7 +98,8 @@ export function UploadZone({ onSubmit, loading, bundles }: Props) {
             : "var(--mantine-color-gray-4)",
           cursor: "pointer",
           background: dragging ? "var(--mantine-color-umgreen-0)" : "white",
-          transition: "border-color 120ms ease, background 120ms ease",
+          transform: dragging ? "scale(1.02)" : "scale(1)",
+          transition: "border-color 120ms ease, background 120ms ease, transform 120ms ease",
         }}
         onClick={() => !loading && inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -106,7 +107,13 @@ export function UploadZone({ onSubmit, loading, bundles }: Props) {
         onDrop={handleDrop}
       >
         <Stack align="center" gap="sm">
-          <ThemeIcon size={56} radius="xl" variant="light" color="umgreen">
+          <ThemeIcon
+            size={56} radius="xl" variant="light" color="umgreen"
+            style={{
+              transform: dragging ? "translateY(-5px)" : "translateY(0)",
+              transition: "transform 150ms ease",
+            }}
+          >
             <IconUpload size={28} />
           </ThemeIcon>
           <Text fw={600} size="lg" c="dark">Drop vendor proposals here</Text>
@@ -162,6 +169,10 @@ export function UploadZone({ onSubmit, loading, bundles }: Props) {
         disabled={files.length === 0}
         onClick={() => onSubmit(files, bundle)}
         fullWidth
+        style={files.length > 0 ? {
+          background: "linear-gradient(135deg, var(--mantine-color-umgreen-6), var(--mantine-color-umblue-5))",
+          border: "none",
+        } : undefined}
       >
         Analyze {files.length > 0 ? `${files.length} proposal${files.length > 1 ? "s" : ""}` : "proposals"}
       </Button>

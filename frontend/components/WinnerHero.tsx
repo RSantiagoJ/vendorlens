@@ -147,7 +147,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
                 />
               </Box>
               <Group gap="md">
-                <Badge size="sm" color={tier} variant="light" radius="sm">
+                <Badge size="sm" color={tier} variant={tier === "umgreen" ? "filled" : "light"} radius="sm">
                   {overall >= 70 ? "Meets Criteria" : overall >= 40 ? "Needs Review" : "Below Threshold"}
                 </Badge>
                 {highRisks === 0 && (
@@ -230,33 +230,35 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
         {topStrengths.length > 0 && (
           <Box
             style={{
-              background: "white",
-              border: "1px solid var(--mantine-color-gray-2)",
-              borderRadius: "var(--mantine-radius-sm)",
-              padding: "var(--mantine-spacing-md)",
-              minWidth: 210,
+              background: "var(--mantine-color-gray-0)",
+              border: "1px solid var(--mantine-color-gray-3)",
+              borderRadius: "var(--mantine-radius-md)",
+              padding: "var(--mantine-spacing-lg)",
+              minWidth: 260,
+              flex: "0 0 auto",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
             }}
           >
-            <Group gap={6} mb="sm">
-              <IconTrendingUp size={13} color="var(--mantine-color-umgreen-6)" />
-              <Text size="xs" fw={700} tt="uppercase" c="dimmed" style={{ letterSpacing: "0.06em" }}>
+            <Group gap={8} mb="md">
+              <IconTrendingUp size={16} color="var(--mantine-color-umgreen-6)" />
+              <Text size="sm" fw={700} tt="uppercase" c="dimmed" style={{ letterSpacing: "0.06em" }}>
                 Top Strengths
               </Text>
             </Group>
-            <Stack gap={8}>
+            <Stack gap={12}>
               {topStrengths.map(({ label, score }, i) => (
                 <Box key={label}>
-                  <Group justify="space-between" mb={3}>
-                    <Text size="xs" c="dark" fw={i === 0 ? 600 : 400}>{label}</Text>
+                  <Group justify="space-between" mb={5}>
+                    <Text size="sm" c="dark" fw={i === 0 ? 700 : 500}>{label}</Text>
                     <Text
-                      size="xs"
-                      fw={700}
+                      size="sm"
+                      fw={800}
                       style={{ color: score >= 7 ? "var(--mantine-color-umgreen-6)" : "var(--mantine-color-umyellow-7)" }}
                     >
                       {score.toFixed(1)}
                     </Text>
                   </Group>
-                  <Box style={{ height: 4, borderRadius: 999, background: "var(--mantine-color-gray-1)", overflow: "hidden" }}>
+                  <Box style={{ height: 6, borderRadius: 999, background: "var(--mantine-color-gray-1)", overflow: "hidden" }}>
                     <Box
                       style={{
                         width: `${(score / 10) * 100}%`,
@@ -268,7 +270,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
                       }}
                     />
                   </Box>
-                  {i < topStrengths.length - 1 && <Divider mt={8} color="gray.1" />}
+                  {i < topStrengths.length - 1 && <Divider mt={12} color="gray.1" />}
                 </Box>
               ))}
             </Stack>
