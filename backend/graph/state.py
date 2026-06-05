@@ -88,7 +88,7 @@ class ScoreCard(BaseModel):
 
 class ProposalState(BaseModel):
     filename: str
-    raw_text: str
+    raw_text: Optional[str] = None
     extracted: Optional[ProposalData] = None
     risks: Optional[List[RiskFlag]] = None
     scores: Optional[ScoreCard] = None
