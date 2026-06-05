@@ -15,13 +15,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from graph.state import ProposalState
-from tools.llm_factory import invoke_llm, load_prompt, make_claude_llm
+from tools.llm_factory import invoke_llm_cached, load_prompt, make_claude_llm
 
 
 class MemoAgent:
     def __init__(self):
         self.system_prompt = load_prompt("memo_agent")
-        self.llm = make_claude_llm()
+        self.llm = make_claude_llm(cache=True)
 
     def write(self, proposals: list[ProposalState]) -> str:
         """Write the recommendation memo from fully-processed proposals.
@@ -50,7 +50,7 @@ class MemoAgent:
             for p in proposals
         ]
 
-        return invoke_llm(
+        return invoke_llm_cached(
             self.llm,
             self.system_prompt,
             f"Vendor evaluation data:\n{json.dumps(proposal_data)}\n\nWrite the recommendation memo. Return markdown only.",
