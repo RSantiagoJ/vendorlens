@@ -209,12 +209,21 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
   if (displayEntries.length === 0) return null;
 
   return (
-    <Paper p="md" radius="md" withBorder bg="white" w="100%" className="fadeIn">
+    <Paper
+      p="md" radius="md" w="100%" className="fadeIn"
+      style={{
+        background: "#0f1117",
+        border: "1px solid rgba(255,255,255,0.1)",
+      }}
+    >
       <Group gap="sm" mb="sm">
-        <ThemeIcon size={24} variant="light" color="umblue" radius="sm">
-          <IconTerminal2 size={14} />
+        <ThemeIcon
+          size={24} radius="sm"
+          style={{ background: "rgba(255,255,255,0.08)", border: "none" }}
+        >
+          <IconTerminal2 size={14} color="rgba(255,255,255,0.7)" />
         </ThemeIcon>
-        <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.05em" }}>
+        <Text size="xs" fw={600} tt="uppercase" style={{ color: "rgba(255,255,255,0.35)", letterSpacing: "0.05em" }}>
           Live activity
         </Text>
       </Group>
@@ -236,10 +245,10 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
                   fontFamily: "'Courier New', 'Menlo', monospace",
                   lineHeight: 1.7,
                   color: entry.completion
-                    ? "var(--mantine-color-umgreen-6)"
+                    ? "var(--mantine-color-umgreen-4)"
                     : isDimmed
-                    ? "var(--mantine-color-gray-7)"
-                    : "var(--mantine-color-dark-6)",
+                    ? "rgba(255,255,255,0.22)"
+                    : "rgba(255,255,255,0.82)",
                   display: "flex",
                   alignItems: "baseline",
                   gap: 8,
@@ -263,7 +272,7 @@ export function ThinkingLog({ stage, vendorNames = [], totalRisks }: Props) {
                         display: "inline-block",
                         width: 7,
                         height: "0.85em",
-                        background: "var(--mantine-color-umblue-5)",
+                        background: "var(--mantine-color-umblue-4)",
                         marginLeft: 3,
                         verticalAlign: "middle",
                         animation: "blink 1s step-end infinite",

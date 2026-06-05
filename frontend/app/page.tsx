@@ -15,6 +15,7 @@ import { Logo } from "@/logo";
 import {
   Alert,
   AppShell,
+  Badge,
   Box,
   Button,
   Container,
@@ -226,7 +227,15 @@ export default function Home() {
         <Container size="xl" py="xl">
           {appState === "idle" && (
             <Stack gap="xl" align="center">
-              <Stack gap="xs" align="center" maw={560} mx="auto" ta="center">
+              <Box
+                py="xl"
+                style={{
+                  width: "100%",
+                  background: "radial-gradient(ellipse 90% 60% at 50% 0%, var(--mantine-color-umblue-0) 0%, transparent 100%)",
+                  borderRadius: "var(--mantine-radius-lg)",
+                }}
+              >
+              <Stack gap="md" align="center" maw={560} mx="auto" ta="center">
                 <Text size="2rem" fw={800} c="dark" style={{ lineHeight: 1.2 }}>
                   AI-Powered Vendor Analysis
                 </Text>
@@ -234,7 +243,17 @@ export default function Home() {
                   Upload vendor proposals and get structured extraction, risk
                   flags, scoring, and a recommendation memo in under a minute.
                 </Text>
+                {bundles.length > 0 && (
+                  <Group gap="xs" justify="center">
+                    {bundles.map((b) => (
+                      <Badge key={b.id} variant="light" color="umblue" size="md" radius="sm">
+                        {b.label}
+                      </Badge>
+                    ))}
+                  </Group>
+                )}
               </Stack>
+              </Box>
 
               {/* Pipeline steps visual */}
               <Group justify="center" gap={0} wrap="nowrap">
