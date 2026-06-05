@@ -43,3 +43,6 @@ Thumbs.db
 
 # Claude Code — local permission overrides (personal, not shared)
 .claude/settings.local.json
+
+# Logs
+backend/raw_response_debug.txt
