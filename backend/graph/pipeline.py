@@ -5,14 +5,15 @@ LangGraph pipeline orchestrating all four VendorLens agents.
 
 Architecture:
   START
-    └─ fan_out_vendors   (conditional edge → Send per proposal)
-         ├─ vendor_subgraph ─┐   each subgraph: extract_node → risk_node → score_node
-         ├─ vendor_subgraph  ├── parallel; fan-in via operator.add → proposals
-         └─ vendor_subgraph ─┘
-                  ↓
-            memo_node     (sequential; writes `memo`)
-                  ↓
-                END
+    └─ warm_caches    (parallel warm-up calls to prime Anthropic prompt caches)
+         └─ fan_out_vendors   (conditional edge → Send per proposal)
+              ├─ vendor_subgraph ─┐   each subgraph: extract_node → risk_node → score_node
+              ├─ vendor_subgraph  ├── parallel; fan-in via operator.add → proposals
+              └─ vendor_subgraph ─┘
+                       ↓
+                 memo_node     (sequential; writes `memo`)
+                       ↓
+                     END
 
 Using a subgraph per vendor (rather than a single monolithic node) lets the
 FastAPI SSE stream observe per-stage state updates via stream_mode="updates",
@@ -40,6 +41,7 @@ from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
 from graph.state import ProposalData, ProposalState, RiskFlag
 from tools.chroma import load_index
+from tools.llm_factory import invoke_llm_cached
 
 
 # ---------------------------------------------------------------------------
@@ -108,24 +110,56 @@ def build_pipeline(bundle_id: str = "lms"):
     def score_node(state: VendorSubgraphState) -> dict:
         filename = state["filename"]
         raw_text = state.get("raw_text")
-        if state.get("error"):
-            proposal = ProposalState(filename=filename, raw_text=raw_text, error=state["error"])
+        
+        # Safely parse whatever state we have so far to avoid losing it on error
+        proposal_data = None
+        if state.get("extracted"):
+            try:
+                proposal_data = ProposalData(**state["extracted"])
+            except Exception:
+                pass
+                
+        risks = None
+        if state.get("risks") is not None:
+            try:
+                risks = [RiskFlag(**r) for r in state["risks"]]
+            except Exception:
+                pass
+
+        upstream_error = state.get("error")
+
+        # Extraction failure is fatal — no data to score.
+        if upstream_error and not proposal_data:
+            proposal = ProposalState(
+                filename=filename,
+                raw_text=raw_text,
+                error=upstream_error,
+            )
             return {"proposals": [proposal.model_dump()]}
+
+        # Risk failure is non-fatal — score with whatever risks we have (may be empty).
         try:
-            proposal_data = ProposalData(**state["extracted"])
-            risks = [RiskFlag(**r) for r in (state.get("risks") or [])]
-            scores = scoring_agent.score(proposal_data, risks)
+            if not proposal_data:
+                raise ValueError("No extraction data available for scoring.")
+            scores = scoring_agent.score(proposal_data, risks or [])
             proposal = ProposalState(
                 filename=filename,
                 raw_text=raw_text,
                 extracted=proposal_data,
                 risks=risks,
                 scores=scores,
+                error=upstream_error,  # surface risk-stage error even on scoring success
             )
             return {"proposals": [proposal.model_dump()]}
         except Exception as e:
             logger.exception("score_node failed for %s", filename)
-            proposal = ProposalState(filename=filename, raw_text=raw_text, error=str(e))
+            proposal = ProposalState(
+                filename=filename,
+                raw_text=raw_text,
+                extracted=proposal_data,
+                risks=risks,
+                error=str(e),
+            )
             return {"proposals": [proposal.model_dump()]}
 
     # -----------------------------------------------------------------------
@@ -145,6 +179,30 @@ def build_pipeline(bundle_id: str = "lms"):
     # -----------------------------------------------------------------------
     # Parent graph
     # -----------------------------------------------------------------------
+
+    def warm_caches_node(state: PipelineState) -> dict:
+        """Pre-warm Anthropic prompt caches before parallel vendor fan-out.
+
+        Fires one minimal call per agent in parallel so cache entries exist
+        before the vendor subgraphs start — all 3 vendors then get cache hits
+        on the first run instead of only on subsequent runs.
+        """
+        from concurrent.futures import ThreadPoolExecutor
+
+        targets = [
+            (extraction_agent.llm, extraction_agent.system_prompt),
+            (risk_agent.llm,       risk_agent.system_prompt),
+            (scoring_agent.llm,    scoring_agent.system_prompt),
+        ]
+
+        def warm(args):
+            llm, prompt = args
+            invoke_llm_cached(llm, prompt, "ready")
+
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            list(pool.map(warm, targets))
+
+        return {}
 
     def fan_out_vendors(state: PipelineState) -> List[Send]:
         return [Send("vendor_subgraph", p) for p in state["pending"]]
@@ -176,9 +234,11 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"status": "error", "error": str(e)}
 
     graph = StateGraph(PipelineState)
+    graph.add_node("warm_caches", warm_caches_node)
     graph.add_node("vendor_subgraph", vendor_subgraph)
     graph.add_node("memo_node", memo_node)
-    graph.add_conditional_edges(START, fan_out_vendors, ["vendor_subgraph"])
+    graph.add_edge(START, "warm_caches")
+    graph.add_conditional_edges("warm_caches", fan_out_vendors, ["vendor_subgraph"])
     graph.add_edge("vendor_subgraph", "memo_node")
     graph.add_edge("memo_node", END)
 

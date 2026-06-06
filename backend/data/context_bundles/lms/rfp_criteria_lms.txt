@@ -4,11 +4,11 @@ Scope: Multi-campus university system — all academic campuses and administrati
 
 EVALUATION DIMENSIONS AND WEIGHTS
 Scale: each dimension is scored 0–10. The weighted average is the overall score.
-Weights sum to exactly 1.00, so the maximum possible overall score is 10.0.
+Weights sum to exactly 1.00, so the maximum possible overall score is 100.0.
 
 core_lms_functionality         weight: 0.20
 accessibility_compliance       weight: 0.15
-integration_interoperability   weight: 0.15
+integration_interoperability   weight: 0.10
 pricing_and_licensing          weight: 0.10
 security_and_compliance        weight: 0.20
 support_and_training           weight: 0.10
@@ -16,7 +16,7 @@ enterprise_readiness           weight: 0.05
 innovation_roadmap             weight: 0.05
 risk_level                     weight: 0.05 (inverted — higher score = fewer HIGH risk flags)
                                ────────────
-TOTAL WEIGHT:                             1.00  →  maximum overall score = 10.0
+TOTAL WEIGHT:                             1.00  →  maximum overall score = 100.0
 
 STATED PRIORITIES FROM RFP
 

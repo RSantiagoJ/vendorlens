@@ -56,6 +56,34 @@ def _parse_weights(criteria_text: str) -> dict[str, float]:
     return weights
 
 
+def _parse_score_value(val) -> float:
+    """Safely convert a score value (string, float, int, None) to a float between 0.0 and 10.0."""
+    if val is None:
+        return 0.0
+    if isinstance(val, (int, float)):
+        return float(val)
+
+    s = str(val).strip().lower()
+    if not s or s in ("n/a", "na", "none", "null", "unknown"):
+        return 0.0
+
+    if "/" in s:
+        try:
+            numerator = s.split("/")[0].strip()
+            return float(numerator)
+        except (ValueError, IndexError):
+            pass
+
+    try:
+        # Extract leading number if present (e.g. "8.5 overall")
+        match = re.search(r"^\d+(?:\.\d+)?", s)
+        if match:
+            return float(match.group(0))
+        return float(s)
+    except ValueError:
+        return 0.0
+
+
 class ScoringAgent:
     def __init__(self, bundle_id: str = "lms"):
         bundle = load_context_bundle(bundle_id)
@@ -111,7 +139,14 @@ class ScoringAgent:
         )
         data = parse_llm_json(raw)
 
-        dim_scores = {field: float(data[field]["score"]) for field in _SCORECARD_FIELDS}
+        for field in _SCORECARD_FIELDS:
+            if field not in data:
+                data[field] = {"score": 0.0, "rationale": "Score not provided by LLM."}
+            else:
+                raw_val = data[field].get("score")
+                data[field]["score"] = _parse_score_value(raw_val)
+
+        dim_scores = {field: data[field]["score"] for field in _SCORECARD_FIELDS}
         return ScoreCard(
             **{field: DimensionScore(**data[field]) for field in _SCORECARD_FIELDS},
             overall=self._compute_overall(dim_scores),

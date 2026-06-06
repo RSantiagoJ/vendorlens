@@ -13,10 +13,10 @@ Prompt caching:
   Savings: ~90% cost + ~85% latency reduction on the cached portion.
 
 Usage:
-    from tools.llm_factory import load_prompt, make_llm, make_claude_llm, make_haiku_llm
-    from tools.llm_factory import invoke_llm, invoke_llm_cached, parse_llm_json
+    from tools.llm_factory import load_prompt, make_claude_llm, make_haiku_llm
+    from tools.llm_factory import invoke_llm_cached, parse_llm_json
 
-    llm = make_haiku_llm(cache=True)         # Haiku with caching enabled
+    llm = make_haiku_llm(cache=True)
     result = invoke_llm_cached(llm, system_prompt, human_content)
 """
 
@@ -67,24 +67,6 @@ def make_haiku_llm(cache: bool = False):
     extra = {"betas": ["prompt-caching-2024-07-31"]} if cache else {}
     llm = ChatAnthropic(model="claude-haiku-4-5-20251001", max_tokens=16384, api_key=key, **extra)
     return llm.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)
-
-
-def make_llm():
-    """Return (llm, model_name) — Claude Sonnet 4.6 for extraction, risk, and memo agents.
-
-    Returns:
-        Tuple of (LangChain chat model, human-readable model name string).
-
-    Raises:
-        ValueError: If ANTHROPIC_API_KEY is not set.
-    """
-    return make_claude_llm(), "Claude Sonnet 4.6"
-
-
-def invoke_llm(llm, system_prompt: str, human_content: str) -> str:
-    """Call an LLM with a system + human message and return the response content."""
-    from langchain_core.messages import HumanMessage, SystemMessage
-    return llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=human_content)]).content
 
 
 def invoke_llm_cached(llm, system_prompt: str, human_content: str) -> str:
