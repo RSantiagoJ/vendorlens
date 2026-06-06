@@ -54,7 +54,7 @@ pipeline.py            <- LangGraph graph + PipelineState
 state.py               <- ProposalData, RiskFlag, ScoreCard, ProposalState, VendorLensState
 tools/
 context_loader.py      <- BUNDLES registry, load_context_bundle(), get_policy_path()
-llm_factory.py         <- make_llm(), make_claude_llm(), load_prompt(), parse_llm_json()
+llm_factory.py         <- make_claude_llm(), make_haiku_llm(), invoke_llm_cached(), load_prompt(), parse_llm_json()
 mcp_server.py          <- make_policy_lookup() keyword search tool
 scripts/
 ingest.py              <- ChromaDB ingestion (run once, or --force to rebuild)
@@ -90,7 +90,7 @@ logo/
 1. User uploads PDFs via Next.js frontend
 2. Frontend POSTs files to FastAPI /analyze endpoint
 3. FastAPI saves files temporarily, invokes LangGraph pipeline
-4. LangGraph runs four agents sequentially, passing shared state
+4. LangGraph warms prompt caches, then fans out one vendor subgraph per file (parallel); each subgraph runs extract → risk → score; memo runs sequentially after all vendors complete
 5. Each agent retrieves relevant chunks via LlamaIndex before LLM call
 6. Final state returned as JSON (proposals + risks + scores + memo)
 7. FastAPI streams progress via Server-Sent Events
@@ -101,20 +101,26 @@ logo/
 
 ## LangGraph state
 
-Two state types live in `graph/state.py`:
-
-**PipelineState** (TypedDict — used by the LangGraph graph):
+**PipelineState** (TypedDict — parent graph):
 ```
-pending:     list[dict]          # raw {filename, raw_text} — input only
-extracted:   Annotated[list, operator.add]   # fan-in from parallel extraction_nodes
-with_risks:  Annotated[list, operator.add]   # fan-in from parallel risk_nodes
-proposals:   Annotated[list, operator.add]   # fan-in from parallel scoring_nodes
-memo:        str | None
-status:      str                 # last-write-wins reducer
-error:       str | None          # last-write-wins reducer
+pending:    list[dict]                        # raw {filename} dicts — input only
+proposals:  Annotated[list[dict], operator.add]  # fan-in from parallel vendor_subgraphs
+memo:       str | None
+status:     str                               # last-write-wins reducer
+error:      str | None                        # last-write-wins reducer
 ```
 
-**VendorLensState** (Pydantic BaseModel — used in tests and response construction):
+**VendorSubgraphState** (TypedDict — one per vendor):
+```
+filename:   str                               # required — passed via Send()
+raw_text:   str | None
+extracted:  dict | None                       # set by extract_node
+risks:      list | None                       # set by risk_node
+error:      str | None                        # set on failure
+proposals:  Annotated[list[dict], operator.add]  # set by score_node; fan-in to parent
+```
+
+**VendorLensState** (Pydantic BaseModel — used in API responses):
 ```
 proposals: list[ProposalState]
 memo: str | None
@@ -122,15 +128,21 @@ status: "pending"|"extracting"|"risk"|"scoring"|"memo"|"done"|"error"
 error: str | None
 ```
 
-Graph topology (all three agent stages run in parallel via Send()):
+Graph topology:
 ```
-START → fan_out_extraction → extraction_node (×N, parallel)
-      → fan_out_risk       → risk_node       (×N, parallel)
-      → fan_out_scoring    → scoring_node    (×N, parallel)
-      → memo_node          → END
+START
+  └─ warm_caches          (3 parallel LLM warm-up calls to prime Anthropic prompt caches)
+       └─ fan_out_vendors  (conditional edge → Send per proposal)
+            ├─ vendor_subgraph ─┐   each: extract_node → risk_node → score_node
+            ├─ vendor_subgraph  ├── parallel; fan-in via operator.add → proposals
+            └─ vendor_subgraph ─┘
+                     ↓
+               memo_node         (sequential; writes `memo`)
+                     ↓
+                   END
 ```
 
-Error handling: each node catches exceptions and returns `{"error": str(e)}`; last write wins on the `error` field.
+Error handling: extraction failure is fatal for that vendor (no data to score); risk failure is non-fatal (scoring proceeds with empty risk list). Each node catches exceptions and surfaces them in the `error` field of `ProposalState`.
 
 ---
 
@@ -139,24 +151,25 @@ Error handling: each node catches exceptions and returns `{"error": str(e)}`; la
 ### Agent 1: Extraction Agent
 
 File: agents/extraction_agent.py
-Model: Gemini 3.5 Flash (primary) / Claude Sonnet 4.6 (fallback)
+Model: Claude Sonnet 4.6 (prompt caching enabled)
 Input: vendor filename — runs 3 parallel RAG queries via LlamaIndex, top_k=8
 Output: ProposalData (see state.py)
 Note: Extract only what is stated. Null means not found, not hallucinated.
+Query embeddings computed once at init and reused for every vendor retrieval.
 
 ### Agent 2: Risk Agent
 
 File: agents/risk_agent.py
-Model: Gemini 3.5 Flash (primary) / Claude Sonnet 4.6 (fallback)
+Model: Claude Sonnet 4.6 (prompt caching enabled)
 Input: ProposalData
 Output: list[RiskFlag]
 Tool: make_policy_lookup() from tools/mcp_server.py — keyword-scored search against bundle policy.txt
-Policy context: built once at RiskAgent.__init__ time (5 queries, deduplicated), reused across all proposals
+Policy context: built once at RiskAgent.__init__ time (5 queries, deduplicated), folded into system prompt so it gets cached across all vendor calls.
 
 ### Agent 3: Scoring Agent
 
 File: agents/scoring_agent.py
-Model: Gemini 3.5 Flash (primary) / Claude Sonnet 4.6 (fallback)
+Model: Claude Haiku 4.5 (prompt caching enabled — mechanical task, 4× faster than Sonnet)
 Input: ProposalData + list[RiskFlag]
 Output: ScoreCard with 9 dimension scores (0–10) + weighted overall
 Weights: parsed from rfp_criteria_<bundle>.txt at init time — not hardcoded
@@ -165,9 +178,9 @@ Overall: computed in Python as weighted average, not by the LLM
 ### Agent 4: Memo Writer Agent
 
 File: agents/memo_agent.py
-Model: Claude Sonnet 4.6 (always — prose quality matters here)
+Model: Claude Sonnet 4.6 (prompt caching enabled — prose quality matters here)
 Input: all ProposalState objects with extracted, risks, scores populated
-Output: Markdown recommendation memo (only HIGH risks passed to save tokens)
+Output: Markdown recommendation memo (only HIGH risks + numeric scores passed to save tokens)
 
 ---
 
@@ -195,6 +208,25 @@ retains the mcp_server.py filename for continuity.
 Query returns the top matching policy sections as a newline-separated string.
 RiskAgent runs 5 targeted queries covering: security certs, data/DPA, liability/jurisdiction,
 auto-renewal, and IP/incident response.
+
+---
+
+## Prompt caching
+
+All four agents use Anthropic prompt caching (`cache_control: {"type": "ephemeral"}` on the system prompt block, with the `prompt-caching-2024-07-31` beta header). Cache TTL is 5 minutes, refreshed on every hit.
+
+**Cache pre-warming:** A `warm_caches` node runs before the fan-out. It fires one minimal LLM call per agent (extraction, risk, scoring) in parallel, creating the cache entries before any vendor subgraph starts. Without this, all vendors go out simultaneously and none benefit from each other's cache writes within the same run.
+
+| Agent      | What's cached                        | Approx tokens |
+|------------|--------------------------------------|---------------|
+| Extraction | System prompt                        | ~400          |
+| Risk       | System prompt + full policy context  | ~2,500        |
+| Scoring    | System prompt + rubric + criteria    | ~4,500        |
+| Memo       | System prompt                        | ~300          |
+
+On cache hit: ~90% cost reduction + ~85% latency reduction for the cached portion.
+
+All agents are initialized in `make_*_llm(cache=True)` and call `invoke_llm_cached()` — the non-caching `invoke_llm()` path does not exist in this codebase.
 
 ---
 

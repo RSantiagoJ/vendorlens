@@ -716,6 +716,21 @@ terraform destroy  — tear everything down (cost control after demo)
 **Checkpoint:** `terraform output app_runner_url` returns a live HTTPS URL.
 Full pipeline runs end-to-end in prod with the Negotiation Playbook panel visible.
 
+--- SESSION NOTES (Day 11, pipeline work) ---
+
+- **Prompt cache pre-warming added**: new `warm_caches` node runs before `fan_out_vendors`.
+  Fires one minimal LLM call per agent (extraction, risk, scoring) in parallel so Anthropic
+  cache entries exist before the vendor subgraphs start. Without this, all three vendor calls
+  go out simultaneously and none benefit from each other's cache writes within the same run.
+  With pre-warming, every run — including the first — gets full cache hits on all 9 vendor×agent calls.
+
+- **Dead code removed from `tools/llm_factory.py`**: `make_llm()` (returned non-caching Claude, unused)
+  and `invoke_llm()` (non-cached call path, unused) deleted. All agents call `make_claude_llm(cache=True)`
+  or `make_haiku_llm(cache=True)` and `invoke_llm_cached()` directly.
+
+- **Mock tests written**: `backend/tests/test_mock_pipeline.py` covers the full pipeline with mocked
+  LLM calls — no API keys needed, fast, runs in CI.
+
 ---
 
 ## Post-Terraform (optional) — Vendor Proposal Story Tuning
