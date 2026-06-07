@@ -466,3 +466,40 @@ class TestB7ScoringScale:
         assert scorecard.overall <= 10.0, (
             f"overall={scorecard.overall} exceeds rubric maximum of 10.0"
         )
+
+    def test_out_of_range_dimension_score_is_clamped(self):
+        """LLM returns dimension score > 10 — must be clamped before reaching ScoreCard.
+
+        Without clamping, a single score of 15 produces overall > 10, violating the
+        rubric contract even though _compute_overall itself is correct.
+        """
+        from agents.scoring_agent import _parse_score_value
+        assert _parse_score_value(15) == 10.0, (
+            "_parse_score_value(15) returned 15.0 — values above 10 must be clamped to 10.0"
+        )
+        assert _parse_score_value(10.5) == 10.0
+        assert _parse_score_value(100) == 10.0
+
+    def test_negative_dimension_score_is_clamped(self):
+        """LLM returns negative score — must be clamped to 0.0."""
+        from agents.scoring_agent import _parse_score_value
+        assert _parse_score_value(-1) == 0.0, (
+            "_parse_score_value(-1) returned -1.0 — negative values must be clamped to 0.0"
+        )
+        assert _parse_score_value(-0.1) == 0.0
+
+    def test_overall_clamped_when_llm_returns_out_of_range_scores(self):
+        """End-to-end: LLM returns 15 on all dimensions → overall must still be ≤ 10."""
+        agent = self._make_agent()
+        with patch("agents.scoring_agent.invoke_llm_cached") as mock_invoke:
+            mock_invoke.return_value = json.dumps(self._uniform_scores(15.0))
+            scorecard = agent.score(ProposalData(vendor_name="Test"), [])
+
+        assert scorecard.overall <= 10.0, (
+            f"overall={scorecard.overall} — out-of-range dimension scores must be clamped "
+            f"so the weighted sum cannot exceed 10.0"
+        )
+        for field in _ALL_SCORECARD_FIELDS:
+            assert getattr(scorecard, field).score <= 10.0, (
+                f"{field}.score={getattr(scorecard, field).score} exceeds 10.0"
+            )

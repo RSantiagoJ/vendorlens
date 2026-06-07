@@ -199,8 +199,11 @@ def build_pipeline(bundle_id: str = "lms"):
             llm, prompt = args
             invoke_llm_cached(llm, prompt, "ready")
 
-        with ThreadPoolExecutor(max_workers=3) as pool:
-            list(pool.map(warm, targets))
+        try:
+            with ThreadPoolExecutor(max_workers=3) as pool:
+                list(pool.map(warm, targets))
+        except Exception:
+            logger.warning("Cache warm-up failed — continuing without pre-warmed caches", exc_info=True)
 
         return {}
 

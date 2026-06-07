@@ -61,7 +61,7 @@ def _parse_score_value(val) -> float:
     if val is None:
         return 0.0
     if isinstance(val, (int, float)):
-        return float(val)
+        return min(max(float(val), 0.0), 10.0)
 
     s = str(val).strip().lower()
     if not s or s in ("n/a", "na", "none", "null", "unknown"):
@@ -78,8 +78,8 @@ def _parse_score_value(val) -> float:
         # Extract leading number if present (e.g. "8.5 overall")
         match = re.search(r"^\d+(?:\.\d+)?", s)
         if match:
-            return float(match.group(0))
-        return float(s)
+            return min(max(float(match.group(0)), 0.0), 10.0)
+        return min(max(float(s), 0.0), 10.0)
     except ValueError:
         return 0.0
 

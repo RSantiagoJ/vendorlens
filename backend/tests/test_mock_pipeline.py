@@ -295,6 +295,44 @@ def test_pipeline_all_vendors_fail(mock_memo, mock_retrieve, mock_load_index):
 
 
 # ---------------------------------------------------------------------------
+# warm_caches_node resilience
+# ---------------------------------------------------------------------------
+
+@patch("graph.pipeline.load_index")
+@patch("graph.pipeline.invoke_llm_cached")
+@patch("agents.extraction_agent.ExtractionAgent._retrieve_chunks")
+@patch("agents.extraction_agent.invoke_llm_cached")
+@patch("agents.risk_agent.invoke_llm_cached")
+@patch("agents.scoring_agent.invoke_llm_cached")
+@patch("agents.memo_agent.MemoAgent.write")
+def test_pipeline_completes_when_warm_cache_fails(
+    mock_memo, mock_score_llm, mock_risk_llm, mock_extract_llm,
+    mock_retrieve, mock_warm_invoke, mock_load_index,
+):
+    """warm_caches_node raises on API error → pipeline must still process vendors.
+
+    warm-up is a performance optimisation, not a requirement. A transient failure
+    must not prevent any vendor from being evaluated.
+    """
+    mock_load_index.return_value = MagicMock()
+    mock_warm_invoke.side_effect = Exception("API rate limit during warm-up")
+    mock_retrieve.return_value = "some text chunks"
+    mock_extract_llm.return_value = json.dumps(MOCK_EXTRACTION_BLACKBOARD)
+    mock_risk_llm.return_value = json.dumps(MOCK_RISKS_BLACKBOARD)
+    mock_score_llm.return_value = json.dumps(MOCK_SCORING_VALID)
+    mock_memo.return_value = "Memo written despite warm-up failure"
+
+    result = _build_graph().invoke(_state("blackboard.txt"))
+
+    assert result["status"] == "done", (
+        "Pipeline must complete even when warm_caches_node fails. "
+        "Fix: wrap pool.map() in try/except and log the error instead of raising."
+    )
+    assert len(result["proposals"]) == 1
+    assert result["proposals"][0]["scores"] is not None
+
+
+# ---------------------------------------------------------------------------
 # ScoringAgent unit tests
 # ---------------------------------------------------------------------------
 
