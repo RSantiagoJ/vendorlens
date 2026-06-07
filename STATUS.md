@@ -75,7 +75,8 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | `test_mock_pipeline.py` | 17 | Full pipeline happy path + all failure modes |
 | `test_persistence.py` | 33 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
-| **Total** | **94** | **All offline — no API keys needed** |
+| `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
+| **Total** | **109** | **All offline — no API keys needed** |
 
 ---
 
@@ -107,6 +108,12 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 ---
 
 ## Daily Audit Log
+
+### 2026-06-07 — End-to-end tests (offline, no API key)
+- `test_e2e.py` added: 15 tests covering POST /analyze → poll /progress → GET /jobs full flow
+- Mocking strategy: `_run_pipeline` stubbed with instant result; `_persist_run` patched to no-op
+- Red/green confirmed: without mock, real pipeline stays pending for 2s+ (timeout); with mock, instant
+- Core suite: 109 passing
 
 ### 2026-06-07 — Doc cleanup + live/mock test separation
 - `tests/live/` created — 5 live-key test files moved there, excluded via `pytest.ini norecursedirs`

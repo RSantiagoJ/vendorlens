@@ -95,6 +95,7 @@ sg docker -c "docker compose run --rm backend python -m pytest tests/ -q"
 | Full pipeline happy/failure paths (mocked) | `... pytest tests/test_mock_pipeline.py -v` |
 | Persistence layer — DB write, GET /jobs, /progress | `... pytest tests/test_persistence.py -v` |
 | Concurrency, ingest dedup, output structure | `... pytest tests/test_reliability.py -v` |
+| Full HTTP flow: upload → poll → result (E2E) | `... pytest tests/test_e2e.py -v` |
 
 ### Live tests — require `ANTHROPIC_API_KEY` + ingested ChromaDB
 
