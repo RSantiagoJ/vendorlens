@@ -1,4 +1,20 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vendorlens
+      POSTGRES_USER: vendorlens
+      POSTGRES_PASSWORD: vendorlens
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vendorlens"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -6,7 +22,33 @@ services:
     working_dir: /app
     env_file:
       - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://vendorlens:vendorlens@postgres:5432/vendorlens
     volumes:
       - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
     # Keep container alive for iterative dev; override per command.
     command: ["sh", "-c", "tail -f /dev/null"]
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /app
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://vendorlens:vendorlens@postgres:5432/vendorlens
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:

@@ -5,11 +5,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.lock.txt ./
+COPY requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.lock.txt
+    && pip install --no-cache-dir -r requirements.txt
+
+# Pre-download the embedding model so cold starts don't pay download time
+RUN python -c "from llama_index.embeddings.fastembed import FastEmbedEmbedding; \
+    FastEmbedEmbedding(model_name='BAAI/bge-small-en-v1.5')"
 
 COPY . .
 
-# Default command can be overridden by docker compose run.
-CMD ["python", "--version"]
+# Bake ChromaDB vectors into the image at build time.
+# FastEmbed runs locally — no API key needed. App Runner has no persistent disk,
+# so vectors must ship with the image.
+RUN python -m scripts.ingest
+
+CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}

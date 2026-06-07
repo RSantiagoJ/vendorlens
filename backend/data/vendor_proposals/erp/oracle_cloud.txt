@@ -1,0 +1,165 @@
+VENDOR PROPOSAL — Oracle Cloud ERP + Oracle Cloud HCM (Fusion Applications)
+Submitted In Response to: Enterprise Finance & HR Platform (ERP) RFP
+Date: March 3, 2026
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+Oracle is a global technology company and one of the two dominant ERP providers
+in higher education. Oracle Cloud Fusion Applications (Cloud ERP and Cloud HCM) is
+Oracle's modern SaaS ERP platform, designed to replace Oracle E-Business Suite and
+PeopleSoft — both of which Oracle continues to support in parallel.
+Headquarters: Austin, TX. Founded: 1977. Employees: 160,000+.
+Publicly traded: ORCL (NYSE). Annual revenue: ~$57B (FY2025).
+Oracle currently serves over 6,000 organizations on Cloud Fusion globally, including
+30+ North American higher education institutions.
+
+PRICING
+Oracle Cloud ERP (Financials, Procurement, Grants): $185 per named user per month
+Oracle Cloud HCM (Core HR, Payroll, Talent, Time): $160 per named user per month
+Combined ERP + HCM (named user license): $315 per named user per month
+Estimated annual subscription (650 named users): $2,457,000
+
+Additional module pricing (named user, per month):
+  - Oracle Cloud Projects (project accounting, grants): included in ERP base
+  - Oracle Cloud Payroll (US): included in HCM base
+  - Oracle AI Agents (Fusion AI — financial anomaly, HR recommendations): $45/user/month
+  - Oracle Analytics Cloud (advanced reporting, dashboards): $30/user/month
+  - Oracle Learning Cloud (LMS integration): $20/user/month
+
+Implementation and professional services:
+  - Implementation: $4,100,000–$5,800,000 estimated (Oracle Consulting and/or partner)
+    Oracle Consulting rate: $325–$425/hour (senior consultant)
+    Certified partner (Accenture, Deloitte, Infosys): $280–$380/hour
+  - Data migration: included in implementation estimate above; migrates 7 years of history
+  - Parallel payroll: Two pay cycles included in implementation scope
+Multi-year escalation: 3% annually on subscription fees
+Payment terms: Net 30, invoiced annually in advance
+
+CONTRACT TERMS
+Contract length: 3 or 5 years
+Auto-renewal: Renews for successive 1-year terms at then-current pricing
+Opt-out notice required: 60 days prior to renewal date
+Termination for convenience: 90 days written notice; prepaid annual subscription fees
+  non-refundable; no separate termination penalty
+Termination for cause: 30-day cure period for material breach
+Governing law: State of Texas
+Disputes: State or federal courts in Travis County, Texas
+  Note: Governing law is Texas, not institution's home state
+
+LIABILITY
+Maximum liability: 12 months of fees paid in prior year
+Payroll tax filing errors: Oracle bears IRS and state penalties caused by Oracle Payroll
+  calculation errors; customer must provide accurate setup data.
+  Penalty liability cap: $500,000 per calendar year aggregate (higher than Paylocity but capped)
+Data breach notification: Within 72 hours of Oracle's confirmed breach determination
+
+CORE ERP FUNCTIONALITY
+Oracle Cloud Fusion provides a deeply comprehensive ERP covering all standard
+financial management and HR/payroll requirements, with particular strength in grants
+management and multi-entity financial reporting.
+
+Financial Management:
+- General ledger with 30-segment chart of accounts flexibility
+- AP, AR, cash management, and asset management
+- Budget control with real-time commitment accounting and encumbrance tracking
+- Multi-fund, multi-entity accounting: operating, capital, plant, endowment, grant
+- Federal grant management: 2 CFR 200 / Uniform Guidance natively built-in;
+  Oracle's grants module is widely regarded as the most mature available in ERP
+- GASB compliance: Oracle Cloud ERP is pre-configured for GASB fund accounting
+  statements (GASB 34, 87, 96); standard financial statement package included
+- Fixed assets: full lifecycle management, depreciation, impairment
+- Procurement: iProcurement with catalog management, supplier portal, contract compliance
+- Expenses: Oracle Expenses with receipt scanning (mobile), policy enforcement, approval routing
+- Treasury: Oracle Cash Management; advanced treasury available
+
+Human Resources and Payroll:
+- Core HR: position management, workforce structures, unlimited org hierarchies
+- Payroll: US Payroll (all states, all employee types, all frequencies)
+- Faculty: academic appointment tracking, tenure eligibility, course load management
+- Graduate assistants: stipend and tuition waiver tracking natively supported
+  (Oracle Cloud HCM supports higher-ed specific employment types without add-on)
+- Benefits: open enrollment, life events, ACA tracking, carrier connections
+- Talent: performance, succession, recruiting (Oracle Recruiting Cloud included in HCM)
+- Time and Labor: Oracle Time & Labor included; shift differentials, complex rules supported
+- Retroactive pay: fully automated across all periods
+
+REGULATORY COMPLIANCE
+GASB: Pre-configured GASB fund accounting; standard GASB financial statements included
+2 CFR 200: Mature, native grants management; Oracle has deployed at R1 research universities
+IRS: W-2, 1099, ACA 1095-C (all included natively in Oracle Payroll)
+Multi-state: All 50 states in Oracle Payroll; no per-state surcharge
+Certified payroll (Davis-Bacon): Supported natively in Oracle Projects
+Foreign national payroll: Oracle Payroll supports 1042-S and tax treaty calculations natively
+FLSA: Full FLSA compliance automation including fluctuating workweek
+Accessibility (WCAG 2.1 AA): Oracle publishes VPATs for all products; last updated Q2 2025;
+  known gaps in Oracle Analytics Cloud dashboards; remediation timeline Q4 2026
+
+SECURITY AND COMPLIANCE
+SOC 2 Type II: Current (issued September 2025); available under NDA
+SOC 1 Type II (SSAE 18): Current; payroll and financial controls documented
+ISO 27001: Certified (issued March 2025, valid through 2028)
+FedRAMP: Oracle Cloud (OCI) authorized at FedRAMP High; Fusion Applications
+  on OCI — FedRAMP authorization in process, expected Q2 2026; not yet authorized
+Data Processing Agreement: Provided as standard; Oracle Cloud DPA is comprehensive
+DPA covers: FERPA, GLBA, CCPA/CPRA, EU GDPR, UK GDPR; state-specific schedule
+  explicitly includes Massachusetts Chapter 93H and Chapter 66A
+Data ownership: Institution owns all data; Oracle's rights limited to service delivery
+Oracle use of data: Oracle Fusion AI features may use anonymized operational data
+  to train AI models unless customer opts out via Oracle Privacy Settings.
+  Opt-out is available but must be explicitly requested at contract signing.
+Encryption: TLS 1.3 in transit; AES-256 at rest; Oracle Key Vault for key management
+Data portability: Full data extract via Oracle BI Publisher and OTBI; 60 days post-termination
+  (note: 60 days exceeds the 10-business-day requirement in RFP policy)
+Penetration testing: Annual; Oracle shares CSTAR results with customers under NDA
+
+INTEGRATIONS
+SIS: Oracle Campus Solutions (PeopleSoft SIS) — Oracle's native SIS, separate subscription.
+  Integration with Banner: Oracle Integration Cloud (OIC) connector, $18,000/year.
+  Ellucian Colleague: via OIC with professional services ($35,000 one-time setup).
+LMS: Oracle Learning Cloud (included in HCM); LTI 1.3 integration with Canvas, Blackboard.
+Banking: Bank of America, Citibank, JPMorgan, Wells Fargo certified connectors for ACH,
+  positive pay, and BAI2 cash management. Regional bank: NACHA file.
+Benefits: Oracle Benefits; carrier connections via EDI 834 for all major carriers.
+SSO: SAML 2.0 and OIDC; certified with Azure AD, Okta, Ping, Shibboleth, ADFS.
+Open API: Oracle REST APIs (ORDS); full read/write; Swagger/OpenAPI documentation published.
+
+ENTERPRISE READINESS
+Multiple entities: Oracle Cloud ERP handles unlimited legal entities, business units, and ledgers
+  in a single cloud environment
+Admin controls: Oracle security framework with data roles, job roles, and data access sets;
+  campus-level admin isolation supported via data access set configuration
+Volume: Oracle's largest single HCM deployment exceeds 200,000 workers globally
+System availability: 99.9% uptime SLA for production environment; financial penalty for breach
+DR: RTO ≤4 hours; RPO ≤1 hour; Oracle Cloud data centers are multi-region active-passive
+Historical uptime: Published at ocistatus.oracle.com
+
+Higher education references: Available for 12 institutions globally; 5 US references provided:
+  two major state university systems (25,000–60,000 employees), one land-grant university,
+  one large community college district, one private research university.
+  All have gone live with Oracle Cloud Fusion (ERP, HCM, or both) within past 60 months.
+
+IMPLEMENTATION & SUPPORT
+Implementation: Oracle Consulting or Oracle-certified implementation partner; customer chooses.
+  Oracle Consulting provides direct implementation for institutions that prefer vendor-led delivery.
+  All Oracle Consulting consultants are Oracle-certified; no offshore lead consultants for
+  higher education engagements.
+Timeline: 18–24 months for combined ERP + HCM (phased approach available).
+Post go-live support:
+- Oracle Success Services (Premium): dedicated Customer Success Manager, assigned
+  senior technical account manager (TAM), quarterly product roadmap briefings
+  (included for 5-year contracts; available at $85,000/year for 3-year contracts)
+- Oracle Support: 24/7 for Severity 1; business hours for Severity 2-4
+- Year-end: Oracle publishes detailed year-end checklists; dedicated year-end hotline available
+  November–January for Oracle-implemented customers
+- Quarterly business reviews and release readiness briefings included
+
+INTELLECTUAL PROPERTY
+Institution owns all data and custom configurations.
+Oracle retains platform IP. Custom extensions built using Oracle Extension Framework
+are owned by the institution. Third-party integrations built by institution are owned
+by the institution. Oracle Consulting deliverables (design documents, configuration workbooks)
+are owned by Oracle unless explicitly transferred via written agreement at contract signing.
+Note: IP transfer of Oracle Consulting deliverables requires explicit contract language;
+default is Oracle-owned — institutions should negotiate this at contract signing.

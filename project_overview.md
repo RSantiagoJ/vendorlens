@@ -23,8 +23,8 @@ Do not silently deviate from the plan — flag better approaches and explain why
 
 VendorLens automates the vendor proposal evaluation process for the UMass
 President's Office. It is grounded in a real procurement the office ran:
-the 2025-2026 Enterprise Social Media Posting and Listening Platform RFP
-(issued November 6, 2025, proposals due December 1, 2025).
+the 2025-2026 Enterprise Learning Management System (LMS) RFP
+(issued November 2025, proposals due December 1, 2025).
 
 A staff member uploads 2-3 vendor proposal PDFs. VendorLens:
 
@@ -42,7 +42,7 @@ like something they could use tomorrow, because it is.
 
 ## Why this is the right demo
 
-The Social Media Platform RFP is the perfect demo anchor because:
+The LMS RFP is the perfect demo anchor because:
 
 - Leadership issued it — they know the criteria, the pain points, the vendors
 - It involved multiple campuses and complex evaluation criteria
@@ -51,8 +51,8 @@ The Social Media Platform RFP is the perfect demo anchor because:
 
 Demo narrative:
 "This is the RFP your committee issued in November 2025. These are three
-fictional vendor responses. Watch VendorLens evaluate them against your
-actual criteria and policy in 15 seconds."
+fictional vendor responses from real LMS companies. Watch VendorLens evaluate
+them against your actual criteria and policy in 15 seconds."
 
 That is not a hypothetical. That is their work.
 
@@ -61,21 +61,20 @@ That is not a hypothetical. That is their work.
 ## Resume description
 
 "Built VendorLens, a multi-agent RAG application using LangGraph and LlamaIndex
-with a FastAPI backend, integrating Claude and Gemini Pro across specialized
+with a FastAPI backend, integrating Claude Sonnet/Haiku across four specialized
 agents with MCP tool calling, automated rubric scoring grounded in real
-procurement policy, and LangSmith observability. Deployed on Railway."
+procurement policy, and prompt caching for cost efficiency. Deployed on AWS App Runner + Vercel."
 
 ## Keywords covered
 
-- LLM integrations — Claude (Anthropic) + Gemini Pro across agents
-- RAG pipeline — LlamaIndex + ChromaDB semantic retrieval
+- LLM integrations — Claude Sonnet 4.6 + Haiku 4.5 (Anthropic)
+- RAG pipeline — LlamaIndex + ChromaDB + FastEmbed (local embeddings, no API cost)
 - Agents and agentic workflows — LangGraph multi-agent orchestration
 - Tool / function calling — MCP servers
-- Prompt strategies — per-agent structured output prompts
+- Prompt strategies — per-agent structured output prompts, prompt caching
 - Evals — automated rubric scoring agent
-- Observability — LangSmith tracing
 - API development — FastAPI
-- Deployment — Railway + Vercel, public URLs on resume
+- Deployment — AWS App Runner (backend) + Vercel (frontend)
 
 ---
 
@@ -83,12 +82,11 @@ procurement policy, and LangSmith observability. Deployed on Railway."
 
 - Backend: Python 3.11+ / FastAPI
 - Agent orchestration: LangGraph
-- RAG: LlamaIndex + ChromaDB
-- Models: Claude Sonnet 4.6 (Anthropic) + Gemini Pro (Google)
+- RAG: LlamaIndex + ChromaDB + FastEmbed (BAAI/bge-small-en-v1.5, runs locally)
+- Models: Claude Sonnet 4.6 (extraction, risk, memo) + Claude Haiku 4.5 (scoring)
 - Tool protocol: MCP (Model Context Protocol)
-- Observability: LangSmith
-- Frontend: Next.js + TypeScript + Tailwind CSS
-- Deployment: Railway (backend) + Vercel (frontend)
+- Frontend: Next.js + TypeScript + Mantine UI
+- Deployment: AWS App Runner (backend) + Vercel (frontend)
 
 ## What success looks like
 

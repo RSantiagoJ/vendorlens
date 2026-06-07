@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+body {
+  background: #f5f5f5 !important;
+}
+
+*::placeholder {
+  color: var(--mantine-color-gray-7) !important;
+  opacity: 1;
+}
+
+.fadeIn {
+  animation: 90ms ease-out fadeIn;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes stagePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 142, 245, 0); }
+  50% { box-shadow: 0 0 0 3px rgba(59, 142, 245, 0.22); }
+}
+
+.stage-active {
+  animation: stagePulse 2s ease-in-out infinite;
+}
+
+.dim-row {
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin: 0 -5px;
+  transition: background 100ms ease;
+}
+.dim-row:hover {
+  background: var(--mantine-color-gray-0);
+}
+
+/* Memo markdown rendering */
+.memo-content h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--mantine-color-dark-8);
+}
+.memo-content h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--mantine-color-dark-8);
+}
+.memo-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.25rem;
+  color: var(--mantine-color-dark-7);
+}
+.memo-content p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin: 0.5rem 0;
+  color: var(--mantine-color-dark-7);
+}
+.memo-content ul,
+.memo-content ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+.memo-content li {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--mantine-color-dark-7);
+  margin-bottom: 0.2rem;
+}
+.memo-content strong {
+  font-weight: 600;
+  color: var(--mantine-color-dark-8);
+}
+.memo-content hr {
+  border: none;
+  border-top: 1px solid var(--mantine-color-gray-3);
+  margin: 1rem 0;
+}
+.memo-content blockquote {
+  border-left: 3px solid var(--mantine-color-umgreen-5);
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: var(--mantine-color-gray-7);
+  font-style: italic;
+}
+
+/* Print / Save as PDF */
+@media print {
+  /* Show only the results report */
+  body * { visibility: hidden; }
+  #print-report, #print-report * { visibility: visible; }
+  #print-report {
+    position: absolute;
+    inset: 0;
+    padding: 2rem;
+  }
+
+  /* Remove decorative shadows and borders */
+  .mantine-Paper-root { box-shadow: none !important; }
+
+  /* Expand scroll areas so full memo prints */
+  .mantine-ScrollArea-root,
+  .mantine-ScrollArea-viewport {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* Hide buttons and interactive controls */
+  [data-print-hide], button { display: none !important; }
+
+  /* Keep vendor cards on page, avoid mid-card page breaks */
+  .mantine-Paper-root { break-inside: avoid; }
+}

@@ -1,0 +1,158 @@
+VENDOR PROPOSAL — Workday Financial Management + Workday HCM
+Submitted In Response to: Enterprise Finance & HR Platform (ERP) RFP
+Date: March 3, 2026
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+Workday is a leading cloud-based enterprise software company providing financial management
+and human capital management applications. Workday has become the dominant ERP replacement
+for higher education, displacing Banner and PeopleSoft at dozens of universities annually.
+Headquarters: Pleasanton, CA. Founded: 2005. Employees: 21,000+.
+Publicly traded: WDAY (NASDAQ). Annual revenue: ~$8.4B (FY2026).
+Workday serves over 50 U.S. higher education institutions including flagship state universities,
+Ivy League institutions, and large multi-campus systems.
+
+PRICING
+Workday Financials + HCM (combined subscription):
+Base annual subscription: $3.20 per worker per day (blended, all worker types)
+Estimated annual subscription (3,200 workers): $3,731,200
+
+Alternatively, module-based subscription (institution's choice):
+  - Workday Financials only: $2.10/worker/day
+  - Workday HCM only: $1.45/worker/day
+  - Workday Payroll (US): included with HCM
+  - Workday Student (if replacing SIS): separate quote
+
+Implementation and professional services:
+  - Implementation: $3,200,000–$4,100,000 estimated (time-and-materials; see note below)
+    Delivered by Workday-certified implementation partner (see list below)
+    Workday does not directly implement; customers must engage a certified partner.
+  - Note: Implementation billed by partner at partner rates; Workday does not control
+    or guarantee partner pricing or timeline. Workday provides Deployment Services
+    oversight and post-go-live technical support only.
+  - Data migration: Included in partner implementation scope; partner-priced separately
+  - Parallel payroll processing: Two pay cycles standard; partner-managed
+
+Workday-certified implementation partners (regional examples):
+  - Deloitte Consulting: $380–$450/hour (recommended for multi-campus)
+  - Huron Consulting: $320–$390/hour (higher education specialty)
+  - Sierra-Cedar: $280–$350/hour (midmarket HE focus)
+
+Multi-year escalation: 4% annually on subscription fees, automatic
+Payment terms: Net 30, invoiced annually in advance
+
+CONTRACT TERMS
+Contract length: 3 years (standard); 5-year available with 8% discount
+Auto-renewal: Renews for successive 1-year terms at then-current pricing
+Opt-out notice required: 60 days prior to renewal date
+Termination for convenience: 90 days written notice; prepaid annual fees non-refundable;
+  no termination penalty beyond forfeited prepaid subscription
+Termination for cause: 30-day cure period
+Governing law: State of California
+Disputes: Binding arbitration under JAMS rules; California seat; customer waives jury trial
+  Note: Governing law is California, not institution's home state — may require legal review
+
+LIABILITY
+Maximum liability: 12 months of fees paid in prior year
+Tax filing errors (Workday Payroll): Workday bears IRS penalties for errors in
+  Workday-calculated tax filings, subject to customer providing accurate input data.
+  Penalty cap: $250,000 per calendar year aggregate.
+  Note: Penalty liability cap of $250,000 may be insufficient for a payroll of this size.
+Data breach notification: Within 72 hours of Workday's confirmed breach determination
+
+CORE ERP FUNCTIONALITY
+Workday Financials is a unified accounting and financial management platform.
+Workday HCM combines HR, payroll, benefits, talent, and time in a single data model.
+
+Financial Management:
+- General ledger with unlimited worktag dimensions (replaces chart of accounts)
+- Accounts payable and accounts receivable
+- Budget development, monitoring, and variance reporting
+- Multi-entity and multi-fund accounting: operating, capital, plant, endowment, grants
+- Federal grant management: 2 CFR 200 / Uniform Guidance native; sponsored programs tracking
+- GASB financial reporting: Workday has published GASB 87, 96 configuration guides;
+  GASB compliance requires specific configuration; out-of-box is not pre-configured for GASB
+- Fixed assets: asset capitalization, depreciation, and disposal
+- Procurement: purchase orders, vendor master, contract lifecycle management
+- Expense management: employee expense reports, receipt capture, policy enforcement
+- Cash and treasury: bank reconciliation, cash forecasting; advanced treasury not included
+
+Human Resources and Payroll:
+- Full HCM: position management, compensation, benefits, talent, succession
+- Payroll (US): all employee types, all frequencies; continuous payroll calculation model
+- Faculty workload management: course load tracking, effort reporting in development
+- Graduate assistant and student worker support: requires Workday Student or custom config
+  (Workday Student is a separate, additional subscription; without it, student worker
+  management requires manual workaround for academic-year appointment tracking)
+- Time tracking: Workday Time (included); integration with badging systems via partner
+- Retro pay: automated; configurable retro pay rules per compensation plan
+
+REGULATORY COMPLIANCE
+GASB: Workday supports GASB reporting through configuration; not pre-built for GASB out-of-box.
+  Customer must configure GASB-compliant statements with partner assistance during implementation.
+2 CFR 200: Native grant management module; Workday has deployed at major research universities.
+IRS: W-2, 1099, ACA 1095-C native in Workday Payroll
+Multi-state payroll tax: All 50 states supported in Workday Payroll
+FLSA: Automated regular rate calculations; configurable for complex FLSA scenarios
+Foreign national payroll: Workday integrates with Windstream or Sprintax for 1042-S (partner product)
+Accessibility (WCAG 2.1 AA): Current VPAT available; some known gaps in legacy Workday components;
+  third-party audit completed Q1 2025; remediation roadmap published
+
+SECURITY AND COMPLIANCE
+SOC 2 Type II: Current (issued October 2025); report available under NDA
+SOC 1 Type II (SSAE 18): Current; payroll processing controls documented
+ISO 27001: Certified (issued June 2025)
+FedRAMP: Workday Government Cloud authorized at FedRAMP Moderate;
+  commercial Workday (proposed here) is not FedRAMP authorized
+Data Processing Agreement: Provided as standard
+DPA covers: FERPA, GLBA, CCPA/CPRA; general state privacy clause for additional states
+Data ownership: Institution owns all data
+Workday use of data: Aggregated, anonymized data used to train Workday Illuminate AI features.
+  Opt-out available; may reduce effectiveness of AI-powered features for the institution.
+Encryption: TLS 1.3 in transit; AES-256 at rest; customer-managed encryption keys available
+Data portability: Full export via Workday Data Export; 30 days post-termination
+Penetration testing: Annual; executive summary available to customers upon request
+
+INTEGRATIONS
+SIS: Workday Student is Workday's SIS product (separate subscription); integration with
+  Banner, PeopleSoft, and Ellucian available via certified connectors (partner-built).
+  Ellucian Banner integration: Certus Logic connector, $28,000/year (partner product).
+LMS: Workday Learning (add-on); LTI 1.3 integration with Canvas, Blackboard available
+  via community-built connectors. Not a native Workday integration.
+Banking: Bank of America, JPMorgan, Wells Fargo native connectors for ACH and positive pay.
+  Other banks via generic NACHA file.
+Benefits carriers: Benefits connector integration with major carriers (BCBS, Aetna, UnitedHealth);
+  EDI 834 for all others
+SSO: SAML 2.0; certified with Azure AD, Okta, Ping, Shibboleth
+Open API: REST API (Workday Web Services) — full read/write; published RAML documentation
+
+ENTERPRISE READINESS
+Multiple entities: Full multi-entity support; separate companies, EINs, fund structures
+Admin controls: Workday security model uses role-based security groups; configurable per domain
+Volume: Workday's largest higher education customer has 70,000+ workers in single tenant
+System availability: 99.7% uptime SLA; financial penalty for breach
+DR: RTO ≤4 hours; RPO ≤1 hour; geographically distributed data centers (AWS)
+Historical uptime: Published at workdaystatus.com (public)
+
+Higher education references: Available for 8 institutions. Includes two Power Five university systems
+(35,000–55,000 employees), three mid-size state universities, and three private universities.
+All went live within past 48 months.
+
+IMPLEMENTATION & SUPPORT
+Implementation: Customer must select a Workday-certified implementation partner.
+  Workday provides Deployment Services (technical oversight) as part of subscription.
+  Partner selection and contracting is the institution's responsibility.
+Timeline: 18–30 months for combined Financials + HCM (varies by scope and partner).
+Post go-live support:
+- Workday Customer Success Manager: included for all enterprise accounts
+- Workday support: 24/7 Severity 1 support via Workday Community
+- Year-end: Workday publishes year-end preparation guides; no dedicated year-end support line
+- Community: Workday Community portal; higher education user group (HEUG) is active
+- Subscription includes all future Workday releases (2 major releases per year)
+
+INTELLECTUAL PROPERTY
+Institution owns all data, configurations, and custom integrations.
+Workday owns platform IP, including configuration templates and report layouts created
+by Workday professional services. Custom reports built by institution are owned by institution.

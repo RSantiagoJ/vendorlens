@@ -1,0 +1,94 @@
+VENDORLENS RFP EVALUATION CRITERIA
+Source: Higher Education Enterprise Learning Management System (LMS) RFP
+Scope: Multi-campus university system — all academic campuses and administrative units
+
+EVALUATION DIMENSIONS AND WEIGHTS
+Scale: each dimension is scored 0–10. The weighted average is the overall score.
+Weights sum to exactly 1.00, so the maximum possible overall score is 100.0.
+
+core_lms_functionality         weight: 0.20
+accessibility_compliance       weight: 0.15
+integration_interoperability   weight: 0.10
+pricing_and_licensing          weight: 0.10
+security_and_compliance        weight: 0.20
+support_and_training           weight: 0.10
+enterprise_readiness           weight: 0.05
+innovation_roadmap             weight: 0.05
+risk_level                     weight: 0.05 (inverted — higher score = fewer HIGH risk flags)
+                               ────────────
+TOTAL WEIGHT:                             1.00  →  maximum overall score = 100.0
+
+STATED PRIORITIES FROM RFP
+
+"The University seeks a scalable, faculty-friendly LMS that supports diverse
+instructional modalities — in-person, hybrid, and fully online — across all campuses."
+
+"Seamless integration with existing student information and identity systems
+is essential to minimizing administrative burden and ensuring data accuracy."
+
+"The University is committed to digital accessibility and expects full WCAG 2.1 AA
+compliance and current Section 508 conformance documentation from all vendors."
+
+"Total cost of ownership over a multi-year term, including migration, training,
+and integration costs, must be fully disclosed in the proposal."
+
+CRITICAL (REQUIRED) FUNCTIONALITY — RFP Section 4
+
+- Course creation, management, and archiving for all modalities
+- Assignment submission, grading, and rubric-based assessment tools
+- Gradebook with grade passback to Student Information System (SIS)
+- Discussion boards and real-time collaboration tools
+- Announcement and messaging tools with email and mobile notifications
+- Campus sub-tenants with isolated course catalogs, roles, and branding
+- Tiered user roles: system admin, campus admin, instructor, student, auditor
+- Content authoring tools or native SCORM/xAPI/LTI 1.3 support
+- Video integration: lecture capture, embedded streaming, caption support
+- Mobile-native app for iOS and Android (full feature parity, not read-only)
+- Learning analytics dashboard: student engagement, at-risk indicators
+- Accessible alt text and caption support for all uploaded media
+- Bulk course enrollment and SIS roster sync
+- Plagiarism detection integration (e.g., Turnitin)
+
+ACCESSIBILITY NOTE
+Section 508 and WCAG 2.1 AA conformance are federal requirements for institutions
+receiving federal funding. A current VPAT (tested within the last year) is required.
+Vendors must disclose any known gaps, particularly in third-party LTI tools.
+Caption support for all video content is mandatory.
+
+PREFERRED FUNCTIONALITY — RFP Section 4
+
+- AI-assisted grading, feedback suggestions, and early alert flagging
+- Advanced learning analytics: cohort comparisons, outcome mapping
+- Competency-based education (CBE) and badge/micro-credential support
+- ePortfolio integration or native tool
+- Proctoring integration (remote and in-person)
+- SSO via SAML 2.0 and support for institutional IdP (e.g., Shibboleth)
+- Native integration with Microsoft Teams and/or Zoom
+- Open API with full read/write access for institutional custom development
+- Peer review and group project collaboration tools
+- Granular content versioning and course copy/template tools
+- Multi-language support and internationalization
+- QM (Quality Matters) or similar course quality framework alignment
+
+REQUIRED PROPOSAL DELIVERABLES — RFP Section 6
+
+- Pricing breakdown: per-student FTE and total cost for all campuses
+- Multi-year pricing with escalation clause fully disclosed
+- A la carte pricing for add-on modules (proctoring, analytics, ePortfolio)
+- VPAT in HTML or accessible PDF format, tested within the last year
+- LTI 1.3 and API integration documentation
+- SIS integration compatibility matrix (Banner, Workday, PeopleSoft, Ellucian)
+- At least three higher education customer references (multi-campus preferred)
+- Uptime SLA and incident history for prior 24 months
+- Data migration plan and estimated timeline from current LMS
+- Training and faculty onboarding plan with cost breakdown
+- Data export documentation: formats, scope, and timeline at termination
+- Roadmap for next 18–24 months including AI feature development
+- Security certifications and most recent penetration test summary
+- DPA template addressing FERPA, GLBA, Massachusetts Ch. 93H and Ch. 66A
+
+EVALUATION PROCESS CONTEXT
+
+VendorLens handles the written proposal evaluation phase. The committee
+also conducts: live product demonstrations, sandbox trials for faculty pilot
+groups, accessibility testing with assistive technology users, and reference checks.

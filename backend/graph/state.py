@@ -72,10 +72,12 @@ class DimensionScore(BaseModel):
 class ScoreCard(BaseModel):
     platform_functionality: DimensionScore
     accessibility_compliance: DimensionScore
+    integration_capability: DimensionScore
     pricing_transparency: DimensionScore
     security_and_compliance: DimensionScore
     support_and_training: DimensionScore
     enterprise_readiness: DimensionScore
+    innovation_roadmap: DimensionScore
     risk_level: DimensionScore
     overall: float
 
@@ -86,10 +88,10 @@ class ScoreCard(BaseModel):
 
 class ProposalState(BaseModel):
     filename: str
-    raw_text: str
     extracted: Optional[ProposalData] = None
     risks: Optional[List[RiskFlag]] = None
     scores: Optional[ScoreCard] = None
+    error: Optional[str] = None  # set when vendor_node processing fails
 
 
 # ---------------------------------------------------------------------------

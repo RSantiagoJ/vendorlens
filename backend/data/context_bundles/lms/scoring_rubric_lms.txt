@@ -1,0 +1,230 @@
+VENDORLENS SCORING RUBRIC
+Source: Derived from Higher Education Enterprise Learning Management System (LMS) RFP
+Scale: 0–10 per dimension. All scores rounded to one decimal place.
+Weights sum to 1.00. Maximum possible overall score is 10.0.
+
+Overall score = weighted sum of all dimension scores × their weights (defined in rfp_criteria_lms.txt).
+A perfect vendor scores 10.0. No vendor can score above 10.0.
+
+---
+
+CORE LMS FUNCTIONALITY (weight: 0.20)
+
+Evaluate: course management, assignment and grading tools, gradebook with SIS passback,
+discussion and collaboration tools, video integration, mobile app feature parity,
+content standards support (SCORM, xAPI, LTI 1.3), learning analytics, plagiarism detection
+
+10 = All critical RFP functionality fully documented and included in base price.
+     Full-featured mobile app (iOS and Android) with parity to desktop.
+     LTI 1.3 and xAPI supported natively. Gradebook integrates with all major SIS platforms.
+     Learning analytics with at-risk student flagging. Plagiarism tool integration included.
+
+7-9 = Most required functionality documented and present. Minor gaps in preferred features
+      (e.g., AI-assisted grading as add-on, limited peer review tooling, partial SIS support).
+
+4-6 = Core course and assignment tools present. Notable gaps: mobile app is read-only,
+      gradebook passback requires custom integration, LTI 1.1 only (not 1.3),
+      or analytics limited to basic reporting.
+
+1-3 = Minimal functionality documented. Major required features absent, vague,
+      or only available as high-cost add-ons.
+
+0 = Core course management absent or critically underdocumented.
+
+---
+
+ACCESSIBILITY COMPLIANCE (weight: 0.15)
+
+Evaluate: VPAT currency (within 1 year of proposal date), WCAG 2.1 AA conformance,
+Section 508 compliance, caption support for all video content,
+keyboard navigability, screen reader compatibility (NVDA, JAWS, VoiceOver)
+
+Federal funding requires Section 508 and WCAG 2.1 AA compliance.
+VPAT must have been tested within the last year of the proposal date.
+Vendors must disclose any known gaps in core platform or third-party LTI tools.
+
+10 = Current VPAT (tested within 1 year) via third-party audit. Full WCAG 2.1 AA
+     documented. All video content supports automated and manual captioning.
+     Platform passes screen reader testing on NVDA, JAWS, and VoiceOver.
+     Known accessibility gaps in LTI tools disclosed and remediation timeline provided.
+
+7-9 = VPAT within 1 year. Most accessibility criteria met. Minor gaps disclosed
+      (e.g., one LTI tool pending remediation, partial keyboard nav in advanced editor).
+
+4-6 = VPAT present but older than 1 year, or self-assessed without third-party audit.
+      WCAG compliance claimed but not fully documented. Caption support present
+      but requires manual upload; no automated captioning.
+
+1-3 = VPAT available on request only. Section 508 status unclear. Significant
+      known gaps not addressed. No caption support documented.
+
+0 = No VPAT, no accessibility documentation, WCAG and Section 508 status unknown.
+
+---
+
+INTEGRATION AND INTEROPERABILITY (weight: 0.15)
+
+Evaluate: SIS integration compatibility (Banner, Workday, PeopleSoft, Ellucian),
+SSO/SAML 2.0 support, open API availability, LTI 1.3 certification,
+Microsoft Teams and Zoom integration, data export formats and portability
+
+10 = Native certified integrations with all major SIS platforms. SAML 2.0 SSO
+     with Shibboleth and Azure AD. Full open REST API with read/write access
+     and published documentation. LTI 1.3 certified. Native Teams and Zoom integration
+     included in base price. Complete course and grade data exportable in standard formats.
+
+7-9 = Integrates with most major SIS platforms. SSO supported. API available with
+      reasonable documentation. LTI 1.3 supported. Minor gaps (e.g., Teams integration
+      at additional cost, one SIS requires middleware).
+
+4-6 = SIS integration via flat-file or basic API only. SSO supported but limited IdP
+      compatibility. LTI 1.1 only. API read-only or requires vendor professional services.
+      Data export available but in proprietary formats.
+
+1-3 = SIS integration requires significant custom development. SSO not supported natively.
+      No published API. Data portability limited or costly.
+
+0 = No documented integrations, no API, data portability not addressed.
+
+---
+
+PRICING AND LICENSING (weight: 0.10)
+
+Evaluate: per-student FTE pricing, all-campus total cost of ownership,
+migration and implementation costs disclosed, multi-year escalation clause,
+add-on module pricing transparency, training and support costs included
+
+10 = Fixed per-student FTE pricing with no escalation for full contract term.
+     All campuses and core modules included in base price. Migration, data transfer,
+     and implementation assistance included at no cost. Training included.
+     No hidden overages for additional users or courses.
+
+7-9 = Mostly transparent. Minor add-on costs disclosed upfront (e.g., advanced analytics
+      module, proctoring integration). Small annual escalation (under 3%) disclosed.
+      Migration cost estimate provided.
+
+4-6 = Per-student pricing present but escalation clause of 3-5% per year.
+      Migration and implementation costs not fully disclosed or quoted separately.
+      Some core modules (e.g., gradebook passback, mobile app) priced as add-ons.
+
+1-3 = Pricing opaque for multi-campus scenarios. Escalation above 5%. Migration costs
+      not addressed. Hidden overages for course count, storage, or concurrent users.
+
+0 = No per-campus pricing, no multi-year cost predictability, significant undisclosed costs.
+
+---
+
+SECURITY AND COMPLIANCE (weight: 0.20)
+
+Evaluate: SOC 2 Type II or ISO 27001 (current), FERPA-compliant DPA standard
+(not on request), IR/DR documentation provided, university data ownership explicit,
+no vendor use of student data beyond service delivery, penetration test results available
+
+10 = SOC 2 Type II AND/OR ISO 27001 current certificates provided with proposal.
+     DPA provided as standard, explicitly addresses FERPA, GLBA, Massachusetts Ch. 93H
+     and Ch. 66A. IR plan and DR documentation included. University owns all student
+     and institutional data. Vendor does not use student data for AI training,
+     benchmarking, or product improvement. Penetration test summary available under NDA.
+
+7-9 = Strong security posture. Certifications current. DPA available and FERPA-compliant.
+      Minor documentation gaps (e.g., DR summary only, pen test not yet available).
+
+4-6 = SOC 2 Type I only (Type II in progress), or DPA available on request only.
+      FERPA compliance claimed but DPA language vague on student data use.
+      IR/DR docs incomplete or require NDA to view.
+
+1-3 = No current certifications. DPA not mentioned or not FERPA-compliant.
+      Student data use practices unclear or concerning. No IR/DR documentation.
+
+0 = No certifications, no DPA, FERPA compliance unaddressed, student data rights
+    not explicitly protected.
+
+---
+
+SUPPORT AND TRAINING (weight: 0.10)
+
+Evaluate: support tier and hours, contractually defined SLAs, dedicated CSM,
+faculty onboarding program, ongoing training resources, migration support
+
+10 = 24/7 support for P1 incidents with contractually defined response and
+     resolution times. Dedicated Customer Success Manager and dedicated
+     implementation manager included at no cost. Comprehensive faculty onboarding
+     program included. Self-service LMS training library and live webinar schedule
+     included. Full migration support included with dedicated project manager.
+
+7-9 = Strong support. Most elements present. CSM included or at modest cost.
+      Faculty training program included but limited in scope or duration.
+      Migration supported but some professional services costs apply.
+
+4-6 = Business hours support. Response times defined but no financial SLA penalty.
+      Dedicated support only during implementation window. Training available
+      at per-session or per-module cost. Migration is self-service with documentation only.
+
+1-3 = Ticket-only support. No contractual SLAs. No dedicated contact.
+      Training not included. Migration guidance not provided.
+
+0 = No defined support, no training, no migration assistance.
+
+---
+
+ENTERPRISE READINESS (weight: 0.10)
+
+Evaluate: multi-campus tenant isolation, campus-level branding and configuration,
+system-level and campus-level admin controls, scalability documentation,
+disaster recovery uptime history, sandbox and pilot environment availability
+
+10 = Fully documented multi-tenant architecture. Each campus has isolated course catalog,
+     user directory, branding, and analytics. System-level and campus-level admin roles
+     fully separated. Documented 99.9%+ uptime with published incident history.
+     Sandbox environment provided immediately at no cost for faculty pilots.
+     Scales to 100k+ concurrent users documented.
+
+7-9 = Strong multi-campus support. Minor limitations (e.g., shared branding elements,
+      sandbox only available pre-contract, role separation limited at campus level).
+
+4-6 = Basic multi-campus support via sub-accounts. Limited admin role granularity.
+      Uptime SLA present but no published incident history. Sandbox available
+      for short trial period only.
+
+1-3 = Designed primarily for single-institution use. Multi-campus requires custom
+      professional services engagement. No sandbox. Uptime history not provided.
+
+0 = No multi-tenant architecture, no admin isolation, no test environment.
+
+---
+
+INNOVATION & AI ROADMAP (weight: 0.05)
+
+Evaluate: 18-24 month product roadmap transparency, AI/ML feature development plans,
+release cadence, R&D investment evidence, responsiveness to higher education community feedback
+
+10 = Detailed 18-24 month roadmap with committed feature timelines provided with proposal.
+     Explicit AI/ML capability plan (e.g., AI-assisted grading, early alert, auto-captioning,
+     adaptive learning). Clear release cadence with version history.
+     Documented higher education advisory board or user community influencing roadmap.
+     R&D investment percentage or dedicated headcount disclosed.
+
+7-9 = Roadmap provided for 12-18 months. AI features identified but timelines less specific.
+      Regular release cycle evident. Community feedback mechanisms documented.
+
+4-6 = High-level roadmap only. AI features mentioned but no committed timeline.
+      Release history shows infrequent major updates. Minimal detail on how customer
+      feedback influences development.
+
+1-3 = Vague or aspirational roadmap. No AI development plan. Unclear release cadence.
+      No evidence of active product investment.
+
+0 = No roadmap provided. Product appears stagnant or end-of-life status unclear.
+
+---
+
+RISK LEVEL (weight: 0.05 — INVERTED: higher score = fewer HIGH severity risk flags)
+
+10 = Zero HIGH severity risk flags
+7  = One HIGH severity risk flag
+4  = Two HIGH severity risk flags
+0  = Three or more HIGH severity risk flags
+
+Note: This dimension is directly derived from the Risk Agent output.
+MEDIUM and LOW severity flags do not affect this score but are reported separately.
+

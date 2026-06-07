@@ -1,0 +1,165 @@
+VENDOR PROPOSAL — Blackboard Learn Ultra (Anthology Inc.)
+Submitted to: University of Massachusetts System
+In Response to: Enterprise Learning Management System RFP
+Date: November 28, 2025
+
+NOTE: This is a fictional proposal created for demonstration purposes.
+Vendor name is real; all pricing, contract terms, and specifics are invented.
+
+COMPANY OVERVIEW
+Blackboard, now operating as part of Anthology Inc. following its merger, is one
+of the longest-established LMS providers in higher education. Anthology serves
+over 3,000 institutions in 80 countries.
+Headquarters: Boca Raton, FL (US operations). Parent: Anthology Inc., Raleigh, NC.
+Employees: 4,000+.
+
+PRICING
+Base platform fee: $44 per enrolled FTE student per year
+Estimated total Year 1 (60,000 FTE): $2,640,000
+Year 2 escalation: 6% applied automatically ($2,798,400)
+Year 3 escalation: 6% applied automatically ($2,966,304)
+Per-campus onboarding and configuration: $18,000 per campus (first two included)
+Implementation and migration: Professional services required, estimated $95,000
+(billed separately, not included in base price)
+Add-on modules (priced separately, annual):
+  - Anthology Intelligence (AI-assisted grading and early alerts): $8/FTE/year
+  - Advanced Analytics and Outcomes Mapping: $5/FTE/year
+  - Anthology Ally (accessibility auto-remediation): $3/FTE/year
+  - Proctoring integration (ProctorU): $12/FTE/year
+Payment terms: Net 30, invoiced annually in advance, non-refundable
+
+CONTRACT TERMS
+Contract length: 3 years, non-negotiable
+Auto-renewal: Automatically renews for successive 1-year terms
+Opt-out notice required: 30 days prior to renewal date
+Termination for convenience: 180 days written notice required plus
+payment of 40% of remaining contract value as termination fee
+Termination for cause: 90 days to cure, no refund of prepaid fees
+Governing law: State of North Carolina
+
+LIABILITY
+Maximum liability: $50,000 (fixed cap regardless of contract value)
+Excludes all data loss, consequential damages, and FERPA-related claims
+Data breach liability: capped at $25,000 per incident
+
+CORE LMS FUNCTIONALITY
+Blackboard Learn Ultra is a modern, rebuilt LMS interface on the Blackboard platform.
+
+Course management:
+- Course creation, copying, and archiving for all modalities
+- Course templates and cross-listing support
+- Batch course creation via CSV import
+
+Assignment and assessment:
+- Assignment submission with inline grading
+- Rubric-based assessment tools
+- Gradebook with calculated columns and weighted grades
+- Grade passback to SIS: Banner and Workday supported natively; Ellucian and
+  PeopleSoft require professional services integration (additional cost, 8-12 weeks)
+
+Collaboration:
+- Discussion boards with threading
+- Group projects and peer review (limited; full peer review requires third-party LTI)
+- Announcements and messaging with email notifications
+
+Content standards:
+- SCORM 1.2 and 2004 supported
+- xAPI (Tin Can): supported via third-party LRS integration only
+- LTI 1.1 certified; LTI 1.3 in active development, expected GA Q2 2026
+
+Video:
+- Kaltura integration available (additional cost, $6/FTE/year)
+- Built-in video recording via Blackboard Collaborate (included)
+- Automated captioning: available via Kaltura only; not native to platform
+
+Mobile application:
+- iOS app: full feature parity on core functions
+- Android app: available; some advanced grading features web-only
+- Offline access: content download for reading (iOS only)
+
+Learning analytics:
+- Instructor-level engagement dashboards included
+- At-risk student flagging: available in Anthology Intelligence add-on only
+- System-wide analytics: available in Advanced Analytics add-on only
+
+Plagiarism detection:
+- Turnitin integration available (Turnitin licensing billed separately)
+- SafeAssign (native): included in base price
+
+ACCESSIBILITY
+VPAT: Available upon request. Last third-party audit: April 2024.
+WCAG 2.1 AA: Claimed for core platform. Known gaps: advanced math equation
+editor, certain content editor components. Remediation timeline not disclosed.
+Section 508: Conformance documentation available upon request.
+Caption support: Automated captions available via Kaltura add-on only.
+Manual caption upload: .srt files supported.
+Screen reader testing: JAWS and NVDA tested internally; VoiceOver not documented.
+Anthology Ally (auto-remediation for uploaded documents): available as add-on.
+
+SECURITY AND COMPLIANCE
+Security certifications: SOC 2 Type I (SOC 2 Type II audit in progress, expected Q3 2026)
+ISO 27001: Not currently certified
+Data Processing Agreement: Available upon request, not provided as standard
+DPA covers: FERPA. Does not explicitly address Massachusetts Ch. 93H or Ch. 66A.
+Incident Response plan: Available upon request.
+Disaster Recovery: Documentation available after NDA execution.
+University data: Anthology uses anonymized usage and engagement data for
+product improvement, benchmarking studies, and AI model training. Opt-out
+requires written request and is evaluated case-by-case.
+Data ownership: University owns raw course content and student records.
+Anthology retains rights to aggregated analytics and usage metadata.
+Data portability: Export available in IMS Common Cartridge and CSV.
+Export window: 60 days post-termination. Bulk export via professional services
+at additional cost.
+Encryption: TLS 1.2 in transit, AES-128 at rest
+Penetration testing: Annual; results not shared with customers.
+
+INTELLECTUAL PROPERTY
+Platform configurations, course templates, and workflow customizations created
+during implementation are considered Anthology proprietary work product.
+University retains ownership of raw course content and student data only.
+
+INTEGRATIONS
+SSO: SAML 2.0 supported, tested with Shibboleth and Azure AD
+SIS: Banner (native), Workday (native), PeopleSoft and Ellucian via middleware
+Microsoft Teams: Integration available, requires separate Microsoft licensing
+Zoom: Integration available, included in base price
+Open API: REST API available; read-only for most endpoints. Write access
+requires Anthology partner agreement (additional cost).
+LTI 1.3: In development, not yet production-ready (expected Q2 2026)
+
+SERVICE LEVEL AGREEMENT
+Uptime target: 99% (allows approximately 87 hours downtime per year)
+Scheduled maintenance: Up to 8 hours per month, not counted against uptime
+Support response: Best effort. No contractually defined response time SLAs.
+No financial penalties for SLA breach.
+
+SUPPORT AND TRAINING
+Support hours: Monday-Friday 8am-8pm ET
+Contact methods: Support portal and email. Phone support: Premier tier only.
+Dedicated customer success manager: Not included; available at $18,000/year
+Onboarding: Two recorded webinars and access to Anthology Academy portal included.
+Live training: Not included in base price. On-site workshops $4,000/day plus travel.
+Faculty training resources: Self-paced video library and knowledge base included.
+
+MIGRATION SERVICES
+Migration from existing LMS: Professional services required ($95,000 estimated).
+Timeline: 16-20 weeks from contract signing.
+Data migrated: Course shells, uploaded content, and gradebook records.
+Student activity history and discussion threads: Not migrated.
+
+CUSTOMER REFERENCES
+Seven references provided. Five from higher education, two from multi-campus
+public university systems. Contact information available upon request.
+
+SANDBOX ENVIRONMENT
+Demo environment available for 21 days during procurement only.
+Full sandbox for testing post-signing: Not included in standard contract.
+
+SUPPLIER DIVERSITY
+Anthology Inc. does not hold supplier diversity certifications.
+
+ADDITIONAL TERMS
+Anthology reserves the right to modify platform features, deprecate legacy
+tools, and adjust pricing for add-on modules with 60 days written notice.
+University agrees not to publicly benchmark pricing against competitors.

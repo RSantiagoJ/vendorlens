@@ -1,0 +1,45 @@
+VENDOR PROPOSAL — Alpha LMS
+Submitted to: State University System
+In Response to: Learning Management System RFP
+Date: January 2026
+
+NOTE: Fictional proposal for live pipeline testing only.
+
+COMPANY OVERVIEW
+Alpha Learning Inc., founded 2015. Headquarters: Austin, TX. 200 employees.
+Serves 500 higher education institutions, 2 million learners.
+
+PRICING
+Base fee: $25 per enrolled FTE per year (60,000 FTE = $1,500,000/year).
+3-year contract, no annual escalation. All campuses included.
+Implementation: $50,000 one-time. No overage fees under 70,000 users.
+Payment terms: Net 30, invoiced annually.
+
+CONTRACT TERMS
+Contract length: 3 years, auto-renews for 1-year terms with 90-day notice.
+Termination for convenience: 180-day written notice, no penalty after year 1.
+Liability cap: 12 months of fees paid. Governing law: Texas.
+Data ownership: Customer retains all data. Export within 30 days of termination.
+Data Processing Agreement: GDPR-compliant DPA available.
+
+SECURITY & COMPLIANCE
+Certifications: SOC 2 Type II, ISO 27001, FedRAMP Moderate (in progress).
+Incident response: 4-hour notification SLA for data breaches.
+
+SLA
+Uptime: 99.9% monthly. Planned maintenance excluded.
+Response times: P1 bugs — 2 hours. P2 — 8 business hours.
+SLA penalties: 5% monthly credit per 0.1% below 99.9%.
+
+SUPPORT & TRAINING
+24/7 phone and email support included. Dedicated customer success manager.
+Training: On-site kickoff (3 days), online LMS, quarterly webinars.
+
+FEATURES
+Mobile app: iOS and Android. VPAT: Section 508 and WCAG 2.1 AA compliant.
+Integrations: Canvas Data, Banner, Workday, Salesforce, LTI 1.3, SCORM 2004.
+Analytics: Built-in dashboard, CSV export, custom reports.
+Sandbox environment: Yes, mirrors production. Multi-campus roles: Yes.
+
+REFERENCES
+Available upon request: 3 public university references, 2 community college systems.

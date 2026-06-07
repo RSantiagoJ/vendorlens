@@ -1,0 +1,145 @@
+"""
+test_extraction.py — Day 2 checkpoint: verify ExtractionAgent works.
+
+Runs ExtractionAgent against all three vendor proposals and asserts
+key field values against the expected data in dummy_data.md.
+
+Usage:
+    cd backend
+    python tests/test_extraction.py
+
+Prerequisites:
+    - ANTHROPIC_API_KEY set in backend/.env
+    - ChromaDB index built (run scripts/ingest.py first)
+
+Expected output:
+    [PASS] Vendor B total_cost contains $158,000
+    [PASS] Vendor B renewal_terms: no auto-renewal
+    [PASS] Vendor B liability_cap contains $3,000,000
+    [PASS] Vendor A total_cost contains $195,000
+    [PASS] Vendor A renewal_terms: 30-day opt-out window
+    [PASS] Vendor A liability_cap contains $16,250
+    [PASS] Vendor C vendor_name: CampusVoice
+    All checks passed. Day 2 checkpoint complete.
+"""
+
+import os
+import sys
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from agents.extraction_agent import ExtractionAgent as AgentClass
+from tools.chroma import load_index
+
+VENDOR_A = "blackboard.txt"
+VENDOR_B = "canvas.txt"
+VENDOR_C = "brightspace.txt"
+
+
+def run_checks():
+    print("Loading index from ChromaDB...")
+    try:
+        index = load_index()
+    except Exception as e:
+        sys.exit(
+            f"ERROR: Could not load ChromaDB index.\n"
+            f"  Run 'python ingest.py' first.\n"
+            f"  Details: {e}"
+        )
+
+    agent = AgentClass(index)
+    failures = []
+
+    # ------------------------------------------------------------------
+    # Vendor B — SocialBridge Solutions (expected: highest score, clean)
+    # ------------------------------------------------------------------
+    print(f"\nExtracting {VENDOR_B}...")
+    b = agent.extract(VENDOR_B)
+    print(f"  vendor_name:    {b.vendor_name}")
+    print(f"  total_cost:     {b.total_cost}")
+    print(f"  renewal_terms:  {b.renewal_terms}")
+    print(f"  liability_cap:  {b.liability_cap}")
+    print(f"  governing_law:  {b.governing_law}")
+    print(f"  security_certs: {b.security_certifications}")
+
+    if b.total_cost and "158,000" in b.total_cost:
+        print("  [PASS] total_cost contains $158,000")
+    else:
+        failures.append(f"Vendor B total_cost FAILED: expected '$158,000', got '{b.total_cost}'")
+
+    renewal_b = (b.renewal_terms or "").lower()
+    if "no auto" in renewal_b or "does not auto" in renewal_b or "affirmative" in renewal_b:
+        print("  [PASS] renewal_terms: no auto-renewal")
+    else:
+        failures.append(f"Vendor B renewal_terms FAILED: expected no auto-renewal, got '{b.renewal_terms}'")
+
+    if b.liability_cap and "3,000,000" in b.liability_cap:
+        print("  [PASS] liability_cap contains $3,000,000")
+    else:
+        failures.append(f"Vendor B liability_cap FAILED: expected '$3,000,000', got '{b.liability_cap}'")
+
+    # ------------------------------------------------------------------
+    # Vendor A — PulseMedia Inc. (expected: most HIGH risk flags)
+    # ------------------------------------------------------------------
+    print(f"\nExtracting {VENDOR_A}...")
+    a = agent.extract(VENDOR_A)
+    print(f"  vendor_name:    {a.vendor_name}")
+    print(f"  total_cost:     {a.total_cost}")
+    print(f"  renewal_terms:  {a.renewal_terms}")
+    print(f"  liability_cap:  {a.liability_cap}")
+    print(f"  governing_law:  {a.governing_law}")
+    print(f"  security_certs: {a.security_certifications}")
+
+    if a.total_cost and "195,000" in a.total_cost:
+        print("  [PASS] total_cost contains $195,000")
+    else:
+        failures.append(f"Vendor A total_cost FAILED: expected '$195,000', got '{a.total_cost}'")
+
+    if a.renewal_terms and "30" in a.renewal_terms:
+        print("  [PASS] renewal_terms: 30-day opt-out window")
+    else:
+        failures.append(f"Vendor A renewal_terms FAILED: expected 30-day opt-out, got '{a.renewal_terms}'")
+
+    if a.liability_cap and "16,250" in a.liability_cap:
+        print("  [PASS] liability_cap contains $16,250")
+    else:
+        failures.append(f"Vendor A liability_cap FAILED: expected '$16,250', got '{a.liability_cap}'")
+
+    # ------------------------------------------------------------------
+    # Vendor C — CampusVoice Technologies (sanity check)
+    # ------------------------------------------------------------------
+    print(f"\nExtracting {VENDOR_C}...")
+    c = agent.extract(VENDOR_C)
+    print(f"  vendor_name:    {c.vendor_name}")
+    print(f"  total_cost:     {c.total_cost}")
+    print(f"  governing_law:  {c.governing_law}")
+    print(f"  security_certs: {c.security_certifications}")
+
+    if c.vendor_name and "campus" in c.vendor_name.lower():
+        print("  [PASS] vendor_name: CampusVoice")
+    else:
+        failures.append(f"Vendor C vendor_name FAILED: expected CampusVoice, got '{c.vendor_name}'")
+
+    # ------------------------------------------------------------------
+    # Summary
+    # ------------------------------------------------------------------
+    print()
+    if failures:
+        for f in failures:
+            print(f"  FAIL: {f}")
+        sys.exit(1)
+    else:
+        print("All checks passed. Day 2 checkpoint complete.")
+
+
+def test_run():
+    import pytest
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        pytest.skip("ANTHROPIC_API_KEY not set")
+    run_checks()
+
+
+if __name__ == "__main__":
+    run_checks()

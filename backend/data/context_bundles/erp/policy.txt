@@ -1,0 +1,104 @@
+HIGHER EDUCATION VENDOR EVALUATION POLICY — DISTILLED RULES FOR VENDORLENS RISK AGENT
+Source: Enterprise Finance & HR Platform Procurement
+
+SECTION 1: SECURITY VENDOR MANAGEMENT
+
+All finance and HR platform vendors must complete a security risk questionnaire
+before contract execution. Review confirms:
+
+- No duplication of existing institutional tool functionality
+- Fits within the current technology ecosystem
+- Supports centralized management where possible
+- Allows the institution to scale without excessive friction or cost
+
+The following teams must provide final approval before contract execution:
+
+- Legal Team: contract documentation and applicable data privacy compliance
+- Finance Team: spend against budget and TCO validation
+- CISO: security posture and payroll/financial data protection
+- HR Leadership: workforce data governance and payroll accuracy
+
+SECTION 2: SECURITY CERTIFICATION REQUIREMENTS
+
+- SOC 2 Type II (current) OR ISO 27001 certification required
+- SOC 2 Type I does not satisfy this requirement
+- Certifications in progress do not satisfy this requirement
+- PCI DSS compliance required if vendor processes payment card transactions
+
+SECTION 3: DATA PROCESSING AND GOVERNANCE
+
+- A Data Processing Agreement (DPA) is required before contract execution
+- DPA must address: FERPA (student financial records), GLBA, applicable state data
+  privacy laws, IRS data handling requirements, and payroll data confidentiality
+- Institution retains full ownership of all financial, HR, and payroll data at all times
+- Vendor may not use institutional data for any purpose beyond direct service
+  delivery without explicit CIO approval
+- All data must be exportable in standard formats at no cost within 10 business
+  days of contract termination
+- Payroll and benefits data must be encrypted in transit and at rest
+
+SECTION 4: CONTRACT TERM REQUIREMENTS
+
+- Termination for convenience: maximum 90 days notice, no financial penalty
+- Early termination fees not permitted
+- Liability cap minimum: $1,000,000 (elevated due to payroll/financial data sensitivity)
+- IP ownership of configurations, custom reports, and workflow definitions must
+  remain with the institution
+- Vendors may not modify terms or pricing unilaterally
+- Governing law: institution's home state
+- Auto-renewal opt-out: minimum 60 days notice required
+- Implementation cost overruns exceeding 20% of contracted amount require
+  written approval and revised scope agreement
+
+SECTION 5: SERVICE LEVEL REQUIREMENTS
+
+- Minimum uptime guarantee: 99.9% for payroll processing windows; 99.5% general
+- Payroll processing must complete within contracted SLA windows
+- Critical financial period close support (month-end, year-end) must have
+  dedicated support coverage with defined escalation path
+- Support response times must be contractually defined with financial penalties
+
+SECTION 6: INTELLECTUAL PROPERTY
+
+All configurations, custom reports, integrations, and workflows developed during
+the contract and paid for with institutional funds vest with the institution at
+termination. Vendor retains rights to base platform IP only.
+
+SECTION 7: REGULATORY COMPLIANCE
+
+- IRS reporting obligations (W-2, 1099, ACA 1095-C) must be supported natively
+- GASB accounting standards compliance required for public institutions
+- Federal grant management must comply with 2 CFR 200 (Uniform Guidance)
+- Must support NACUBO reporting requirements
+- HIPAA-adjacent protections required for any benefits or health-adjacent data
+
+SECTION 8: ASSIGNMENT AND DELEGATION
+
+- Contractor may not assign or transfer contract without prior written consent
+- Subcontractors processing payroll or financial data require prior written approval
+  and must meet the same security certification requirements
+
+SECTION 9: CHOICE OF LAW
+
+- Governed by laws of the institution's home state
+- Without giving effect to conflicts of law principles
+
+SECTION 10: HIGH SEVERITY RISK TRIGGERS
+
+The following conditions require CISO, CFO, or VP-level approval and are
+contract blockers:
+
+- No Data Processing Agreement (DPA) provided or mentioned
+- No current SOC 2 Type II or ISO 27001 certification
+- No Incident Response or Disaster Recovery documentation
+- Vendor use of payroll, financial, or HR data beyond service delivery
+- Institution data not explicitly owned by the institution
+- Data not exportable in standard formats at no cost upon termination
+- IP ownership of configurations or custom work product transferred to vendor
+- Vendor right to modify pricing or terms unilaterally
+- Liability cap below $1,000,000 or not specified
+- Auto-renewal opt-out window shorter than 60 days
+- Early termination fee or penalty present
+- Governing law not institution's home state
+- No contractual SLA for payroll processing windows
+- Implementation cost overrun terms not addressed

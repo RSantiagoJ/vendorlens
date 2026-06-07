@@ -1,0 +1,250 @@
+VENDORLENS SCORING RUBRIC
+Source: Higher Education Payroll Processing Services RFP
+Scale: 0–10 per dimension. All scores rounded to one decimal place.
+Weights sum to 1.00. Maximum possible overall score is 10.0.
+
+Overall score = weighted sum of all dimension scores × their weights (defined in rfp_criteria_payroll.txt).
+
+---
+
+CORE PAYROLL FUNCTIONALITY (weight: 0.25)
+Dimension identifier: core_lms_functionality
+
+Evaluate: payroll processing for all employee classifications and pay frequencies,
+garnishment processing, direct deposit and check generation, off-cycle and correction
+workflows, employee self-service portal, mobile app feature parity
+
+10 = All employee classifications and pay frequencies fully supported and documented.
+     Garnishment processing (child support, levies, creditor, student loans) fully automated.
+     Direct deposit to multiple accounts; same-day off-cycle processing available.
+     Employee self-service: full feature parity on iOS and Android.
+     Historical pay stubs and W-2s accessible for 7+ years. Retroactive pay automated.
+     Positive pay, on-demand pay, and paper check all supported without add-on cost.
+
+7-9 = Core payroll for all classifications documented. Most required features present.
+      Minor gaps (e.g., on-demand pay as add-on, limited garnishment automation,
+      or mobile app lacks some self-service features available on desktop).
+
+4-6 = Core payroll processing for standard employee types documented. Notable gaps:
+      graduate assistants or student workers require manual workaround, garnishment
+      semi-automated, mobile app read-only or limited, retroactive pay requires manual
+      calculation. Off-cycle processing requires 24-hour advance notice.
+
+1-3 = Minimal payroll capability for non-standard employee types. Major workflows
+      (garnishments, retroactive pay) require professional services or manual processing.
+      No mobile self-service. Off-cycle processing not available or very costly.
+
+0 = Core payroll processing underdocumented or absent for key employee classifications.
+
+---
+
+TAX & REGULATORY COMPLIANCE (weight: 0.15)
+Dimension identifier: accessibility_compliance
+
+Evaluate: federal and multi-state payroll tax filing accuracy and timeliness,
+W-2 and 1099-NEC/MISC generation and SSA filing, ACA 1095-C processing,
+new hire reporting, vendor liability for filing penalties, FLSA and garnishment compliance
+
+10 = Full multi-state tax filing and remittance for all states. Vendor explicitly accepts
+     liability for all IRS and state penalties arising from vendor-caused errors.
+     W-2, 1099-NEC/MISC, and 1095-C filed on time with penalty guarantee.
+     New hire reporting to all states automated. FLSA compliance tools included.
+     Certified payroll reporting for Davis-Bacon projects supported.
+     Foreign national and tax treaty support documented.
+
+7-9 = Multi-state filing fully supported. Vendor accepts liability for filing penalties.
+      W-2, 1099, and 1095-C supported. New hire reporting automated.
+      Minor gaps (e.g., certified payroll requires add-on, limited foreign national support).
+
+4-6 = Multi-state tax filing supported but liability for penalties is shared or limited.
+      W-2 and 1099 supported. ACA 1095-C available as add-on. New hire reporting
+      requires manual initiation in some states. FLSA tools basic.
+
+1-3 = Tax filing limited to major federal forms. State filing requires manual submission.
+      Vendor does not accept penalty liability. ACA support absent or extra cost.
+      New hire reporting not automated.
+
+0 = Tax filing not included or grossly underdocumented. No penalty liability accepted.
+
+---
+
+INTEGRATION & INTEROPERABILITY (weight: 0.10)
+Dimension identifier: integration_interoperability
+
+Evaluate: HRIS/HCM integration (Workday, SAP, Oracle, UKG, Ceridian), time-and-attendance
+integration, GL/accounting system integration, benefits carrier data exchange,
+identity management (SSO/SAML), open API for custom integrations
+
+10 = Native certified integrations with all major HRIS platforms. Time-and-attendance
+     integration fully automated (no manual import). GL integration with chart-of-accounts
+     mapping and cost center allocation. Benefits carrier EDI exchange automated.
+     SSO via SAML 2.0 supported. Open REST API with full documentation.
+     Positive pay file auto-generated and transmitted to bank.
+
+7-9 = Integrates with most major HRIS platforms. Time integration automated.
+      GL integration supported. Benefits EDI available. API documented.
+      Minor gaps (e.g., one HRIS requires middleware, SSO limited to one IdP).
+
+4-6 = HRIS integration via flat-file import/export (manual or scheduled). Time data
+      requires manual validation before payroll. GL integration via file export only.
+      Benefits deduction data manually entered. API limited or read-only.
+
+1-3 = No native HRIS integration. Time data entered manually. GL journal entries
+      require manual creation. No benefits carrier exchange.
+
+0 = No documented integrations. All payroll inputs require manual entry.
+
+---
+
+PRICING & TOTAL COST OF OWNERSHIP (weight: 0.10)
+Dimension identifier: pricing_and_licensing
+
+Evaluate: per-employee-per-month (PEPM) pricing transparency across all employee tiers,
+implementation and data migration costs, multi-year escalation clauses,
+year-end W-2 and 1099 fees, off-cycle processing costs, add-on module pricing
+
+10 = Single PEPM rate covering all employee types and pay frequencies with no tiers.
+     Implementation and data migration included or fixed-fee with ceiling. Multi-year
+     pricing with escalation ≤3% annually. W-2 and 1099 processing included.
+     Off-cycle processing included (unlimited or generous allowance). No per-check fees.
+     No hidden charges for garnishments, tax amendments, or reprocessing.
+
+7-9 = PEPM pricing transparent. Most costs disclosed. Minor add-ons (e.g., 1099-NEC
+      at small per-form fee, additional off-cycle runs at modest cost). Escalation
+      disclosed and capped. Implementation estimate provided.
+
+4-6 = PEPM for standard employees disclosed. Non-standard types (students, casuals) at
+      different tier or add-on. W-2 processing fee not included. Off-cycle charged per run.
+      Escalation clause above 5% or not capped. Implementation quoted as time-and-materials.
+
+1-3 = Pricing opaque for non-standard employee types. Multiple undisclosed fees.
+      Implementation costs require separate scoping. Escalation uncapped or excessive.
+
+0 = No PEPM pricing. No implementation cost estimate. Significant undisclosed fees.
+
+---
+
+DATA SECURITY & PRIVACY (weight: 0.15)
+Dimension identifier: security_and_compliance
+
+Evaluate: SOC 2 Type II (current) and SOC 1 Type II (SSAE 18) for payroll processing,
+payroll data encryption in transit and at rest, DPA as standard (not on request),
+IRS data handling compliance, data ownership explicitly with institution,
+no use of employee data for product improvement or AI training
+
+10 = SOC 2 Type II AND SOC 1 Type II (SSAE 18) current certifications provided.
+     DPA as standard; addresses FERPA, GLBA, state data privacy, and IRS data handling.
+     Payroll and employee data encrypted in transit (TLS 1.3) and at rest (AES-256).
+     Institution owns all employee and payroll data. Vendor does not use employee
+     data for AI training, benchmarking, or product improvement.
+     Data exportable in standard formats within 10 business days of termination.
+     IRS-compliant 7-year retention with certified deletion on request.
+
+7-9 = SOC 2 Type II current. SOC 1 Type II available (may be recent). DPA provided
+      as standard. Encryption documented. Data ownership clear. Minor gaps (e.g.,
+      anonymized usage data may be retained; opt-out available).
+
+4-6 = SOC 2 Type II current but SOC 1 Type II only available on request. DPA available
+      on request only. Encryption claimed but not fully documented. Data ownership
+      language vague. Some anonymized data retained by vendor.
+
+1-3 = SOC 2 Type I only or certifications aging. DPA not mentioned. Encryption not
+      documented. Vendor retains data rights beyond service delivery.
+
+0 = No certifications. No DPA. Data security practices unaddressed.
+
+---
+
+IMPLEMENTATION & ONGOING SUPPORT (weight: 0.10)
+Dimension identifier: support_and_training
+
+Evaluate: implementation methodology and timeline realism, dedicated payroll
+implementation specialist, parallel payroll processing period, year-end support model,
+support tiers and hours, dedicated account manager, references with successful migrations
+
+10 = Structured implementation with dedicated payroll implementation specialist.
+     Parallel payroll processing for minimum 2 pay cycles before go-live cutover.
+     Named account manager and payroll support specialist included post go-live.
+     Year-end (W-2/1099) dedicated support team with extended hours.
+     24/7 support for payroll processing windows; business hours for general queries.
+     Contractual SLA with financial penalty for payroll processing failures.
+     Three higher education payroll migration references with comparable complexity.
+
+7-9 = Dedicated implementation specialist. Parallel processing included (1-2 cycles).
+      Account manager available. Year-end support documented. SLAs defined.
+      References from higher education provided.
+
+4-6 = Implementation supported but no dedicated specialist. Parallel processing
+      available but limited. Year-end support at additional cost. SLAs best-effort.
+      Support limited to business hours. References from unrelated sectors.
+
+1-3 = Self-guided implementation with online resources. No parallel processing.
+      No dedicated support contact. Year-end processing self-service.
+      No contractual SLAs. No higher education references.
+
+0 = No implementation support. No dedicated contact. No SLAs documented.
+
+---
+
+ENTERPRISE READINESS (weight: 0.10)
+Dimension identifier: enterprise_readiness
+
+Evaluate: multi-campus and multi-entity payroll support, multiple EIN management,
+high-volume payroll processing capacity, role-based access control for payroll admins,
+system availability SLA during payroll windows, disaster recovery for payroll continuity
+
+10 = Multiple EIN and FEIN management in a single tenant. Each campus/entity with
+     isolated payroll admin access and separate audit trails. Confirmed capacity for
+     10,000+ employee payroll processed within standard window. RBAC at field and
+     transaction level for payroll administrators. 99.9% uptime SLA for payroll
+     processing windows with financial penalty. DR: RTO ≤4 hours, RPO ≤1 hour.
+     Published system status and historical uptime at trust portal.
+
+7-9 = Multi-EIN supported. Campus-level admin isolation available. High-volume capacity
+      documented. RBAC present. Uptime SLA for payroll windows at 99.5%+. DR documented.
+
+4-6 = Multi-EIN technically supported but limited admin isolation. Volume capacity
+      not explicitly documented. RBAC coarse-grained. Uptime SLA without financial
+      penalty. DR plan exists but RTO/RPO not specified.
+
+1-3 = Designed for single-entity payroll. Multi-campus requires workarounds.
+      No published volume capacity. No payroll-window uptime SLA. DR not documented.
+
+0 = No multi-entity support. No payroll SLA. No disaster recovery documentation.
+
+---
+
+INNOVATION & AUTOMATION ROADMAP (weight: 0.05)
+Dimension identifier: innovation_roadmap
+
+Evaluate: AI/ML payroll anomaly detection, on-demand pay and earned wage access roadmap,
+predictive labor cost analytics, automation of manual payroll tasks, self-service
+enhancements, mobile capability roadmap, continuous delivery model
+
+10 = Documented 18-24 month roadmap with committed AI/automation feature timelines.
+     AI-powered anomaly detection (outlier hours, duplicate pay) already live or imminent.
+     On-demand pay / earned wage access available or on near-term roadmap.
+     Predictive labor cost analytics included or planned. Continuous delivery model
+     with regular releases. Higher education customer advisory council influencing roadmap.
+
+7-9 = Roadmap provided. AI anomaly detection in development or early access.
+      On-demand pay available or planned. Regular release cadence documented.
+
+4-6 = High-level roadmap. AI features aspirational; no committed timeline.
+      On-demand pay not available or on distant roadmap. Infrequent major releases.
+
+1-3 = Vague roadmap. No AI or automation plan. Platform stable but not innovating.
+
+0 = No roadmap. Platform appears legacy or end of investment cycle.
+
+---
+
+RISK LEVEL (weight: 0.05 — INVERTED: higher score = fewer HIGH severity risk flags)
+
+10 = Zero HIGH severity risk flags
+7  = One HIGH severity risk flag
+4  = Two HIGH severity risk flags
+0  = Three or more HIGH severity risk flags
+
+Note: This dimension is directly derived from the Risk Agent output.
+MEDIUM and LOW severity flags do not affect this score but are reported separately.
