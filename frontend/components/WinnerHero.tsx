@@ -21,6 +21,7 @@ function useCountUp(target: number, duration = 1100): number {
 import { Box, Group, Stack, Text, Badge, ThemeIcon, Divider } from "@mantine/core";
 import { IconAward, IconShieldCheck, IconTrendingUp } from "@tabler/icons-react";
 import type { ProposalResult, ScoreCard } from "@/lib/types";
+import { scoreTier, scoreLabel } from "@/lib/scoring";
 
 const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string }[] = [
   { key: "platform_functionality",  label: "Platform Functionality" },
@@ -58,7 +59,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
   };
   const totalWinnerRisks = riskBreakdown.HIGH + riskBreakdown.MEDIUM + riskBreakdown.LOW;
   const highRisks = riskBreakdown.HIGH;
-  const tier = overall >= 70 ? "umgreen" : overall >= 40 ? "umyellow" : "ummaroon";
+  const tier = scoreTier(overall).color;
 
   return (
     <Box
@@ -123,7 +124,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
               >
                 {animatedScore}
               </Text>
-              <Text size="sm" c="dimmed" fw={500}>/ 100</Text>
+              <Text size="sm" c="dimmed" fw={500}>/ 10</Text>
             </Stack>
 
             <Stack gap={6} style={{ flex: 1, maxWidth: 320 }}>
@@ -138,7 +139,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
               >
                 <Box
                   style={{
-                    width: `${animatedScore}%`,
+                    width: `${(animatedScore / 10) * 100}%`,
                     height: "100%",
                     borderRadius: 999,
                     background: `var(--mantine-color-${tier}-5)`,
@@ -148,7 +149,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
               </Box>
               <Group gap="md">
                 <Badge size="sm" color={tier} variant={tier === "umgreen" ? "filled" : "light"} radius="sm">
-                  {overall >= 70 ? "Meets Criteria" : overall >= 40 ? "Needs Review" : "Below Threshold"}
+                  {scoreLabel(overall)}
                 </Badge>
                 {highRisks === 0 && (
                   <Group gap={4}>

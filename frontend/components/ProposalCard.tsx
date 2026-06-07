@@ -27,6 +27,7 @@ import {
   IconAward, IconInfoCircle, IconArrowUp,
 } from "@tabler/icons-react";
 import type { ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
+import { scoreTier, scoreLabelShort, type ScoreTier } from "@/lib/scoring";
 
 const RING_R = 40;
 const RING_C = 2 * Math.PI * RING_R;
@@ -34,10 +35,10 @@ const RING_C = 2 * Math.PI * RING_R;
 function ScoreRing({ overall, animated, tier, recommended }: {
   overall: number;
   animated: number;
-  tier: typeof SCORE_TIERS[number];
+  tier: ScoreTier;
   recommended?: boolean;
 }) {
-  const offset = RING_C - (animated / 100) * RING_C;
+  const offset = RING_C - (animated / 10) * RING_C;
   return (
     <Stack align="center" gap={4} style={{ flexShrink: 0 }}>
       <Box style={{ position: "relative", width: 96, height: 96 }}>
@@ -70,11 +71,11 @@ function ScoreRing({ overall, animated, tier, recommended }: {
           <Text fw={900} style={{ color: tier.textColor, fontSize: "1.5rem", lineHeight: 1 }}>
             {animated}
           </Text>
-          <Text size="xs" c="dimmed" fw={500} style={{ lineHeight: 1 }}>/100</Text>
+          <Text size="xs" c="dimmed" fw={500} style={{ lineHeight: 1 }}>/10</Text>
         </Box>
       </Box>
       <Badge size="xs" radius="sm" variant="light" color={tier.color}>
-        {overall >= 70 ? "Meets" : overall >= 40 ? "Review" : "Fails"}
+        {scoreLabelShort(overall)}
       </Badge>
     </Stack>
   );
@@ -106,16 +107,6 @@ const CONTRACT_FIELDS: { key: keyof import("@/lib/types").ProposalData; label: s
   { key: "governing_law",          label: "Governing Law" },
   { key: "support_model",          label: "Support Model" },
 ];
-
-const SCORE_TIERS = [
-  { min: 7, color: "umgreen",  textColor: "var(--mantine-color-umgreen-6)" },
-  { min: 4, color: "umyellow", textColor: "var(--mantine-color-umyellow-7)" },
-  { min: 0, color: "ummaroon", textColor: "var(--mantine-color-ummaroon-6)" },
-] as const;
-
-function scoreTier(score: number) {
-  return SCORE_TIERS.find((t) => score >= t.min)!;
-}
 
 const RISK_COLORS: Record<RiskFlag["severity"], string> = {
   HIGH: "ummaroon",
@@ -204,7 +195,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
             </Box>
           </Group>
           {overall !== null && (
-            <ScoreRing overall={overall} animated={animatedScore} tier={scoreTier(overall / 10)} recommended={recommended} />
+            <ScoreRing overall={overall} animated={animatedScore} tier={scoreTier(overall)} recommended={recommended} />
           )}
         </Group>
 

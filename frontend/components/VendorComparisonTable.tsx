@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { Paper, Text, Group, Badge, ScrollArea, Tooltip, Stack } from "@mantine/core";
 import { IconAward } from "@tabler/icons-react";
 import type { ProposalData, ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
+import { scoreTier } from "@/lib/scoring";
 
 const SCORE_DIMENSIONS: {
   key: keyof Omit<ScoreCard, "overall">;
@@ -29,16 +30,6 @@ const CONTRACT_FIELDS: { key: keyof ProposalData; label: string }[] = [
   { key: "liability_cap",          label: "Liability Cap"          },
   { key: "governing_law",          label: "Governing Law"          },
 ];
-
-const SCORE_TIERS = [
-  { min: 7, color: "umgreen",  textColor: "var(--mantine-color-umgreen-6)"  },
-  { min: 4, color: "umyellow", textColor: "var(--mantine-color-umyellow-7)" },
-  { min: 0, color: "ummaroon", textColor: "var(--mantine-color-ummaroon-6)" },
-] as const;
-
-function scoreTier(score: number) {
-  return SCORE_TIERS.find((t) => score >= t.min)!;
-}
 
 const RISK_COLORS: Record<RiskFlag["severity"], string> = {
   HIGH: "ummaroon",
@@ -109,7 +100,7 @@ export function VendorComparisonTable({ proposals, winner }: Props) {
               {proposals.map((p) => {
                 const isWin = winner?.filename === p.filename;
                 const overall = p.scores?.overall;
-                const tier = overall != null ? scoreTier(overall / 10) : null;
+                const tier = overall != null ? scoreTier(overall) : null;
                 return (
                   <th
                     key={p.filename}
@@ -137,8 +128,8 @@ export function VendorComparisonTable({ proposals, winner }: Props) {
                       </Text>
                       {overall != null && tier && (
                         <Text fw={800} size="xl" style={{ color: tier.textColor, lineHeight: 1 }}>
-                          {Math.round(overall)}
-                          <Text span size="xs" fw={400} c="dimmed"> /100</Text>
+                          {overall.toFixed(1)}
+                          <Text span size="xs" fw={400} c="dimmed"> /10</Text>
                         </Text>
                       )}
                     </Stack>
