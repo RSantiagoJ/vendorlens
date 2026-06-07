@@ -28,14 +28,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from api.models import AnalysisResult, AnalyzeResponse, ProposalResult
+from db.session import get_db_session, init_db
+from db.models import AnalysisRun
 from graph.pipeline import build_pipeline
 from graph.state import ProposalState
 from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
 from tools.chroma import load_index
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_db()
     # Pre-warm all bundle pipelines so no request pays cold-start cost.
     loop = asyncio.get_running_loop()
     for bundle_id in BUNDLES:
@@ -96,6 +102,34 @@ def _ingest_file(filename: str, content: bytes, index) -> None:
 
 # In-memory job store: job_id → {status, events, result, error}
 _jobs: dict[str, dict] = {}
+
+
+def _persist_run(job_id: str, bundle_id: str, result: AnalysisResult) -> None:
+    """Persist a completed analysis run to the database.
+
+    No-op when DATABASE_URL is not set. Never raises — a DB failure must not
+    affect the in-memory result or the SSE stream the client already received.
+    """
+    session = None
+    try:
+        session = get_db_session()
+        if session is None:
+            return
+        run = AnalysisRun(
+            job_id=job_id,
+            bundle_id=bundle_id,
+            status=result.status,
+            memo=result.memo,
+            error=result.error,
+            proposals=[p.model_dump() for p in result.proposals],
+        )
+        session.add(run)
+        session.commit()
+    except Exception as e:
+        logger.warning("Failed to persist job %s to database: %s", job_id, e)
+    finally:
+        if session:
+            session.close()
 
 
 def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id: str) -> None:
@@ -195,6 +229,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
 
         result_dict = result.model_dump()
         job["result"] = result_dict
+        _persist_run(job_id, bundle_id, result)
         emit("done", result_dict)
         job["status"] = "done"
 
@@ -254,6 +289,41 @@ async def analyze(
     asyncio.get_running_loop().run_in_executor(_executor, _run_pipeline, job_id, file_contents, bundle)
 
     return AnalyzeResponse(job_id=job_id)
+
+
+@app.get("/jobs/{job_id}", response_model=AnalysisResult)
+def get_job(job_id: str) -> AnalysisResult:
+    """Return the final result of a completed job.
+
+    Checks the in-memory store first (fast path for recently completed jobs),
+    then falls back to the database (for jobs completed before a restart).
+    """
+    # Fast path: still in memory
+    if job_id in _jobs and _jobs[job_id].get("result"):
+        return AnalysisResult(**_jobs[job_id]["result"])
+
+    # DB fallback
+    session = None
+    try:
+        session = get_db_session()
+        if session:
+            run = session.query(AnalysisRun).filter_by(job_id=job_id).first()
+            if run:
+                return AnalysisResult(
+                    job_id=run.job_id,
+                    bundle_id=run.bundle_id,
+                    status=run.status,
+                    memo=run.memo,
+                    error=run.error,
+                    proposals=[ProposalResult(**p) for p in (run.proposals or [])],
+                )
+    except Exception as e:
+        logger.warning("DB lookup failed for job %s: %s", job_id, e)
+    finally:
+        if session:
+            session.close()
+
+    raise HTTPException(status_code=404, detail="Job not found.")
 
 
 @app.get("/stream/{job_id}")

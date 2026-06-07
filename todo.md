@@ -39,3 +39,27 @@ This guide highlights the primary components and code patterns in VendorLens tha
 ### 5. Verify Haiku max token usage
 
 - is the current value of 16384 too high
+
+---
+
+## Day 11 — Pipeline Audit & Persistence (current)
+
+### Completed this session
+- **Boundary contract test suite** (`test_boundaries.py`, 40 tests) — covers every
+  inter-layer data handoff (LLM output → parse_llm_json → Pydantic model → pipeline node)
+- **`parse_llm_json` array bug** — was extracting `{` before `[` when preamble text preceded
+  a JSON array, returning a single object instead of the list
+- **`memo_agent` return type** — normalized `invoke_llm_cached` list response to `str`
+- **Scoring scale** — removed spurious `× 10` multiplier; overall now correctly 0–10
+  to match the rubric. Prior scale was 0–100 (introduced by an LLM fixing a UI display)
+- **`CLAUDE.md`** — project-level test-first rules and pipeline contract documentation
+
+### In progress
+- **DB persistence** — add Postgres + SQLAlchemy to replace in-memory `_jobs` dict
+  - `_jobs` currently leaks memory and dies on restart
+  - New: `analysis_runs` table, `GET /jobs/{job_id}` endpoint reads from DB on miss
+
+### Still to do
+- Verify Haiku max_tokens (16384 — may be unnecessarily high for scoring task)
+- `warm_caches_node` has no error handling — a transient API failure kills the entire
+  pipeline before any vendor is processed; should catch and log, not raise

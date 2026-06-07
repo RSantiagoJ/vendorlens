@@ -19,3 +19,5 @@ pyyaml
 tenacity
 pytest
 boto3
+sqlalchemy
+psycopg2-binary
