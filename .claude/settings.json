@@ -6,5 +6,19 @@
       "Bash(git commit -m ' *)",
       "Bash(git rm *)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/ricardo/projects/vendorlens/scripts/audit.py",
+            "async": true,
+            "statusMessage": "Running daily audit..."
+          }
+        ]
+      }
+    ]
   }
 }
