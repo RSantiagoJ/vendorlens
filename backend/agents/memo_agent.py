@@ -50,8 +50,13 @@ class MemoAgent:
             for p in proposals
         ]
 
-        return invoke_llm_cached(
+        result = invoke_llm_cached(
             self.llm,
             self.system_prompt,
             f"Vendor evaluation data:\n{json.dumps(proposal_data)}\n\nWrite the recommendation memo. Return markdown only.",
         )
+        if isinstance(result, list):
+            result = "".join(
+                part["text"] if isinstance(part, dict) else str(part) for part in result
+            )
+        return result

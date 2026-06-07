@@ -167,8 +167,8 @@ def test_pipeline_valid_run(
     assert p["extracted"]["vendor_name"] == "Blackboard Learn Ultra"
     assert p["risks"] is not None
     assert len(p["risks"]) == 3
-    # (6*.20 + 5*.15 + 6*.10 + 8*.10 + 4*.20 + 5*.10 + 6*.05 + 5*.05 + 0*.05) * 10 = 52.0
-    assert p["scores"]["overall"] == 52.0
+    # 6*.20 + 5*.15 + 6*.10 + 8*.10 + 4*.20 + 5*.10 + 6*.05 + 5*.05 + 0*.05 = 5.2
+    assert p["scores"]["overall"] == 5.2
 
 
 @patch("graph.pipeline.load_index")
@@ -361,8 +361,8 @@ def test_scoring_agent_partial_scorecard(mock_bundle):
     assert scorecard.platform_functionality.score == 7.0
     assert scorecard.accessibility_compliance.score == 0.0
     assert scorecard.risk_level.score == 0.0
-    # only platform_functionality contributes: 7.0 * 0.20 * 10 = 14.0
-    assert scorecard.overall == 14.0
+    # only platform_functionality contributes: 7.0 * 0.20 = 1.4
+    assert scorecard.overall == 1.4
 
 
 # ---------------------------------------------------------------------------

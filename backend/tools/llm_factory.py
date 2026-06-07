@@ -132,8 +132,17 @@ def parse_llm_json(raw: str):
     except json.JSONDecodeError:
         pass
 
-    # Extract the outermost JSON object or array — handles preamble/postamble text
-    for open_char, close_char in [('{', '}'), ('[', ']')]:
+    # Extract the outermost JSON object or array — handles preamble/postamble text.
+    # Try whichever delimiter appears first so that a leading `[` is not shadowed
+    # by a `{` nested inside the array items.
+    brace_pos   = raw.find('{')
+    bracket_pos = raw.find('[')
+    if bracket_pos != -1 and (brace_pos == -1 or bracket_pos < brace_pos):
+        pairs = [('[', ']'), ('{', '}')]
+    else:
+        pairs = [('{', '}'), ('[', ']')]
+
+    for open_char, close_char in pairs:
         start = raw.find(open_char)
         end = raw.rfind(close_char)
         if start != -1 and end > start:
