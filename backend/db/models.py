@@ -23,6 +23,7 @@ class AnalysisRun(Base):
 
     job_id    = Column(String, primary_key=True)
     bundle_id = Column(String, nullable=False)
+    rfp_name  = Column(String, nullable=True)        # human-readable label, e.g. "LMS"
     status    = Column(String, nullable=False)       # done | error | partial
     created_at = Column(DateTime, default=datetime.utcnow)
     memo      = Column(Text,   nullable=True)

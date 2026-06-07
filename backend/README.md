@@ -45,15 +45,14 @@ Do this once after cloning. Re-run if `requirements.txt` or the `Dockerfile` cha
 Edit `backend/.env` and fill in:
 
 ```
-GOOGLE_API_KEY=...
 ANTHROPIC_API_KEY=...
+DATABASE_URL=postgresql://vendorlens:vendorlens@db:5432/vendorlens
 LANGCHAIN_API_KEY=...         # optional — enables LangSmith tracing
 LANGCHAIN_TRACING_V2=true     # optional
-DATABASE_URL=postgresql://vendorlens:vendorlens@db:5432/vendorlens
 ```
 
-`GOOGLE_API_KEY` is required (used for embeddings and Gemini extraction/scoring).
-`ANTHROPIC_API_KEY` is required (used for the memo agent).
+`ANTHROPIC_API_KEY` is required. All LLM calls (extraction, risk, scoring, memo) use Claude.
+Embeddings use FastEmbed locally — no external embedding API key needed.
 `DATABASE_URL` is required for result persistence. The `db` service in `docker-compose.yml`
 (postgres:16-alpine) provides this automatically when using `docker compose up`.
 

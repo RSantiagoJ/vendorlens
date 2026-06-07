@@ -219,6 +219,168 @@ class TestP4DBError:
 
 
 # ---------------------------------------------------------------------------
+# P8 — error runs are persisted (not only success runs)
+# ---------------------------------------------------------------------------
+
+class TestP8ErrorRunPersistence:
+    """When _run_pipeline hits the except block the error result must be
+    persisted so it survives a restart and appears in the audit trail.
+    """
+
+    def test_persist_run_accepts_error_status(self):
+        """An AnalysisResult with status='error' and no proposals must persist cleanly."""
+        from api.main import _persist_run
+        from api.models import AnalysisResult
+        mock_session = MagicMock()
+
+        error_result = AnalysisResult(
+            job_id="err-job-001",
+            bundle_id="lms",
+            proposals=[],
+            status="error",
+            error="Pipeline crashed: ChromaDB unavailable",
+        )
+
+        with patch("api.main.get_db_session", return_value=mock_session):
+            _persist_run("err-job-001", "lms", error_result)
+
+        mock_session.add.assert_called_once()
+        run = mock_session.add.call_args[0][0]
+        assert run.status == "error"
+        assert run.error == "Pipeline crashed: ChromaDB unavailable"
+        assert run.proposals == []
+
+    def test_error_path_in_run_pipeline_calls_persist(self):
+        """_run_pipeline's except block must call _persist_run with error status."""
+        from api.main import _run_pipeline, _jobs
+        import uuid
+
+        job_id = str(uuid.uuid4())
+        _jobs[job_id] = {"status": "pending", "events": [], "result": None, "error": None}
+
+        with (
+            patch("api.main.load_index", side_effect=Exception("ChromaDB down")),
+            patch("api.main._persist_run") as mock_persist,
+        ):
+            _run_pipeline(job_id, [("blackboard.txt", b"content")], "lms")
+
+        mock_persist.assert_called_once()
+        _, _, persisted_result = mock_persist.call_args[0]
+        assert persisted_result.status == "error"
+        assert persisted_result.error is not None
+
+        _jobs.pop(job_id, None)
+
+
+# ---------------------------------------------------------------------------
+# P9 — _jobs TTL eviction after successful persistence
+# ---------------------------------------------------------------------------
+
+class TestP9JobEviction:
+    """Completed jobs must be scheduled for eviction from _jobs after
+    persistence succeeds. Eviction prevents unbounded memory growth.
+    """
+
+    def test_eviction_scheduled_after_persist(self):
+        """After _persist_run succeeds, a timer must be scheduled to evict the job."""
+        from api.main import _persist_run, _schedule_eviction, _jobs
+        import uuid
+
+        job_id = str(uuid.uuid4())
+        _jobs[job_id] = {"status": "done", "events": [], "result": None, "error": None}
+
+        with (
+            patch("api.main.get_db_session", return_value=MagicMock()),
+            patch("api.main._schedule_eviction") as mock_evict,
+        ):
+            _persist_run(job_id, "lms", _analysis_result(job_id))
+
+        mock_evict.assert_called_once_with(job_id)
+        _jobs.pop(job_id, None)
+
+    def test_schedule_eviction_removes_job_after_delay(self):
+        """_schedule_eviction must call _jobs.pop after the configured TTL."""
+        from api.main import _jobs, _schedule_eviction
+        import uuid
+        import time
+
+        job_id = str(uuid.uuid4())
+        _jobs[job_id] = {"status": "done", "events": [], "result": None, "error": None}
+
+        with patch("api.main.threading.Timer") as mock_timer:
+            _schedule_eviction(job_id)
+
+        mock_timer.assert_called_once()
+        ttl = mock_timer.call_args[0][0]
+        evict_fn = mock_timer.call_args[0][1]
+
+        assert 60 <= ttl <= 3600, f"TTL {ttl}s is unreasonable"
+
+        # Simulate the timer firing — job must be removed
+        evict_fn()
+        assert job_id not in _jobs, "Job must be evicted from _jobs after TTL"
+
+    def test_eviction_is_safe_if_job_already_gone(self):
+        """_schedule_eviction timer firing on an already-removed job must not raise."""
+        from api.main import _jobs, _schedule_eviction
+
+        with patch("api.main.threading.Timer") as mock_timer:
+            _schedule_eviction("nonexistent-job")
+
+        evict_fn = mock_timer.call_args[0][1]
+        evict_fn()  # must not raise KeyError
+
+
+# ---------------------------------------------------------------------------
+# P10 — rfp_name stored on AnalysisRun
+# ---------------------------------------------------------------------------
+
+class TestP10RfpName:
+    """AnalysisRun must store a human-readable label (rfp_name) derived
+    from the bundle so runs are identifiable without looking up the UUID.
+    """
+
+    def test_analysis_run_accepts_rfp_name(self):
+        """AnalysisRun model must have an rfp_name column."""
+        from db.models import AnalysisRun
+        run = AnalysisRun(
+            job_id="rfp-test-001",
+            bundle_id="lms",
+            status="done",
+            rfp_name="LMS Platform Evaluation",
+        )
+        assert run.rfp_name == "LMS Platform Evaluation"
+
+    def test_persist_run_sets_rfp_name_from_bundle_label(self):
+        """_persist_run must auto-populate rfp_name from the bundle label."""
+        from api.main import _persist_run
+        mock_session = MagicMock()
+
+        with patch("api.main.get_db_session", return_value=mock_session):
+            _persist_run("job-rfp-001", "lms", _analysis_result("job-rfp-001"))
+
+        run = mock_session.add.call_args[0][0]
+        assert run.rfp_name is not None, (
+            "rfp_name must be set — 'LMS' is the label for bundle 'lms'"
+        )
+        assert run.rfp_name == "LMS"
+
+    def test_rfp_name_none_for_unknown_bundle(self):
+        """Unknown bundle_id must not crash — rfp_name falls back to None."""
+        from api.main import _persist_run
+        mock_session = MagicMock()
+
+        result = _analysis_result("job-unknown")
+        result = result.model_copy(update={"bundle_id": "unknown_bundle"})
+
+        with patch("api.main.get_db_session", return_value=mock_session):
+            _persist_run("job-unknown", "unknown_bundle", result)
+
+        run = mock_session.add.call_args[0][0]
+        assert run.rfp_name is None
+
+
+# ---------------------------------------------------------------------------
 # P5 — GET /jobs/{job_id} returns from in-memory store when available
 # P6 — GET /jobs/{job_id} falls back to DB when job is not in memory
 # P7 — GET /jobs/{job_id} returns 404 when found in neither

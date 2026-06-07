@@ -120,20 +120,35 @@ def _ingest_file(filename: str, content: bytes, index) -> None:
 _jobs: dict[str, dict] = {}
 
 
+_JOB_TTL_SECONDS = 600  # evict completed jobs from _jobs after 10 minutes
+
+
+def _schedule_eviction(job_id: str) -> None:
+    """Remove a completed job from _jobs after TTL. Safe to call on missing jobs."""
+    def evict():
+        _jobs.pop(job_id, None)
+    timer = threading.Timer(_JOB_TTL_SECONDS, evict)
+    timer.daemon = True
+    timer.start()
+
+
 def _persist_run(job_id: str, bundle_id: str, result: AnalysisResult) -> None:
-    """Persist a completed analysis run to the database.
+    """Persist an analysis run (success or error) to the database.
 
     No-op when DATABASE_URL is not set. Never raises — a DB failure must not
     affect the in-memory result or the SSE stream the client already received.
+    Schedules eviction of the job from _jobs after TTL on success.
     """
     session = None
     try:
         session = get_db_session()
         if session is None:
             return
+        rfp_name = BUNDLES.get(bundle_id, {}).get("label")
         run = AnalysisRun(
             job_id=job_id,
             bundle_id=bundle_id,
+            rfp_name=rfp_name,
             status=result.status,
             memo=result.memo,
             error=result.error,
@@ -141,6 +156,7 @@ def _persist_run(job_id: str, bundle_id: str, result: AnalysisResult) -> None:
         )
         session.add(run)
         session.commit()
+        _schedule_eviction(job_id)
     except Exception as e:
         logger.warning("Failed to persist job %s to database: %s", job_id, e)
     finally:
@@ -253,6 +269,14 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         emit("error", {"status": "error", "error": str(exc)})
         job["status"] = "error"
         job["error"] = str(exc)
+        error_result = AnalysisResult(
+            job_id=job_id,
+            bundle_id=bundle_id,
+            proposals=[],
+            status="error",
+            error=str(exc),
+        )
+        _persist_run(job_id, bundle_id, error_result)
 
 
 # ---------------------------------------------------------------------------

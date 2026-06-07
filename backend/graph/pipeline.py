@@ -62,7 +62,6 @@ class PipelineState(TypedDict):
 
 class VendorSubgraphState(TypedDict, total=False):
     filename: str                                     # required — always in Send payload
-    raw_text: Optional[str]                           # optional — passed through to ProposalState
     extracted: Optional[dict]                         # set by extract_node
     risks: Optional[list]                             # set by risk_node
     error: Optional[str]                              # set on any stage failure
@@ -109,8 +108,7 @@ def build_pipeline(bundle_id: str = "lms"):
 
     def score_node(state: VendorSubgraphState) -> dict:
         filename = state["filename"]
-        raw_text = state.get("raw_text")
-        
+
         # Safely parse whatever state we have so far to avoid losing it on error
         proposal_data = None
         if state.get("extracted"):
@@ -118,7 +116,7 @@ def build_pipeline(bundle_id: str = "lms"):
                 proposal_data = ProposalData(**state["extracted"])
             except Exception:
                 pass
-                
+
         risks = None
         if state.get("risks") is not None:
             try:
@@ -132,7 +130,6 @@ def build_pipeline(bundle_id: str = "lms"):
         if upstream_error and not proposal_data:
             proposal = ProposalState(
                 filename=filename,
-                raw_text=raw_text,
                 error=upstream_error,
             )
             return {"proposals": [proposal.model_dump()]}
@@ -144,7 +141,6 @@ def build_pipeline(bundle_id: str = "lms"):
             scores = scoring_agent.score(proposal_data, risks or [])
             proposal = ProposalState(
                 filename=filename,
-                raw_text=raw_text,
                 extracted=proposal_data,
                 risks=risks,
                 scores=scores,
@@ -155,7 +151,6 @@ def build_pipeline(bundle_id: str = "lms"):
             logger.exception("score_node failed for %s", filename)
             proposal = ProposalState(
                 filename=filename,
-                raw_text=raw_text,
                 extracted=proposal_data,
                 risks=risks,
                 error=str(e),

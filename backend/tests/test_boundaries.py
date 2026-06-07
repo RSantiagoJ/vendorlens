@@ -91,6 +91,30 @@ _ALL_SCORECARD_FIELDS = [
 # B1 — LLM raw string → parse_llm_json
 # ---------------------------------------------------------------------------
 
+class TestB0SchemaIntegrity:
+    """Sanity checks on the Pydantic models themselves — field presence/absence."""
+
+    def test_proposal_state_has_no_raw_text_field(self):
+        """raw_text was never populated in the API flow — dead field must be removed.
+
+        It existed in VendorSubgraphState and ProposalState but the pending dicts
+        passed via Send() only ever carried 'filename'. Keeping it adds noise to
+        the schema, the DB output, and every model_dump() call.
+        """
+        p = ProposalState(filename="test.txt")
+        assert not hasattr(p, "raw_text"), (
+            "ProposalState still has raw_text — remove it from graph/state.py"
+        )
+
+    def test_proposal_state_model_dump_has_no_raw_text(self):
+        """model_dump() must not include raw_text in the output dict."""
+        p = ProposalState(filename="test.txt")
+        assert "raw_text" not in p.model_dump(), (
+            "raw_text appears in model_dump() output — it will pollute DB records "
+            "and add noise to every API response"
+        )
+
+
 class TestB1ParseLLMJson:
     """parse_llm_json must robustly extract JSON from every format Claude can return."""
 
