@@ -166,6 +166,7 @@ function HomeContent() {
       setAppState("processing");
 
       const es = new EventSource(`${API_BASE}/stream/${job_id}`);
+      let receivedDone = false;
 
       es.addEventListener("extracting", (e) => {
         setStage("extracting");
@@ -189,6 +190,7 @@ function HomeContent() {
       });
 
       es.addEventListener("done", (e) => {
+        receivedDone = true;
         es.close();
         const data: AnalysisResult = JSON.parse((e as MessageEvent).data);
         setResult(data);
@@ -200,14 +202,17 @@ function HomeContent() {
       });
 
       es.addEventListener("error", (e) => {
-        es.close();
+        if (receivedDone) return;
         const raw = (e as MessageEvent).data;
-        const msg = raw ? JSON.parse(raw).error : null;
+        if (!raw) return; // connection-level close — onerror handles polling fallback
+        es.close();
+        const msg = JSON.parse(raw).error ?? null;
         setError(msg ?? "An error occurred during analysis.");
         setAppState("error");
       });
 
       es.onerror = () => {
+        if (receivedDone) return;
         es.close();
         // App Runner hard-cuts SSE at 120s — pipeline keeps running, poll for result
         pollRef.current = setInterval(async () => {
