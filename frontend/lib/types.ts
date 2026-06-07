@@ -68,11 +68,28 @@ export interface ProposalResult {
   error?: string | null;
 }
 
+export interface NegotiationTactic {
+  area: string;
+  their_position: string;
+  our_ask: string;
+  leverage: string;
+}
+
+export interface NegotiationBrief {
+  vendor_name: string;
+  overall_approach: string;
+  priority_tactics: NegotiationTactic[];
+  red_lines: string[];
+  concessions_to_offer: string[];
+  batna: string;
+}
+
 export interface AnalysisResult {
   job_id: string;
   bundle_id: string;
   proposals: ProposalResult[];
   memo: string | null;
+  negotiation_plans: NegotiationBrief[] | null;
   status: string;
   error: string | null;
 }
@@ -83,4 +100,4 @@ export interface Bundle {
   description: string;
 }
 
-export type Stage = "extracting" | "risk" | "scoring" | "memo" | "done" | null;
+export type Stage = "extracting" | "risk" | "scoring" | "memo" | "negotiation" | "done" | null;

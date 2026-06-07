@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { AgentProgressBar } from "@/components/AgentProgressBar";
 import { BoredPanel } from "@/components/BoredPanel";
 import { MemoPanel } from "@/components/MemoPanel";
+import { NegotiationPlaybook } from "@/components/NegotiationPlaybook";
 import { ProposalCard } from "@/components/ProposalCard";
 import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
@@ -131,10 +132,11 @@ function BackgroundQuotes() {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const PIPELINE_STEPS = [
-  { label: "Extract",        Icon: IconSearch     },
-  { label: "Risk Analysis",  Icon: IconShieldCheck },
-  { label: "Scoring",        Icon: IconChartBar   },
-  { label: "Recommendation", Icon: IconFileText   },
+  { label: "Extract",           Icon: IconSearch      },
+  { label: "Risk Analysis",     Icon: IconShieldCheck },
+  { label: "Scoring",           Icon: IconChartBar    },
+  { label: "Recommendation",    Icon: IconFileText    },
+  { label: "Negotiation Brief", Icon: IconCircleCheck },
 ];
 
 type AppState =
@@ -561,6 +563,21 @@ function HomeContent() {
                         AI Recommendation
                       </Text>
                       <MemoPanel memo={result.memo} />
+                    </Box>
+                  )}
+
+                  {result.negotiation_plans && result.negotiation_plans.length > 0 && (
+                    <Box>
+                      <Text
+                        size="xs"
+                        tt="uppercase"
+                        fw={700}
+                        c="dimmed"
+                        style={{ letterSpacing: "0.08em", marginBottom: 12 }}
+                      >
+                        Negotiation Playbook
+                      </Text>
+                      <NegotiationPlaybook plans={result.negotiation_plans} />
                     </Box>
                   )}
                 </Stack>

@@ -95,12 +95,33 @@ class ProposalState(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Negotiation Agent output
+# ---------------------------------------------------------------------------
+
+class NegotiationTactic(BaseModel):
+    area: str
+    their_position: str
+    our_ask: str
+    leverage: str
+
+
+class NegotiationBrief(BaseModel):
+    vendor_name: str
+    overall_approach: str
+    priority_tactics: List[NegotiationTactic]
+    red_lines: List[str]
+    concessions_to_offer: List[str]
+    batna: str
+
+
+# ---------------------------------------------------------------------------
 # Top-level graph state
 # ---------------------------------------------------------------------------
 
 class VendorLensState(BaseModel):
     proposals: List[ProposalState] = []
     memo: Optional[str] = None
+    negotiation_plans: Optional[List[NegotiationBrief]] = None
     status: Literal[
         "pending", "extracting", "risk", "scoring", "memo", "done", "error"
     ] = "pending"

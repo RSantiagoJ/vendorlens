@@ -37,6 +37,7 @@ from langgraph.graph import END, START, StateGraph
 
 from agents.extraction_agent import ExtractionAgent
 from agents.memo_agent import MemoAgent
+from agents.negotiation_agent import NegotiationAgent
 from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
 from graph.state import ProposalData, ProposalState, RiskFlag
@@ -56,6 +57,7 @@ class PipelineState(TypedDict):
     pending: List[dict]                               # raw {filename} dicts — input only
     proposals: Annotated[List[dict], operator.add]    # fan-in from parallel vendor_subgraphs
     memo: Optional[str]
+    negotiation_plans: Annotated[Optional[list], _last]
     status: Annotated[str, _last]
     error: Annotated[Optional[str], _last]
 
@@ -80,6 +82,7 @@ def build_pipeline(bundle_id: str = "lms"):
     risk_agent = RiskAgent(bundle_id=bundle_id)
     scoring_agent = ScoringAgent(bundle_id=bundle_id)
     memo_agent = MemoAgent()
+    negotiation_agent = NegotiationAgent()
     logger.info("Agents initialized")
 
     # -----------------------------------------------------------------------
@@ -185,9 +188,10 @@ def build_pipeline(bundle_id: str = "lms"):
         from concurrent.futures import ThreadPoolExecutor
 
         targets = [
-            (extraction_agent.llm, extraction_agent.system_prompt),
-            (risk_agent.llm,       risk_agent.system_prompt),
-            (scoring_agent.llm,    scoring_agent.system_prompt),
+            (extraction_agent.llm,    extraction_agent.system_prompt),
+            (risk_agent.llm,          risk_agent.system_prompt),
+            (scoring_agent.llm,       scoring_agent.system_prompt),
+            (negotiation_agent.llm,   negotiation_agent.system_prompt),
         ]
 
         def warm(args):
@@ -231,13 +235,24 @@ def build_pipeline(bundle_id: str = "lms"):
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
+    def negotiation_node(state: PipelineState) -> dict:
+        try:
+            all_proposals = [ProposalState(**p) for p in state["proposals"]]
+            briefs = negotiation_agent.plan(all_proposals)
+            return {"negotiation_plans": [b.model_dump() for b in briefs]}
+        except Exception as e:
+            logger.exception("negotiation_node failed")
+            return {"negotiation_plans": []}
+
     graph = StateGraph(PipelineState)
     graph.add_node("warm_caches", warm_caches_node)
     graph.add_node("vendor_subgraph", vendor_subgraph)
     graph.add_node("memo_node", memo_node)
+    graph.add_node("negotiation_node", negotiation_node)
     graph.add_edge(START, "warm_caches")
     graph.add_conditional_edges("warm_caches", fan_out_vendors, ["vendor_subgraph"])
     graph.add_edge("vendor_subgraph", "memo_node")
-    graph.add_edge("memo_node", END)
+    graph.add_edge("memo_node", "negotiation_node")
+    graph.add_edge("negotiation_node", END)
 
     return graph.compile()

@@ -33,7 +33,7 @@ from api.models import AnalysisResult, AnalyzeResponse, ProposalResult
 from db.session import get_db_session, init_db
 from db.models import AnalysisRun
 from graph.pipeline import build_pipeline
-from graph.state import ProposalState
+from graph.state import NegotiationBrief, ProposalState
 from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
 from tools.chroma import load_index
 
@@ -191,6 +191,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
             "pending": pending,
             "proposals": [],
             "memo": None,
+            "negotiation_plans": None,
             "status": "pending",
             "error": None,
         }
@@ -198,6 +199,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         final = {
             "proposals": [],
             "memo": None,
+            "negotiation_plans": None,
             "status": "pending",
             "error": None,
         }
@@ -223,6 +225,9 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
                 elif node_name == "memo_node" and "memo" not in seen_stages:
                     seen_stages.add("memo")
                     emit("memo", {"status": "memo"})
+                elif node_name == "negotiation_node" and "negotiation" not in seen_stages:
+                    seen_stages.add("negotiation")
+                    emit("negotiation", {"status": "negotiation"})
 
                 # Accumulate parent-level state only (ns == () is the parent graph).
                 if not ns and isinstance(updates, dict):
@@ -255,6 +260,9 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
                 for p in proposals
             ],
             memo=final.get("memo"),
+            negotiation_plans=[
+                NegotiationBrief(**p) for p in (final.get("negotiation_plans") or [])
+            ] or None,
             status=final_status,
             error=final.get("error"),
         )

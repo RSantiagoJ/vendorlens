@@ -209,4 +209,102 @@ export const DEMO_RESULT: AnalysisResult = {
       },
     },
   ],
+  negotiation_plans: [
+    {
+      vendor_name: "Brightspace by D2L",
+      overall_approach: "Collaborative but firm — they want this contract and scored highest; use that confidence to push on price escalation and SLA teeth.",
+      priority_tactics: [
+        {
+          area: "Price escalation cap",
+          their_position: "3% annual escalation clause in base contract",
+          our_ask: "Hard cap at 2% or CPI, whichever is lower, for all 3 years",
+          leverage: "Only vendor scoring above 8.0 — they have reputational incentive to close; Canvas is a credible alternative at 7.4",
+        },
+        {
+          area: "SLA financial penalties",
+          their_position: "99.9% uptime SLA with undefined penalty structure",
+          our_ask: "Tiered credits: 10% monthly fee for <99.9%, 25% for <99.5%, right to terminate for <99.0%",
+          leverage: "SLA penalties scored 9.0 — they know it's a strength; locking in teeth costs them little and signals good faith",
+        },
+        {
+          area: "Implementation timeline",
+          their_position: "18-month go-live estimate",
+          our_ask: "12-month go-live with milestone-based payment: 30% at signing, 40% at UAT, 30% at go-live",
+          leverage: "Tied payment to delivery removes their risk-free delay incentive; standard practice in higher-ed contracts",
+        },
+      ],
+      red_lines: [
+        "WCAG 2.1 AA compliance must be contractually guaranteed — not 'best effort'",
+        "Data processing agreement (DPA) must be executed before contract signing",
+        "Governing law must be Massachusetts courts — not Delaware",
+      ],
+      concessions_to_offer: [
+        "3-year commitment (vs. annual renewal) in exchange for escalation cap",
+        "Early payment terms (Net-15) in exchange for 2% discount",
+        "Participation as a public reference customer after 12-month go-live",
+      ],
+      batna: "Canvas by Instructure scored 7.4/10 overall — viable alternative if D2L won't meet red lines; mention it explicitly if negotiations stall",
+    },
+    {
+      vendor_name: "Canvas by Instructure",
+      overall_approach: "Pressure-test their weaknesses — pricing escalation and missing SLA penalties are real gaps; treat this as a backup negotiation, not the primary.",
+      priority_tactics: [
+        {
+          area: "Pricing escalation",
+          their_position: "5% annual auto-escalation with no opt-out",
+          our_ask: "Remove auto-escalation entirely or cap at 2%; add opt-out clause with 90-day notice",
+          leverage: "Scored 6.5/10 on pricing transparency — they know it's a weakness; Brightspace offers lower escalation",
+        },
+        {
+          area: "SLA penalties",
+          their_position: "No financial penalties in current draft — uptime SLA is aspirational",
+          our_ask: "Add penalty clause: minimum 5% monthly credit for any month below SLA",
+          leverage: "Absence of teeth is a HIGH-risk flag per UMass policy; non-negotiable for compliance",
+        },
+        {
+          area: "Liability cap",
+          their_position: "$250,000 liability cap (25% of annual contract value)",
+          our_ask: "Minimum 1× annual contract value ($1,000,000)",
+          leverage: "UMass procurement policy requires adequate coverage; $250K is below threshold for a $1M contract",
+        },
+      ],
+      red_lines: [
+        "Financial SLA penalties must be added — aspirational uptime is not acceptable",
+        "Liability cap must reach $500,000 minimum before award",
+        "Auto-renewal opt-out window must be extended to 120 days",
+      ],
+      concessions_to_offer: [
+        "Pilot with one college (5,000 students) before full rollout — reduces their implementation risk",
+        "Joint case study and conference presentation after year 1",
+      ],
+      batna: "Brightspace scored 8.2/10 overall — the preferred vendor; use this negotiation to either improve Canvas's terms or confirm Brightspace is the award",
+    },
+    {
+      vendor_name: "Blackboard Learn Ultra",
+      overall_approach: "Short session — walk in with the red lines only; this vendor is a distant third and negotiation leverage is limited without a credible award path.",
+      priority_tactics: [
+        {
+          area: "Data ownership language",
+          their_position: "Vague clause: 'institution retains ownership of content' — excludes derived data and analytics",
+          our_ask: "Explicit clause covering raw content, derived data, usage analytics, and model training data",
+          leverage: "HIGH-severity FERPA risk flag; DPA is missing — legally required before any data flows",
+        },
+        {
+          area: "Liability cap",
+          their_position: "$50,000 — approximately 2% of total contract value",
+          our_ask: "Minimum $500,000 or 1× annual contract value",
+          leverage: "UMass policy floor; $50K is non-compliant — contract cannot proceed as written",
+        },
+      ],
+      red_lines: [
+        "Data processing agreement (DPA) must be executed — no DPA means no contract",
+        "Liability cap must reach $250,000 minimum — current $50K is disqualifying",
+        "SOC 2 Type II certification required within 12 months of go-live — Type I is insufficient",
+      ],
+      concessions_to_offer: [
+        "Extended timeline to 24 months to allow SOC 2 Type II remediation",
+      ],
+      batna: "Both Brightspace (8.2) and Canvas (7.4) outscored Blackboard (5.2) significantly — this vendor is a last resort; do not award without full red-line compliance",
+    },
+  ],
 };

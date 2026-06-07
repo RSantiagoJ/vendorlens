@@ -44,12 +44,13 @@ These have been evaluated and closed. Do not suggest alternatives.
 POST /analyze
   → ingest files to ChromaDB (deduplicated)
   → _run_pipeline (ThreadPoolExecutor)
-      → warm_caches (3 LLM calls, non-fatal on failure)
+      → warm_caches (4 LLM calls, non-fatal on failure)
       → fan-out: vendor_subgraph per vendor (parallel)
-          → extract_node  (Sonnet — RAG + structured extraction)
-          → risk_node     (Sonnet — policy lookup + risk flags)
-          → score_node    (Haiku — rubric scoring, 0–10 scale)
-      → fan-in → memo_node (Sonnet — recommendation memo)
+          → extract_node       (Sonnet — RAG + structured extraction)
+          → risk_node          (Sonnet — policy lookup + risk flags)
+          → score_node         (Haiku — rubric scoring, 0–10 scale)
+      → fan-in → memo_node         (Sonnet — recommendation memo)
+               → negotiation_node  (Haiku — per-vendor negotiation briefs)
   → _persist_run → analysis_runs table (Postgres)
   → _schedule_eviction (TTL: 10 min from _jobs)
 
@@ -57,10 +58,10 @@ GET /stream/{job_id}  → SSE live progress
 GET /jobs/{job_id}    → persisted result (survives restarts)
 ```
 
-**LLM calls per 3-vendor run: 13**
-- 3 warm-up (amortized via prompt caching)
+**LLM calls per 3-vendor run: 15**
+- 4 warm-up (amortized via prompt caching)
 - 3 extract + 3 risk + 3 score
-- 1 memo
+- 1 memo + 1 negotiation (batched, all vendors in one call)
 
 **Token flow (distillation funnel):**
 Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage shrinks input)
@@ -71,13 +72,14 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 | File | Tests | What it covers |
 |------|-------|---------------|
-| `test_boundaries.py` | 47 | Data shape at every inter-layer handoff (B0–B7) |
-| `test_mock_pipeline.py` | 17 | Full pipeline happy path + all failure modes |
+| `test_boundaries.py` | 51 | Data shape at every inter-layer handoff (B0–B8) |
+| `test_mock_pipeline.py` | 19 | Full pipeline happy path + all failure modes + negotiation_plans |
+| `test_negotiation_agent.py` | 9 | NegotiationAgent unit tests + model shape |
 | `test_persistence.py` | 33 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
-| **Total** | **134** | **All offline — no API keys needed** |
+| **Total** | **148** | **All offline — no API keys needed** |
 
 ---
 
@@ -168,6 +170,18 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 - `ProposalCard`: shows a red Alert ("Scoring unavailable") when `scores === null`, surfaces `proposal.error` if present
 - `page.tsx`: yellow "Partial results" banner shown when `result.status === "partial"`, reports N of M vendors failed
 - TypeScript clean; all 25 frontend tests pass
+
+### 2026-06-07 — Negotiation agent (day15)
+- `NegotiationAgent` added: Haiku, one batched call for all vendors, output = `list[NegotiationBrief]`
+- `NegotiationTactic` + `NegotiationBrief` Pydantic models added to `graph/state.py`
+- `negotiation_node` wired into pipeline after `memo_node` (sequential)
+- `negotiation_plans` surfaced in `AnalysisResult` API response
+- `NegotiationPlaybook` component added to frontend results page: tactics table, red lines (red badges), concessions (teal badges), BATNA (yellow box)
+- `PIPELINE_STEPS` on landing page updated to include "Negotiation Brief" step
+- Stage type extended with `"negotiation"` for progress tracking
+- Demo fixture (`DEMO_RESULT`) populated with full 3-vendor negotiation plans
+- 14 new tests (9 unit + 5 boundary); all 123 backend tests passing; 25 frontend tests passing
+- TypeScript build: clean
 
 <!-- The daily audit appends findings here. Most recent first. -->
 <!-- Format: ### YYYY-MM-DD\n Findings or "No issues found." -->

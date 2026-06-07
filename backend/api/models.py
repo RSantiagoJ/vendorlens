@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from graph.state import ProposalData, RiskFlag, ScoreCard
+from graph.state import NegotiationBrief, ProposalData, RiskFlag, ScoreCard
 
 
 class AnalyzeResponse(BaseModel):
@@ -21,5 +21,6 @@ class AnalysisResult(BaseModel):
     bundle_id: str = "lms"
     proposals: list[ProposalResult]
     memo: str | None = None
+    negotiation_plans: list[NegotiationBrief] | None = None
     status: str
     error: str | None = None

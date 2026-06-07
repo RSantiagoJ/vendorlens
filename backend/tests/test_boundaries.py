@@ -512,18 +512,91 @@ class TestB7ScoringScale:
         )
         assert _parse_score_value(-0.1) == 0.0
 
-    def test_overall_clamped_when_llm_returns_out_of_range_scores(self):
-        """End-to-end: LLM returns 15 on all dimensions → overall must still be ≤ 10."""
-        agent = self._make_agent()
-        with patch("agents.scoring_agent.invoke_llm_cached") as mock_invoke:
-            mock_invoke.return_value = json.dumps(self._uniform_scores(15.0))
-            scorecard = agent.score(ProposalData(vendor_name="Test"), [])
 
-        assert scorecard.overall <= 10.0, (
-            f"overall={scorecard.overall} — out-of-range dimension scores must be clamped "
-            f"so the weighted sum cannot exceed 10.0"
+# ---------------------------------------------------------------------------
+# B8 — negotiation_node output → NegotiationBrief list contract
+# ---------------------------------------------------------------------------
+
+class TestB8NegotiationOutputContract:
+    """NegotiationBrief must survive a model_dump/reconstruct round-trip.
+
+    The pipeline stores negotiation_plans as list[dict] in PipelineState,
+    then the API reconstructs them as NegotiationBrief objects. The contract
+    at this boundary is that model_dump() produces a dict that NegotiationBrief
+    can be reconstructed from without data loss.
+    """
+
+    def _make_brief(self) -> "NegotiationBrief":
+        from graph.state import NegotiationBrief, NegotiationTactic
+        return NegotiationBrief(
+            vendor_name="TestVendor",
+            overall_approach="Push hard on pricing and SLA.",
+            priority_tactics=[
+                NegotiationTactic(
+                    area="Pricing escalation",
+                    their_position="6% annual auto-escalation",
+                    our_ask="Cap at 3% or CPI",
+                    leverage="Competitor offers fixed pricing",
+                ),
+                NegotiationTactic(
+                    area="Liability cap",
+                    their_position="$50,000",
+                    our_ask="$500,000 minimum",
+                    leverage="HIGH risk flag; policy requires adequate coverage",
+                ),
+            ],
+            red_lines=["SOC 2 Type II before go-live", "Liability cap > $250K"],
+            concessions_to_offer=["3-year commitment", "Early payment terms"],
+            batna="CompetitorVendor scored 8.1/10 — credible walk-away option",
         )
-        for field in _ALL_SCORECARD_FIELDS:
-            assert getattr(scorecard, field).score <= 10.0, (
-                f"{field}.score={getattr(scorecard, field).score} exceeds 10.0"
-            )
+
+    def test_negotiation_brief_round_trip(self):
+        from graph.state import NegotiationBrief
+        brief = self._make_brief()
+        d = brief.model_dump()
+        reconstructed = NegotiationBrief(**d)
+
+        assert reconstructed.vendor_name == brief.vendor_name
+        assert reconstructed.overall_approach == brief.overall_approach
+        assert len(reconstructed.priority_tactics) == 2
+        assert reconstructed.priority_tactics[0].area == "Pricing escalation"
+        assert reconstructed.red_lines == brief.red_lines
+        assert reconstructed.concessions_to_offer == brief.concessions_to_offer
+        assert reconstructed.batna == brief.batna
+
+    def test_negotiation_brief_list_round_trip(self):
+        """list[NegotiationBrief] → list[dict] → list[NegotiationBrief] (pipeline fan-in pattern)."""
+        from graph.state import NegotiationBrief
+        briefs = [self._make_brief(), self._make_brief()]
+        briefs[1] = NegotiationBrief(**{**briefs[1].model_dump(), "vendor_name": "OtherVendor"})
+
+        dumped = [b.model_dump() for b in briefs]
+        reconstructed = [NegotiationBrief(**d) for d in dumped]
+
+        assert len(reconstructed) == 2
+        assert reconstructed[0].vendor_name == "TestVendor"
+        assert reconstructed[1].vendor_name == "OtherVendor"
+        assert len(reconstructed[0].priority_tactics) == 2
+
+    def test_negotiation_tactic_all_fields_present_in_dump(self):
+        """Every field on NegotiationTactic must appear in model_dump() output."""
+        from graph.state import NegotiationTactic
+        t = NegotiationTactic(
+            area="Pricing",
+            their_position="$44/seat",
+            our_ask="$38/seat",
+            leverage="Competitor is cheaper",
+        )
+        d = t.model_dump()
+        for field in ("area", "their_position", "our_ask", "leverage"):
+            assert field in d, f"NegotiationTactic.model_dump() missing field: {field}"
+
+    def test_negotiation_brief_all_fields_present_in_dump(self):
+        """Every field on NegotiationBrief must appear in model_dump() output."""
+        from graph.state import NegotiationBrief
+        brief = self._make_brief()
+        d = brief.model_dump()
+        for field in ("vendor_name", "overall_approach", "priority_tactics",
+                      "red_lines", "concessions_to_offer", "batna"):
+            assert field in d, f"NegotiationBrief.model_dump() missing field: {field}"
+

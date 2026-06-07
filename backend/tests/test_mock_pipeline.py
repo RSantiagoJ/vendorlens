@@ -198,6 +198,100 @@ def test_pipeline_multi_vendor_both_succeed(
 
 
 # ---------------------------------------------------------------------------
+# Negotiation plans — pipeline integration
+# ---------------------------------------------------------------------------
+
+@patch("graph.pipeline.load_index")
+@patch("agents.extraction_agent.ExtractionAgent._retrieve_chunks")
+@patch("agents.extraction_agent.invoke_llm_cached")
+@patch("agents.risk_agent.invoke_llm_cached")
+@patch("agents.scoring_agent.invoke_llm_cached")
+@patch("agents.memo_agent.MemoAgent.write")
+@patch("agents.negotiation_agent.NegotiationAgent.plan")
+def test_pipeline_produces_negotiation_plans(
+    mock_negot, mock_memo, mock_score_llm, mock_risk_llm, mock_extract_llm, mock_retrieve, mock_load_index
+):
+    """Pipeline must include negotiation_plans in output when negotiation_node runs."""
+    from graph.state import NegotiationBrief, NegotiationTactic
+    mock_load_index.return_value = MagicMock()
+    mock_retrieve.return_value = "some text chunks"
+    mock_extract_llm.return_value = json.dumps(MOCK_EXTRACTION_BLACKBOARD)
+    mock_risk_llm.return_value = json.dumps(MOCK_RISKS_BLACKBOARD)
+    mock_score_llm.return_value = json.dumps(MOCK_SCORING_VALID)
+    mock_memo.return_value = "Mock Recommendation Memo"
+    mock_negot.return_value = [
+        NegotiationBrief(
+            vendor_name="Blackboard Learn Ultra",
+            overall_approach="Firm on red lines.",
+            priority_tactics=[
+                NegotiationTactic(
+                    area="Pricing",
+                    their_position="$44/seat",
+                    our_ask="$38/seat",
+                    leverage="Competitor is cheaper",
+                )
+            ],
+            red_lines=["SOC 2 Type II required"],
+            concessions_to_offer=["3-year commitment"],
+            batna="No credible alternative — moderate leverage only",
+        )
+    ]
+
+    result = _build_graph().invoke(_state("blackboard.txt"))
+
+    assert result["status"] == "done"
+    assert "negotiation_plans" in result, "Pipeline must include negotiation_plans in output"
+    assert result["negotiation_plans"] is not None
+    assert len(result["negotiation_plans"]) == 1
+    plan = result["negotiation_plans"][0]
+    assert plan["vendor_name"] == "Blackboard Learn Ultra"
+    assert plan["overall_approach"] == "Firm on red lines."
+    assert len(plan["priority_tactics"]) == 1
+    assert plan["priority_tactics"][0]["area"] == "Pricing"
+
+
+@patch("graph.pipeline.load_index")
+@patch("agents.extraction_agent.ExtractionAgent._retrieve_chunks")
+@patch("agents.extraction_agent.invoke_llm_cached")
+@patch("agents.risk_agent.invoke_llm_cached")
+@patch("agents.scoring_agent.invoke_llm_cached")
+@patch("agents.memo_agent.MemoAgent.write")
+@patch("agents.negotiation_agent.NegotiationAgent.plan")
+def test_pipeline_negotiation_plans_are_dicts_in_state(
+    mock_negot, mock_memo, mock_score_llm, mock_risk_llm, mock_extract_llm, mock_retrieve, mock_load_index
+):
+    """negotiation_plans in PipelineState must be list[dict] (serializable for API)."""
+    from graph.state import NegotiationBrief, NegotiationTactic
+    mock_load_index.return_value = MagicMock()
+    mock_retrieve.return_value = "chunks"
+    mock_extract_llm.return_value = json.dumps(MOCK_EXTRACTION_BLACKBOARD)
+    mock_risk_llm.return_value = json.dumps(MOCK_RISKS_BLACKBOARD)
+    mock_score_llm.return_value = json.dumps(MOCK_SCORING_VALID)
+    mock_memo.return_value = "Memo"
+    mock_negot.return_value = [
+        NegotiationBrief(
+            vendor_name="TestVendor",
+            overall_approach="Push hard.",
+            priority_tactics=[
+                NegotiationTactic(area="Price", their_position="High", our_ask="Lower", leverage="BATNA")
+            ],
+            red_lines=["Red line"],
+            concessions_to_offer=["Concession"],
+            batna="Walk away option",
+        )
+    ]
+
+    result = _build_graph().invoke(_state("blackboard.txt"))
+
+    plans = result["negotiation_plans"]
+    assert isinstance(plans, list)
+    assert isinstance(plans[0], dict), (
+        "negotiation_plans entries must be dicts in PipelineState — "
+        "call .model_dump() before storing in state"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Full pipeline — failure / degraded paths
 # ---------------------------------------------------------------------------
 
