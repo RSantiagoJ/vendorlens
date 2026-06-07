@@ -12,6 +12,7 @@ import { VendorComparisonTable } from "@/components/VendorComparisonTable";
 import { VendorRadarChart } from "@/components/VendorRadarChart";
 import { WinnerHero } from "@/components/WinnerHero";
 import { DEMO_RESULT } from "@/lib/fixtures";
+import { countFailedProposals } from "@/lib/scoring";
 import type { AnalysisResult, Bundle, Stage } from "@/lib/types";
 import { Logo } from "@/logo";
 import {
@@ -459,6 +460,22 @@ function HomeContent() {
 
               {appState === "done" && result && (
                 <Stack gap="xl" className="fadeIn" id="print-report">
+                  {result.status === "partial" && (
+                    <Alert
+                      icon={<IconAlertTriangle size={16} />}
+                      color="umyellow"
+                      variant="light"
+                      title="Partial results"
+                      radius="md"
+                    >
+                      {countFailedProposals(result.proposals)} of{" "}
+                      {result.proposals.length} vendor
+                      {result.proposals.length !== 1 ? "s" : ""} could not be
+                      scored. Results below reflect only the vendors that
+                      completed analysis.
+                    </Alert>
+                  )}
+
                   {winner && (
                     <WinnerHero
                       winner={winner}

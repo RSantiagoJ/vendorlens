@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { scoreTier, scoreLabel, scoreLabelShort, ringFillPercent, barFillPercent } from "./scoring";
+import { scoreTier, scoreLabel, scoreLabelShort, ringFillPercent, barFillPercent, countFailedProposals } from "./scoring";
+import type { ProposalResult } from "./types";
 
 describe("scoreTier — 0–10 scale", () => {
   it("returns umgreen at exactly 7", () => {
@@ -65,4 +66,22 @@ describe("barFillPercent — maps 0–10 to 0–100%", () => {
   it("full score gives 100%", () => expect(barFillPercent(10)).toBe(100));
   it("zero gives 0%", () => expect(barFillPercent(0)).toBe(0));
   it("5 gives 50%", () => expect(barFillPercent(5)).toBe(50));
+});
+
+describe("countFailedProposals", () => {
+  const scored = { scores: { overall: 7.5 } } as ProposalResult;
+  const failed = { scores: null } as ProposalResult;
+
+  it("returns 0 when all proposals scored", () => {
+    expect(countFailedProposals([scored, scored])).toBe(0);
+  });
+  it("returns 1 when one proposal failed", () => {
+    expect(countFailedProposals([scored, failed])).toBe(1);
+  });
+  it("returns total when all proposals failed", () => {
+    expect(countFailedProposals([failed, failed, failed])).toBe(3);
+  });
+  it("returns 0 for empty list", () => {
+    expect(countFailedProposals([])).toBe(0);
+  });
 });

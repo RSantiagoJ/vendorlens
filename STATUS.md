@@ -76,7 +76,8 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | `test_persistence.py` | 33 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
-| **Total** | **109** | **All offline — no API keys needed** |
+| `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
+| **Total** | **134** | **All offline — no API keys needed** |
 
 ---
 
@@ -85,8 +86,8 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | # | Task | Blocking anything? |
 |---|------|--------------------|
 | 1 | ~~**Replace SSE with pure polling** (day12)~~ | Done — `/jobs/{job_id}/progress` endpoint + frontend polls every 2s; SSE removed |
-| 2 | Show "scoring failed" state on partial proposal cards | UX gap — null scores silently render an empty card |
-| 3 | Surface `status: "partial"` at the top level | User has no indication one vendor failed vs all succeeded |
+| 2 | ~~Show "scoring failed" state on partial proposal cards~~ | Done — Alert shown on card when `scores === null`; displays `proposal.error` if present |
+| 3 | ~~Surface `status: "partial"` at the top level~~ | Done — yellow banner above results showing how many of N vendors failed |
 | 4 | ~~Verify frontend handles 0–10 scores correctly~~ | Done |
 | 5 | Vercel + Terraform integration | After polling fix lands |
 | 6 | Production Postgres (AWS RDS) for persistence | Required for Terraform deploy |
@@ -147,6 +148,13 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 - `ProposalResult.error` field added to frontend types.ts
 - Branch day11 not yet merged to main — Vercel is watching main.
 
+
+### 2026-06-07 — Partial result UX (day13)
+- `countFailedProposals(proposals)` added to `scoring.ts` — counts proposals with `scores === null`
+- 4 new tests in `scoring.test.ts` (red confirmed before implementation); total frontend tests: 25
+- `ProposalCard`: shows a red Alert ("Scoring unavailable") when `scores === null`, surfaces `proposal.error` if present
+- `page.tsx`: yellow "Partial results" banner shown when `result.status === "partial"`, reports N of M vendors failed
+- TypeScript clean; all 25 frontend tests pass
 
 <!-- The daily audit appends findings here. Most recent first. -->
 <!-- Format: ### YYYY-MM-DD\n Findings or "No issues found." -->

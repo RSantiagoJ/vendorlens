@@ -20,11 +20,11 @@ function useCountUp(target: number, duration = 900): number {
 
 import {
   Paper, Text, Group, Stack, Badge, Collapse,
-  Button, Divider, Box, ThemeIcon, Tooltip, Popover, Progress,
+  Button, Divider, Box, ThemeIcon, Tooltip, Popover, Progress, Alert,
 } from "@mantine/core";
 import {
   IconBuilding, IconChevronDown, IconChevronUp, IconAlertTriangle,
-  IconAward, IconInfoCircle, IconArrowUp,
+  IconAward, IconInfoCircle, IconArrowUp, IconCircleX,
 } from "@tabler/icons-react";
 import type { ProposalResult, RiskFlag, ScoreCard } from "@/lib/types";
 import { scoreTier, scoreLabelShort, type ScoreTier } from "@/lib/scoring";
@@ -199,6 +199,23 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
           )}
         </Group>
 
+
+        {/* Scoring failed alert */}
+        {scores === null && (
+          <Alert
+            icon={<IconCircleX size={16} />}
+            color="ummaroon"
+            variant="light"
+            title="Scoring unavailable"
+            radius="sm"
+          >
+            <Text size="xs">
+              {proposal.error
+                ? `Analysis error: ${proposal.error}`
+                : "This vendor could not be scored. Extraction data may still be available below."}
+            </Text>
+          </Alert>
+        )}
 
         {/* Gap to win — only shown on non-recommended vendors */}
         {gapToWin.length > 0 && (

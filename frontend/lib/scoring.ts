@@ -1,6 +1,8 @@
 // Scoring scale: 0–10. Do not multiply by 10 or normalize to 0–100.
 // See DECISIONS.md — "Scoring scale 0–10 (not 0–100)" for the full history.
 
+import type { ProposalResult } from "./types";
+
 export const SCORE_TIERS = [
   { min: 7, color: "umgreen",  textColor: "var(--mantine-color-umgreen-6)"  },
   { min: 4, color: "umyellow", textColor: "var(--mantine-color-umyellow-7)" },
@@ -31,4 +33,8 @@ export function ringFillPercent(score: number): number {
 
 export function barFillPercent(score: number): number {
   return (score / 10) * 100;
+}
+
+export function countFailedProposals(proposals: ProposalResult[]): number {
+  return proposals.filter((p) => p.scores === null).length;
 }
