@@ -48,6 +48,16 @@ resource "aws_apprunner_service" "vendorlens" {
     instance_role_arn = aws_iam_role.apprunner_instance.arn
   }
 
+  network_configuration {
+    ingress_configuration {
+      is_publicly_accessible = true
+    }
+  }
+
+  # Pipeline with real LLM calls takes 2-4 min; default 120s cuts SSE streams.
+  # Set via console (Configuration → Request timeout) — Terraform syncs on next apply.
+  # Target: 300 seconds.
+
   health_check_configuration {
     path                = "/health"
     protocol            = "HTTP"

@@ -6,7 +6,7 @@
 
 ---
 
-## System State (as of 2026-06-06)
+## System State (as of 2026-06-07)
 
 **Working end-to-end:** Yes. Full pipeline runs locally via Docker.
 **Tests:** 87 passing, 0 failing. All offline (no API keys needed).
@@ -106,7 +106,18 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 ## Daily Audit Log
 
-### 2026-06-07
+### 2026-06-07 — Production deployment + SSE polling fallback
+- SSE compact JSON fix deployed (separators=(',',':') — test script was checking for no-space format)
+- Agent logging added (extraction chunk count, risk flag count, scoring dim_scores + overall)
+- Frontend `/100` suffix bug fixed → `/10` in KPI bar
+- SSE polling fallback implemented: when onerror fires, frontend polls /jobs/{job_id} every 5s
+- receivedDone flag added to prevent polling starting after a clean SSE done event
+- App Runner 120s hard timeout confirmed — cannot be changed. See DECISIONS.md for full context.
+- AWS CLI installed at ~/.local/bin/aws. deploy_backend.sh script created.
+- COMMANDS.md updated: live validation command, manual deploy trigger, sg docker note added.
+- Branch day11 not yet merged to main — Vercel is watching main.
+
+
 - COMMANDS.md missing scripts: test_api.sh
 
 Recent commits:

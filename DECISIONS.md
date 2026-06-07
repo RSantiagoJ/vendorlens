@@ -115,6 +115,23 @@ Eviction is via a daemon `threading.Timer` — fires and forgets, doesn't block 
 
 ---
 
+## Production SSE / Polling Fallback
+
+### App Runner hard-cuts SSE connections at 120 seconds
+AWS App Runner has a fixed 120-second request timeout that cannot be changed via API, CLI, or console.
+The pipeline takes 2–4 minutes on a warm container. This means the SSE stream is always cut before the pipeline finishes in production.
+
+**The fix (day11):** When `es.onerror` fires in the frontend, instead of showing an error, the client silently switches to polling `GET /jobs/{job_id}` every 5 seconds until the result appears. The pipeline keeps running in the backend (ThreadPoolExecutor is not affected by the dropped HTTP connection). When polling finds `status: "done"`, results are displayed normally.
+
+**Race condition also fixed:** When the SSE connection closes normally (server done → connection closed), the browser fires `onerror` right after the `done` event. A `receivedDone` flag prevents `onerror` from starting polling when `done` was already handled.
+
+**Why not just use polling from the start?**
+Polling was considered and not adopted because SSE gives live progress events (extracting → risk → scoring → memo) which are a real UX feature. The hybrid approach preserves progress updates when SSE works and degrades gracefully when it doesn't.
+
+**Acknowledged limitation:** This is a hack. The cleaner design is pure polling with the current stage stored in `GET /jobs/{job_id}`. Not worth the work for a demo.
+
+---
+
 ## What Was Proposed and Rejected
 
 | Proposal | Rejected Because |

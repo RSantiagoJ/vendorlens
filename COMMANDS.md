@@ -2,6 +2,10 @@
 
 All commands run from the **repository root** unless noted.
 All Python runs inside Docker — never `python3` on the host directly.
+All `docker` commands require the docker group — prefix with `sg docker -c "..."` if you get a permission error:
+```bash
+sg docker -c "docker compose up api db -d"
+```
 
 ---
 
@@ -155,22 +159,31 @@ docker compose run --rm backend python tests/test_smoke.py --dry-run
 ## Deploy Backend to AWS (App Runner via ECR)
 
 ```bash
+bash scripts/deploy_backend.sh
+```
+
+Manual steps if needed:
+
+```bash
 # 1. Authenticate with ECR
 aws ecr get-login-password --region us-east-1 \
-  | docker login --username AWS --password-stdin \
-    438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend
+  | sg docker -c "docker login --username AWS --password-stdin \
+    438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend"
 
 # 2. Build for linux/amd64 (required for App Runner)
-docker build --platform linux/amd64 -t vendorlens-backend backend/
+sg docker -c "docker build --platform linux/amd64 -t vendorlens-backend backend/"
 
 # 3. Tag and push
-docker tag vendorlens-backend:latest \
-  438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend:latest
+sg docker -c "docker tag vendorlens-backend:latest \
+  438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend:latest"
 
-docker push \
-  438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend:latest
+sg docker -c "docker push \
+  438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend:latest"
 
-# App Runner auto-deploys on push (auto_deployments_enabled = true)
+# 4. Trigger App Runner deployment (auto-deploy may not fire — always do this manually)
+~/.local/bin/aws apprunner start-deployment \
+  --service-arn arn:aws:apprunner:us-east-1:438920434591:service/vendorlens/696cbbb5a5b74503b0819ec443fff652 \
+  --region us-east-1
 ```
 
 ---
@@ -197,6 +210,30 @@ Check deploy status: https://vercel.com/dashboard
 
 ```bash
 cd terraform && terraform destroy
+```
+
+---
+
+## Live Validation
+
+```bash
+# Run against local backend
+./scripts/test_api.sh
+
+# Run against production backend
+API=https://brpste4mu9.us-east-1.awsapprunner.com ./scripts/test_api.sh
+```
+
+Uses `backend/data/vendor_proposals/test/{alpha_lms.txt, beta_lms.txt}` — minimal docs, low cost (~$0.05).
+
+---
+
+## Trigger App Runner Deployment Manually
+
+```bash
+~/.local/bin/aws apprunner start-deployment \
+  --service-arn arn:aws:apprunner:us-east-1:438920434591:service/vendorlens/696cbbb5a5b74503b0819ec443fff652 \
+  --region us-east-1
 ```
 
 ---
