@@ -106,6 +106,19 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 ## Daily Audit Log
 
+### 2026-06-07
+- COMMANDS.md missing scripts: test_api.sh
+
+Recent commits:
+```
+1202662 chore: add minimal test vendor docs for live validation script
+e7955ed docs: update STATUS and DECISIONS with scoring fix history and next steps
+75048cf feat: rewrite test_api.sh as full live validation script
+02c4c68 feat: extract scoring logic to scoring.ts and fix 0–10 scale in UI
+2ac3938 docs: add RESTART.md to session start protocol
+```
+
+
 <!-- The daily audit appends findings here. Most recent first. -->
 <!-- Format: ### YYYY-MM-DD\n Findings or "No issues found." -->
 
