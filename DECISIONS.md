@@ -84,8 +84,19 @@ rather than propagating bad data silently through the pipeline.
 ### Scoring scale 0–10 (not 0–100)
 The rubric injected into the LLM's system prompt explicitly states: "Maximum possible overall score is 10.0."
 The LLM scores each dimension 0–10. `_compute_overall` is a simple weighted sum — no multiplier.
-A `* 10` was introduced by an LLM fixing a UI display issue without checking the backend contract.
-That bug was fixed in day11. `TestB7ScoringScale` guards this permanently.
+
+**How the bug actually happened — two sessions, one broken contract:**
+- bc72a29 (June 4): a Claude session added `* 10` to `_compute_overall` AND simultaneously updated
+  the frontend to match: `>= 70/40` thresholds, `/ 100` labels, ring offset `/ 100`. Backend and
+  frontend were deliberately in sync at 0–100. The commit message documented this explicitly.
+- d5f51d4 (day11): the `* 10` was removed because the rubric says max 10.0, backend tests were
+  written, but the frontend was never touched. One end of a coordinated contract was changed
+  without updating the other.
+- Fixed in day11 session 2: all four frontend spots updated to 0–10 scale.
+
+**Rule this adds:** When you change a numeric scale at the backend (multiplier, normalization),
+search the frontend immediately for every place that value is displayed or compared.
+The commit message may tell you this was a coordinated change — read it before removing anything.
 
 ---
 

@@ -79,6 +79,18 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 ---
 
+## What's Next (prioritized)
+
+| # | Task | Blocking anything? |
+|---|------|--------------------|
+| 1 | Live end-to-end test with real API calls | Yes — must pass before deploy |
+| 2 | ~~Verify frontend handles 0–10 scores correctly~~ | Done — thresholds, labels, ring, fill bar all updated |
+| 3 | Vercel + Terraform integration | After live test passes |
+| 4 | Production Postgres (AWS RDS) for persistence | Required for Terraform deploy |
+| 5 | DB migration: `rfp_name` column on production DB | Before first production run |
+
+---
+
 ## Known Issues / Improvement Backlog
 
 Items noticed but not yet acted on. Each needs a failing test before any fix.
@@ -96,6 +108,13 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 <!-- The daily audit appends findings here. Most recent first. -->
 <!-- Format: ### YYYY-MM-DD\n Findings or "No issues found." -->
+
+### 2026-06-06 — Frontend scoring fix + test suite added
+- Frontend updated to 0–10 scale (thresholds, labels, ring fill, bar width) in WinnerHero, ProposalCard, VendorComparisonTable
+- Scoring display logic extracted to `frontend/lib/scoring.ts` (single source of truth)
+- 21 Vitest tests added in `frontend/lib/scoring.test.ts` — written POST-implementation (fix preceded tests)
+- CLAUDE.md updated: frontend numeric display logic now listed under "What Requires a Failing Test First"
+- DECISIONS.md updated: full two-session history of the scoring scale bug documented
 
 ### 2026-06-06 — Initial STATUS.md created
 Session summary: Day11 pipeline audit complete.
