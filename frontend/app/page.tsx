@@ -165,81 +165,41 @@ function HomeContent() {
       const { job_id } = await res.json();
       setAppState("processing");
 
-      const es = new EventSource(`${API_BASE}/stream/${job_id}`);
-      let receivedDone = false;
-
-      es.addEventListener("extracting", (e) => {
-        setStage("extracting");
+      // Poll /progress every 2s instead of SSE — avoids App Runner 120s hard cut
+      pollRef.current = setInterval(async () => {
         try {
-          const data = JSON.parse((e as MessageEvent).data);
-          if (Array.isArray(data.vendors)) setVendorNames(data.vendors);
-        } catch {}
-      });
+          const poll = await fetch(`${API_BASE}/jobs/${job_id}/progress`);
+          if (!poll.ok) return;
+          const data = await poll.json();
 
-      (["risk", "memo"] as const).forEach((s) =>
-        es.addEventListener(s, () => setStage(s)),
-      );
-
-      es.addEventListener("scoring", (e) => {
-        setStage("scoring");
-        try {
-          const data = JSON.parse((e as MessageEvent).data);
+          if (Array.isArray(data.vendors) && data.vendors.length)
+            setVendorNames(data.vendors);
           if (typeof data.total_risks === "number")
             setTotalRisks(data.total_risks);
-        } catch {}
-      });
+          if (data.stage && data.stage !== "pending")
+            setStage(data.stage as Stage);
 
-      es.addEventListener("done", (e) => {
-        receivedDone = true;
-        es.close();
-        const data: AnalysisResult = JSON.parse((e as MessageEvent).data);
-        setResult(data);
-        setStage("memo");
-        setTimeout(() => {
-          setStage("done");
-          setAppState("ready");
-        }, 800);
-      });
-
-      es.addEventListener("error", (e) => {
-        if (receivedDone) return;
-        const raw = (e as MessageEvent).data;
-        if (!raw) return; // connection-level close — onerror handles polling fallback
-        es.close();
-        const msg = JSON.parse(raw).error ?? null;
-        setError(msg ?? "An error occurred during analysis.");
-        setAppState("error");
-      });
-
-      es.onerror = () => {
-        if (receivedDone) return;
-        es.close();
-        // App Runner hard-cuts SSE at 120s — pipeline keeps running, poll for result
-        pollRef.current = setInterval(async () => {
-          try {
-            const res = await fetch(`${API_BASE}/jobs/${job_id}`);
-            if (!res.ok) return;
-            const data: AnalysisResult = await res.json();
-            if (data.status === "done" || data.status === "partial") {
-              clearInterval(pollRef.current!); pollRef.current = null;
-              setResult(data);
-              setStage("done");
-              setTimeout(() => setAppState("ready"), 800);
-            } else if (data.status === "error") {
-              clearInterval(pollRef.current!); pollRef.current = null;
-              setError(data.error ?? "Analysis failed.");
-              setAppState("error");
-            }
-          } catch {}
-        }, 5000);
-        setTimeout(() => {
-          if (pollRef.current) {
-            clearInterval(pollRef.current); pollRef.current = null;
-            setError("Analysis timed out. Please try again.");
+          if (data.status === "done" || data.status === "partial") {
+            clearInterval(pollRef.current!); pollRef.current = null;
+            setResult(data.result as AnalysisResult);
+            setStage("memo");
+            setTimeout(() => { setStage("done"); setAppState("ready"); }, 800);
+          } else if (data.status === "error") {
+            clearInterval(pollRef.current!); pollRef.current = null;
+            setError(data.result?.error ?? "Analysis failed.");
             setAppState("error");
           }
-        }, 300_000);
-      };
+        } catch {}
+      }, 2000);
+
+      // Hard timeout — pipeline should never take more than 5 min
+      setTimeout(() => {
+        if (pollRef.current) {
+          clearInterval(pollRef.current); pollRef.current = null;
+          setError("Analysis timed out. Please try again.");
+          setAppState("error");
+        }
+      }, 300_000);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setAppState("error");

@@ -370,6 +370,39 @@ def get_job(job_id: str) -> AnalysisResult:
     raise HTTPException(status_code=404, detail="Job not found.")
 
 
+@app.get("/jobs/{job_id}/progress")
+def get_job_progress(job_id: str) -> dict:
+    """Return current pipeline stage for a running or completed job.
+
+    Used by polling clients instead of the SSE stream. Safe to call at any
+    point during the run — returns partial data before the job completes.
+    """
+    if job_id not in _jobs:
+        raise HTTPException(status_code=404, detail="Job not found.")
+
+    job = _jobs[job_id]
+    events = job.get("events", [])
+
+    stage = events[-1]["type"] if events else "pending"
+    vendors: list[str] = []
+    total_risks: int | None = None
+
+    for ev in events:
+        if ev["type"] == "extracting":
+            vendors = ev["data"].get("vendors", [])
+        elif ev["type"] == "scoring":
+            total_risks = ev["data"].get("total_risks")
+
+    response: dict = {
+        "status": job["status"],
+        "stage": stage,
+        "vendors": vendors,
+        "total_risks": total_risks,
+        "result": job.get("result"),
+    }
+    return response
+
+
 @app.get("/stream/{job_id}")
 async def stream(job_id: str) -> StreamingResponse:
     if job_id not in _jobs:

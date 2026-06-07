@@ -469,3 +469,130 @@ class TestP5P6P7GetJobEndpoint:
             response = self._client().get(f"/jobs/{job_id}")
 
         assert response.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# P11 — GET /jobs/{job_id}/progress — polling progress endpoint
+# ---------------------------------------------------------------------------
+
+class TestP11ProgressEndpoint:
+    """Tests for the GET /jobs/{job_id}/progress endpoint used by polling clients.
+
+    This endpoint replaces the SSE stream for clients that cannot maintain a
+    long-lived connection (e.g. App Runner terminates SSE at 120s). It returns
+    the current stage and partial data at any point during the pipeline run.
+    """
+
+    def _client(self):
+        from fastapi.testclient import TestClient
+        from api.main import app
+        return TestClient(app)
+
+    def _inject_job(self, job_id: str, status: str, events: list, result=None, error=None):
+        from api.main import _jobs
+        _jobs[job_id] = {
+            "status": status,
+            "events": events,
+            "result": result,
+            "error": error,
+        }
+
+    def test_returns_404_for_unknown_job(self):
+        """Unknown job_id must return 404."""
+        from api.main import _jobs
+        job_id = "unknown-progress-job"
+        _jobs.pop(job_id, None)
+        response = self._client().get(f"/jobs/{job_id}/progress")
+        assert response.status_code == 404
+
+    def test_returns_pending_stage_when_no_events(self):
+        """A job that just started has no events — stage must be 'pending'."""
+        job_id = "progress-pending-001"
+        self._inject_job(job_id, "pending", [])
+        try:
+            response = self._client().get(f"/jobs/{job_id}/progress")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "pending"
+            assert data["stage"] == "pending"
+            assert data["vendors"] == []
+            assert data["total_risks"] is None
+            assert data.get("result") is None
+        finally:
+            from api.main import _jobs; _jobs.pop(job_id, None)
+
+    def test_returns_current_stage_from_events(self):
+        """Stage is derived from the most recent event type in the events list."""
+        job_id = "progress-stage-001"
+        events = [
+            {"type": "extracting", "data": {"vendors": ["canvas.txt", "blackboard.txt"]}},
+            {"type": "risk", "data": {"status": "risk"}},
+        ]
+        self._inject_job(job_id, "pending", events)
+        try:
+            response = self._client().get(f"/jobs/{job_id}/progress")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["stage"] == "risk"
+        finally:
+            from api.main import _jobs; _jobs.pop(job_id, None)
+
+    def test_returns_vendor_names_from_extracting_event(self):
+        """Vendor names must be extracted from the 'extracting' event payload."""
+        job_id = "progress-vendors-001"
+        events = [
+            {"type": "extracting", "data": {"vendors": ["canvas.txt", "blackboard.txt"]}},
+        ]
+        self._inject_job(job_id, "pending", events)
+        try:
+            response = self._client().get(f"/jobs/{job_id}/progress")
+            data = response.json()
+            assert data["vendors"] == ["canvas.txt", "blackboard.txt"]
+        finally:
+            from api.main import _jobs; _jobs.pop(job_id, None)
+
+    def test_returns_total_risks_from_scoring_event(self):
+        """total_risks must be populated once the scoring event is emitted."""
+        job_id = "progress-risks-001"
+        events = [
+            {"type": "extracting", "data": {"vendors": ["canvas.txt"]}},
+            {"type": "risk", "data": {"status": "risk"}},
+            {"type": "scoring", "data": {"status": "scoring", "total_risks": 7}},
+        ]
+        self._inject_job(job_id, "pending", events)
+        try:
+            response = self._client().get(f"/jobs/{job_id}/progress")
+            data = response.json()
+            assert data["total_risks"] == 7
+        finally:
+            from api.main import _jobs; _jobs.pop(job_id, None)
+
+    def test_includes_result_when_job_done(self):
+        """When job is done, the response must include the full result payload."""
+        job_id = "progress-done-001"
+        result = _analysis_result(job_id).model_dump()
+        events = [
+            {"type": "extracting", "data": {"vendors": ["canvas.txt"]}},
+            {"type": "done", "data": result},
+        ]
+        self._inject_job(job_id, "done", events, result=result)
+        try:
+            response = self._client().get(f"/jobs/{job_id}/progress")
+            data = response.json()
+            assert data["status"] == "done"
+            assert data["stage"] == "done"
+            assert data["result"] is not None
+            assert data["result"]["job_id"] == job_id
+        finally:
+            from api.main import _jobs; _jobs.pop(job_id, None)
+
+    def test_result_absent_when_job_pending(self):
+        """No 'result' key in response body while job is still running."""
+        job_id = "progress-noresult-001"
+        self._inject_job(job_id, "pending", [{"type": "extracting", "data": {"vendors": []}}])
+        try:
+            response = self._client().get(f"/jobs/{job_id}/progress")
+            data = response.json()
+            assert data.get("result") is None
+        finally:
+            from api.main import _jobs; _jobs.pop(job_id, None)
