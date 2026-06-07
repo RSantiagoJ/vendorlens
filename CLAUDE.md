@@ -9,9 +9,10 @@ This file tells you how to work in it. Follow both exactly.
 
 Do this before responding to anything the user asks:
 
-1. **Read STATUS.md** — understand current state, settled decisions, open issues
-2. **Check tests** — if any tests are failing, fix them before touching what the user asked
-3. **Check for drift** — does anything in this file contradict what you can see in the code?
+1. **Read STATUS.md** — current state, settled decisions, open issues
+2. **Read DECISIONS.md** — why things were built the way they were (prevents re-debating closed questions)
+3. **Check tests** — if any tests are failing, fix them before touching what the user asked
+4. **Check for drift** — does anything in this file contradict what you can see in the code?
    If yes: update this file to match reality, not the other way around
 
 ---
@@ -93,7 +94,8 @@ docker compose run --rm backend python -m pytest tests/ -q
 Before closing any session:
 
 1. Run the full test suite — all must pass
-2. Update STATUS.md:
+2. If a significant decision was made this session — add it to DECISIONS.md
+3. Update STATUS.md:
    - Mark completed items done
    - Add new settled decisions if any were made
    - Add new items to the improvement backlog if you noticed anything
