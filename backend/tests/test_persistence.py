@@ -216,3 +216,94 @@ class TestP4DBError:
             _persist_run("job-123", "lms", _analysis_result("job-123"))
 
         mock_session.close.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# P5 — GET /jobs/{job_id} returns from in-memory store when available
+# P6 — GET /jobs/{job_id} falls back to DB when job is not in memory
+# P7 — GET /jobs/{job_id} returns 404 when found in neither
+# ---------------------------------------------------------------------------
+
+class TestP5P6P7GetJobEndpoint:
+    """Tests for the GET /jobs/{job_id} endpoint using FastAPI's test client."""
+
+    def _client(self):
+        from fastapi.testclient import TestClient
+        from api.main import app
+        return TestClient(app)
+
+    def test_returns_result_from_memory(self):
+        """P5: job is still in _jobs — no DB call needed."""
+        from api.main import _jobs
+        job_id = "mem-job-001"
+        result = _analysis_result(job_id)
+        _jobs[job_id] = {
+            "status": "done",
+            "events": [],
+            "result": result.model_dump(),
+            "error": None,
+        }
+
+        try:
+            response = self._client().get(f"/jobs/{job_id}")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["job_id"] == job_id
+            assert data["status"] == "done"
+            assert len(data["proposals"]) == 2
+        finally:
+            _jobs.pop(job_id, None)
+
+    def test_falls_back_to_db_when_not_in_memory(self):
+        """P6: job not in _jobs — endpoint queries DB and reconstructs AnalysisResult."""
+        from api.main import _jobs
+        from db.models import AnalysisRun
+        job_id = "db-job-001"
+        result = _analysis_result(job_id)
+
+        mock_run = AnalysisRun(
+            job_id=job_id,
+            bundle_id="lms",
+            status="done",
+            memo=result.memo,
+            error=None,
+            proposals=[p.model_dump() for p in result.proposals],
+        )
+        mock_session = MagicMock()
+        mock_session.query.return_value.filter_by.return_value.first.return_value = mock_run
+
+        _jobs.pop(job_id, None)  # ensure not in memory
+
+        with patch("api.main.get_db_session", return_value=mock_session):
+            response = self._client().get(f"/jobs/{job_id}")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["job_id"] == job_id
+        assert data["status"] == "done"
+        assert data["memo"] == result.memo
+
+    def test_returns_404_when_not_in_memory_or_db(self):
+        """P7: job exists nowhere — must return 404, not 500."""
+        from api.main import _jobs
+        job_id = "missing-job-999"
+        _jobs.pop(job_id, None)
+
+        mock_session = MagicMock()
+        mock_session.query.return_value.filter_by.return_value.first.return_value = None
+
+        with patch("api.main.get_db_session", return_value=mock_session):
+            response = self._client().get(f"/jobs/{job_id}")
+
+        assert response.status_code == 404
+
+    def test_returns_404_when_db_unavailable_and_not_in_memory(self):
+        """No DATABASE_URL and job not in memory — must 404 cleanly."""
+        from api.main import _jobs
+        job_id = "no-db-job-999"
+        _jobs.pop(job_id, None)
+
+        with patch("api.main.get_db_session", return_value=None):
+            response = self._client().get(f"/jobs/{job_id}")
+
+        assert response.status_code == 404
