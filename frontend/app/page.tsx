@@ -26,14 +26,11 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  ThemeIcon,
   Transition,
 } from "@mantine/core";
 import {
   IconAlertCircle,
   IconAlertTriangle,
-  IconAward,
-  IconBuilding,
   IconChartBar,
   IconCircleCheck,
   IconFileText,
@@ -504,111 +501,68 @@ function HomeContent() {
                     />
                   )}
 
-                  {/* KPI summary bar */}
-                  <SimpleGrid
-                    cols={{ base: 1, sm: 3 }}
-                    spacing="md"
-                    data-print-hide
-                  >
-                    {[
-                      {
-                        value: sortedProposals.length,
-                        label: "Vendors Analyzed",
-                        icon: <IconBuilding size={22} />,
-                        color: "umblue",
-                      },
-                      {
-                        value: allRisksCount,
-                        label: "Risks Flagged",
-                        icon: <IconAlertTriangle size={22} />,
-                        color: "ummaroon",
-                      },
-                      {
-                        value: winner
-                          ? Math.round(winner.scores!.overall)
-                          : "—",
-                        suffix: winner ? "/10" : "",
-                        label: "Winner Score",
-                        icon: <IconAward size={22} />,
-                        color: "umgreen",
-                      },
-                    ].map(({ value, label, icon, color, suffix = "" }) => (
-                      <Paper
-                        key={label}
-                        p="lg"
-                        radius="md"
-                        withBorder
-                        bg="white"
-                        style={{
-                          borderLeft: `4px solid var(--mantine-color-${color}-5)`,
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-                        }}
-                      >
-                        <Group justify="space-between" align="flex-start">
-                          <Stack gap={2}>
-                            <Text
-                              size="xs"
-                              tt="uppercase"
-                              fw={600}
-                              c="dimmed"
-                              style={{ letterSpacing: "0.06em" }}
-                            >
-                              {label}
-                            </Text>
-                            <Group gap={4} align="baseline">
-                              <Text
-                                fw={900}
-                                style={{
-                                  fontSize: "2rem",
-                                  lineHeight: 1,
-                                  color: `var(--mantine-color-${color}-7)`,
-                                }}
-                              >
-                                {value}
-                              </Text>
-                              {suffix && (
-                                <Text size="sm" c="dimmed" fw={500}>
-                                  {suffix}
-                                </Text>
-                              )}
-                            </Group>
-                          </Stack>
-                          <ThemeIcon
-                            size={44}
-                            radius="xl"
-                            variant="light"
-                            color={color}
-                          >
-                            {icon}
-                          </ThemeIcon>
-                        </Group>
-                      </Paper>
-                    ))}
-                  </SimpleGrid>
+                  <Box>
+                    <Text
+                      size="xs"
+                      tt="uppercase"
+                      fw={700}
+                      c="dimmed"
+                      style={{ letterSpacing: "0.08em", marginBottom: 12 }}
+                    >
+                      Vendor Breakdown
+                    </Text>
+                    <SimpleGrid
+                      cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
+                      spacing="md"
+                      style={{ overflow: "visible" }}
+                    >
+                      {sortedProposals.map((p, i) => (
+                        <ProposalCard
+                          key={p.filename}
+                          proposal={p}
+                          recommended={
+                            winner !== null && p.filename === winner.filename
+                          }
+                          winnerScores={winner?.scores ?? undefined}
+                          staggerIndex={i}
+                        />
+                      ))}
+                    </SimpleGrid>
+                  </Box>
 
-                  <SimpleGrid
-                    cols={{ base: 1, md: Math.min(sortedProposals.length, 3) }}
-                    spacing="md"
-                    style={{ overflow: "visible" }}
-                  >
-                    {sortedProposals.map((p, i) => (
-                      <ProposalCard
-                        key={p.filename}
-                        proposal={p}
-                        recommended={
-                          winner !== null && p.filename === winner.filename
-                        }
-                        winnerScores={winner?.scores ?? undefined}
-                        staggerIndex={i}
+                  <Box>
+                    <Text
+                      size="xs"
+                      tt="uppercase"
+                      fw={700}
+                      c="dimmed"
+                      style={{ letterSpacing: "0.08em", marginBottom: 12 }}
+                    >
+                      Score Comparison
+                    </Text>
+                    <Stack gap="md">
+                      <VendorRadarChart proposals={sortedProposals} />
+                      <VendorComparisonTable
+                        proposals={sortedProposals}
+                        winner={winner}
                       />
-                    ))}
-                  </SimpleGrid>
-                  <VendorRadarChart proposals={sortedProposals} />
-                  <VendorComparisonTable
-                    proposals={sortedProposals}
-                    winner={winner}
-                  />
-                  {result.memo && <MemoPanel memo={result.memo} />}
+                    </Stack>
+                  </Box>
+
+                  {result.memo && (
+                    <Box>
+                      <Text
+                        size="xs"
+                        tt="uppercase"
+                        fw={700}
+                        c="dimmed"
+                        style={{ letterSpacing: "0.08em", marginBottom: 12 }}
+                      >
+                        AI Recommendation
+                      </Text>
+                      <MemoPanel memo={result.memo} />
+                    </Box>
+                  )}
                 </Stack>
               )}
             </Stack>

@@ -78,7 +78,7 @@ export function VendorComparisonTable({ proposals, winner }: Props) {
   const totalCols = proposals.length + 1;
 
   return (
-    <Paper p="lg" radius="md" withBorder bg="white" className="fadeIn">
+    <Paper p="lg" radius="md" withBorder shadow="xs" bg="white" className="fadeIn">
       <Group mb="md" gap="xs">
         <Text fw={700} size="lg" c="dark">Head-to-Head Comparison</Text>
         <Text size="sm" c="dimmed">— all vendors across every criterion</Text>

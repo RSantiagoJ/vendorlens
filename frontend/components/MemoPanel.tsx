@@ -91,7 +91,7 @@ export function MemoPanel({ memo }: Props) {
   }
 
   return (
-    <Paper p="lg" radius="md" withBorder bg="white" className="fadeIn" style={{ borderLeft: "4px solid var(--mantine-color-umgreen-5)" }}>
+    <Paper p="lg" radius="md" withBorder shadow="xs" bg="white" className="fadeIn" style={{ borderLeft: "4px solid var(--mantine-color-umgreen-5)" }}>
       <Group justify="space-between" align="center" mb="md">
         <Group gap="sm">
           <IconFileText size={20} color="var(--mantine-color-umgreen-6)" />

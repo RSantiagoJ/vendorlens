@@ -144,6 +144,8 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
           key,
           label,
           gap: parseFloat((winnerScores[key].score - scores[key].score).toFixed(1)),
+          vendorScore: scores[key].score,
+          winnerScore: winnerScores[key].score,
         }))
         .filter((g) => g.gap >= 0.5)
         .sort((a, b) => b.gap - a.gap)
@@ -229,15 +231,30 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
           >
             <Group gap={6} align="center" mb={6}>
               <IconArrowUp size={12} color="var(--mantine-color-umyellow-6)" />
-              <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.04em" }}>
-                Gap to win
-              </Text>
+              <Tooltip
+                label="The two dimensions where this vendor scores lowest compared to the recommended vendor. Improving here would close the most ground, but overall ranking depends on the full weighted score."
+                multiline
+                w={280}
+                withArrow
+                position="top"
+              >
+                <Text size="xs" fw={600} c="dimmed" tt="uppercase" style={{ letterSpacing: "0.04em", cursor: "help", textDecoration: "underline dotted" }}>
+                  Trails most in
+                </Text>
+              </Tooltip>
             </Group>
             <Group gap="xs" wrap="wrap">
-              {gapToWin.map(({ key, label, gap }) => (
-                <Badge key={key} size="xs" variant="outline" color="umyellow">
-                  +{gap} {label}
-                </Badge>
+              {gapToWin.map(({ key, label, gap, vendorScore, winnerScore }) => (
+                <Tooltip
+                  key={key}
+                  label={`Winner: ${winnerScore.toFixed(1)} · This vendor: ${vendorScore.toFixed(1)}`}
+                  withArrow
+                  position="top"
+                >
+                  <Badge size="xs" variant="outline" color="umyellow" style={{ cursor: "help" }}>
+                    +{gap} {label}
+                  </Badge>
+                </Tooltip>
               ))}
             </Group>
           </Box>

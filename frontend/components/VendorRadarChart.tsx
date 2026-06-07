@@ -39,7 +39,7 @@ export function VendorRadarChart({ proposals }: Props) {
   });
 
   return (
-    <Paper p="lg" radius="md" withBorder bg="white" className="fadeIn" style={{ borderLeft: "4px solid var(--mantine-color-umblue-5)" }}>
+    <Paper p="lg" radius="md" withBorder shadow="xs" bg="white" className="fadeIn">
       <Group mb="md" gap="xs">
         <Text fw={700} size="lg" c="dark">Vendor Comparison</Text>
         <Text size="sm" c="dimmed">— scores by dimension (0–10)</Text>
