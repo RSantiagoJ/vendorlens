@@ -9,7 +9,7 @@
 ## System State (as of 2026-06-07)
 
 **Working end-to-end:** Yes. Full pipeline runs locally via Docker.
-**Tests:** 87 passing, 0 failing. All offline (no API keys needed).
+**Tests:** 109 passing, 0 failing. All offline (no API keys needed).
 **Deployment:** Frontend on Vercel. Backend on AWS App Runner.
 
 ### Services
