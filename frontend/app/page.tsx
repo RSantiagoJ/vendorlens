@@ -46,7 +46,7 @@ import {
 } from "@tabler/icons-react";
 import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 const BUNDLE_ICONS: Record<string, ReturnType<typeof IconDeviceLaptop>> = {
   lms: <IconDeviceLaptop size={18} />,
@@ -99,6 +99,7 @@ function HomeContent() {
       : [],
   );
   const [totalRisks, setTotalRisks] = useState<number | undefined>(undefined);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/bundles`)
@@ -136,6 +137,7 @@ function HomeContent() {
   }
 
   function reset() {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
     setAppState("idle");
     setStage(null);
     setResult(null);
@@ -207,8 +209,31 @@ function HomeContent() {
 
       es.onerror = () => {
         es.close();
-        setError("Lost connection to the server.");
-        setAppState("error");
+        // App Runner hard-cuts SSE at 120s — pipeline keeps running, poll for result
+        pollRef.current = setInterval(async () => {
+          try {
+            const res = await fetch(`${API_BASE}/jobs/${job_id}`);
+            if (!res.ok) return;
+            const data: AnalysisResult = await res.json();
+            if (data.status === "done" || data.status === "partial") {
+              clearInterval(pollRef.current!); pollRef.current = null;
+              setResult(data);
+              setStage("done");
+              setTimeout(() => setAppState("ready"), 800);
+            } else if (data.status === "error") {
+              clearInterval(pollRef.current!); pollRef.current = null;
+              setError(data.error ?? "Analysis failed.");
+              setAppState("error");
+            }
+          } catch {}
+        }, 5000);
+        setTimeout(() => {
+          if (pollRef.current) {
+            clearInterval(pollRef.current); pollRef.current = null;
+            setError("Analysis timed out. Please try again.");
+            setAppState("error");
+          }
+        }, 300_000);
       };
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
