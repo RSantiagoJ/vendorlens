@@ -1,0 +1,28 @@
+# VCS
+.git
+.gitignore
+
+# Python virtual environments
+.venv/
+venv/
+.venv311/
+.venv-wsl311/
+env/
+
+# Caches / build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Local env and runtime data
+.env
+data/chroma_db/
+data/uploads/
+
+# Local archives or tool folders not needed in image
+Python-3.11.9/
+Python-3.11.9.tgz

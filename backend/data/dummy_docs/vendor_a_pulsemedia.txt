@@ -1,0 +1,97 @@
+VENDOR PROPOSAL — PulseMedia Inc.
+Submitted to: University of Massachusetts System
+In Response to: Enterprise Social Media Posting and Listening Platform RFP
+Date: November 28, 2025
+
+COMPANY OVERVIEW
+PulseMedia Inc. has provided social media management solutions since 2015.
+We serve over 200 clients across higher education, healthcare, and government.
+Headquarters: Austin, TX. Employees: 180.
+
+PRICING
+Annual platform fee: $195,000 per year
+Year 2 increase: 8% applied automatically
+Year 3 increase: 8% applied automatically
+Additional campus onboarding: $15,000 per campus after first three
+Additional user blocks (50 users): $2,500 per block per year
+Payment terms: Net 30, invoiced annually in advance, non-refundable
+
+CONTRACT TERMS
+Contract length: 3 years, non-negotiable
+Auto-renewal: Automatically renews for successive 1-year terms
+Opt-out notice required: 30 days prior to renewal date
+Termination for convenience: 180 days written notice required plus
+payment of 50% of remaining contract value as termination fee
+Governing law: State of Texas
+
+LIABILITY
+Maximum liability: Limited to one month of fees paid ($16,250)
+Excludes all data loss, consequential damages, and reputational harm
+
+PLATFORM FUNCTIONALITY
+
+- Post scheduling and publishing to major social channels
+- Basic approval workflows
+- Content calendar view
+- Reporting dashboard (standard templates only, no custom exports)
+- Comment and message management
+- Social listening: keyword monitoring and basic alerts
+- Sentiment analysis: available as add-on module ($18,000/year additional)
+- Campus sub-accounts: up to 3 included, additional at $15,000 each
+- Asset libraries: shared system-wide library only, no campus-specific libraries
+- User roles: Admin and Creator only, no tiered permissions
+
+MOBILE APPLICATION
+PulseMedia offers a mobile application for iOS. Android version is in
+development and expected Q3 2026. Approval workflows on mobile are
+limited to review only — approvers cannot edit posts on mobile.
+
+ACCESSIBILITY
+VPAT: Available upon request. Last tested: March 2024.
+Alt text support: Available for Facebook, Twitter, LinkedIn.
+Instagram alt text: Not currently supported via API.
+Caption file support: Manual upload only, .srt not accepted.
+WCAG compliance: Partial — known issues with keyboard navigation in
+the content calendar module under remediation.
+
+SECURITY AND COMPLIANCE
+Security certifications: SOC 2 Type I (audit in progress for Type II)
+Data Processing Agreement: Available upon request, not standard
+Incident Response documentation: Available upon request
+University data: PulseMedia may use anonymized engagement data for
+platform benchmarking and product improvement purposes
+Data ownership: PulseMedia retains rights to aggregated analytics data
+Data portability: Export available in CSV format, 30-day window post-termination
+Encryption: TLS in transit, AES-128 at rest
+
+INTELLECTUAL PROPERTY
+Platform configurations created during onboarding are considered PulseMedia
+proprietary templates. University retains ownership of raw content only.
+
+SERVICE LEVEL AGREEMENT
+Uptime target: 99% (allows approximately 87 hours downtime per year)
+Support response: Best effort, no contractually defined response times
+No financial penalties for SLA breach
+Scheduled maintenance: Up to 8 hours per month, not counted against uptime
+
+SUPPORT AND TRAINING
+Support hours: Monday-Friday 9am-5pm ET
+Contact methods: Email and support portal only
+Dedicated account manager: Not included in base pricing ($12,000/year add-on)
+Onboarding: One recorded webinar provided. Live training at additional cost.
+Training costs: On-site training $3,500/day plus travel expenses
+
+CUSTOMER REFERENCES
+Three references available upon request. One higher education client.
+
+SANDBOX ENVIRONMENT
+Available for 30 days during contract negotiation only, not post-signing.
+
+SUPPLIER DIVERSITY
+PulseMedia Inc. does not hold any supplier diversity classifications.
+
+ADDITIONAL TERMS
+PulseMedia reserves the right to modify platform features and pricing
+with 30 days written notice.
+University agrees not to participate in competitive benchmark studies
+or publicly disclose pricing terms.

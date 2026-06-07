@@ -14,6 +14,7 @@ __pycache__/
 .Python
 venv/
 .venv/
+.venv-wsl311/
 env/
 *.egg-info/
 dist/

@@ -1,0 +1,163 @@
+VENDORLENS SCORING RUBRIC
+Source: Derived from UMass 2025-2026 Enterprise Social Media Platform RFP evaluation criteria
+Scale: 0-10 per dimension. All scores rounded to one decimal place.
+
+Overall score = weighted average of all dimensions per weights in rfp_criteria.txt
+
+---
+
+PLATFORM FUNCTIONALITY (weight: 0.20)
+
+Evaluate: posting/scheduling, approval workflows, content calendar,
+campus sub-accounts, asset libraries, comment management, tiered user roles,
+social listening (sentiment + alerts + keyword monitoring + crisis detection),
+analytics/reporting
+
+10 = All critical RFP functionality fully documented and included in base price.
+     Social listening with sentiment, crisis alerts, keyword monitoring included.
+     Full approval workflows on desktop and mobile. Unlimited campus sub-accounts
+     with isolated asset libraries. Tiered roles fully configurable.
+
+7-9 = Most required functionality documented and present. Minor gaps in
+      preferred features (e.g., crisis detection as add-on, limited carousel images).
+
+4-6 = Core posting and scheduling present. Notable gaps in required features:
+      missing mobile approval, limited role tiers, no campus-specific asset libraries,
+      or social listening only as a paid add-on.
+
+1-3 = Minimal functionality documented. Major required features absent or vague.
+
+0 = Vague, missing, or critical features absent.
+
+---
+
+ACCESSIBILITY COMPLIANCE (weight: 0.15)
+
+Evaluate: VPAT currency (within 1 year of proposal date), WCAG 2.1 AA compliance,
+alt text support across all platforms, .srt caption file support
+
+Federal deadline: April 24, 2026 — non-compliance is a material risk.
+Proposal date is November/December 2025. VPAT tested within last year = after Dec 2024.
+
+10 = Current VPAT (tested within 1 year), full WCAG 2.1 AA documented via third-party
+     audit, alt text supported on all platforms where API permits (with honest disclosure
+     of Instagram API limitation), .srt captions supported on all platforms.
+
+7-9 = VPAT within 1 year, most accessibility features present. Minor gaps
+      (e.g., .srt captions not supported on one platform).
+
+4-6 = VPAT present but outdated (tested more than 1 year ago) or partial WCAG
+      compliance with known issues. Alt text gaps on major platforms.
+
+1-3 = VPAT available only on request, no third-party audit, significant
+      accessibility gaps not addressed.
+
+0 = No VPAT, no accessibility documentation, WCAG status unknown.
+
+---
+
+PRICING TRANSPARENCY (weight: 0.20)
+
+Evaluate: licensing clarity, all-in pricing for all campuses, per-campus/user/feature
+costs disclosed, multi-year cost predictability, billing by unit availability
+
+10 = Fixed transparent pricing locked for full contract term. All five campuses
+     and all modules included in base price. No per-campus fees, no user overages,
+     no undisclosed add-on costs. Billing by campus/unit at no additional cost.
+     No year-over-year price escalation.
+
+7-9 = Mostly transparent. Minor costs not fully disclosed upfront (e.g., small
+      training add-ons, optional integrations). No major hidden overages.
+
+4-6 = Price escalation present (3-5% per year) or notable overages for users/campuses
+      not fully disclosed upfront. Billing by unit available but at extra cost.
+
+1-3 = Significant hidden costs. Escalation clause exceeds 5%. Overages unclear.
+      Pricing opaque for multi-campus scenarios.
+
+0 = Unclear tiers, undisclosed overages, aggressive escalation, or pricing
+    that makes total cost unpredictable.
+
+---
+
+SECURITY AND COMPLIANCE (weight: 0.20)
+
+Evaluate: SOC 2 Type II or ISO 27001 (current), DPA standard (not on request),
+IR/DR docs provided, university data ownership explicit, no vendor data use
+beyond service delivery
+
+10 = SOC 2 Type II AND/OR ISO 27001 current certificates provided with proposal.
+     DPA provided as standard (not on request), addresses FERPA/GLBA/Ch.93H/Ch.66A.
+     IR plan and DR documentation provided with proposal. University data exclusively
+     owned by university. No vendor use of data for any purpose beyond service delivery.
+
+7-9 = Strong security posture. Certifications current. Minor documentation gaps
+      (e.g., DR summary but not full doc, or DPA on request but standard template).
+
+4-6 = SOC 2 Type I only (Type II in progress), or DPA available on request only,
+      or IR/DR docs require NDA or are incomplete. Some data governance concerns.
+
+1-3 = No current certifications or only partial/outdated ones. DPA not mentioned.
+      Data use practices unclear or concerning.
+
+0 = No certifications, no DPA, data governance unclear, university data rights
+    not addressed.
+
+---
+
+SUPPORT AND TRAINING (weight: 0.10)
+
+Evaluate: support hours, contractually defined response times, dedicated CSM,
+onboarding training included, training costs transparent
+
+10 = 24/7 support for critical issues. Response times contractually defined.
+     Dedicated Customer Success Manager included at no cost.
+     Comprehensive onboarding training included at no additional cost.
+     Self-service resources (LMS, video library) also included.
+
+7-9 = Strong support. Most elements present. CSM included or at modest cost.
+      Training included but limited scope.
+
+4-6 = Business hours support. Response times defined but no financial penalty.
+      Dedicated account manager only for onboarding period or at extra cost.
+      Additional training available but at per-session cost.
+
+1-3 = Email/ticket only. Response times not defined in contract. No dedicated
+      account manager. Training not included.
+
+0 = No defined support hours, no response time commitments, no training.
+
+---
+
+ENTERPRISE READINESS (weight: 0.10)
+
+Evaluate: multi-campus architecture, campus isolation, role-based admin controls,
+scalable onboarding, sandbox environment availability
+
+10 = Fully documented multi-campus architecture. Each campus fully isolated
+     with own channels, content, analytics. Role-based admin at system and campus
+     level. Unlimited campus scalability. Sandbox provided immediately at no cost
+     and maintained throughout contract term.
+
+7-9 = Strong multi-campus support. Minor limitations (e.g., cap on campus count,
+      sandbox only pre-signing, limited role granularity).
+
+4-6 = Basic multi-campus support. Campus sub-accounts included but limited count.
+      Sandbox available for short trial period only. Role management limited to 2-3 tiers.
+
+1-3 = Designed primarily for single-tenant use. Multi-campus adaptation requires
+      custom work. No sandbox or very limited trial access.
+
+0 = No multi-campus architecture, no admin controls, no test environment.
+
+---
+
+RISK LEVEL (weight: 0.05 — INVERTED: higher score = fewer HIGH severity risk flags)
+
+10 = Zero HIGH severity risk flags
+7  = One HIGH severity risk flag
+4  = Two HIGH severity risk flags
+0  = Three or more HIGH severity risk flags
+
+Note: This dimension is directly derived from the Risk Agent output.
+MEDIUM and LOW severity flags do not affect this score but are reported separately.

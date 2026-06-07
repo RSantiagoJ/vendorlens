@@ -1,0 +1,85 @@
+VENDORLENS RFP EVALUATION CRITERIA
+Source: UMass 2025-2026 Enterprise Social Media Posting and Listening Platform RFP
+RFP Issuance: November 6, 2025 | Proposals Due: December 1, 2025
+Campuses: UMass Amherst, UMass Chan Medical School, UMass Dartmouth,
+UMass Lowell, Office of the President
+
+EVALUATION DIMENSIONS AND WEIGHTS
+
+platform_functionality       weight: 0.20
+accessibility_compliance     weight: 0.15
+pricing_transparency         weight: 0.20
+security_and_compliance      weight: 0.20
+support_and_training         weight: 0.10
+enterprise_readiness         weight: 0.10
+risk_level                   weight: 0.05 (inverted — higher score = fewer HIGH risk flags)
+
+STATED PRIORITIES FROM RFP
+
+"UMass seeks a cost-effective, scalable solution that delivers strong
+functionality and long-term value."
+
+"Cost control and pricing transparency are critical; the University aims
+to identify a platform that maximizes impact while maintaining responsible
+stewardship of public resources."
+
+"The University is committed to digital accessibility."
+
+CRITICAL (REQUIRED) FUNCTIONALITY — RFP Section 4
+
+- Posting and scheduling to all major social media platforms
+  including image uploads, hashtags, post previews
+- Post approval workflows: approve, edit, or reject from desktop or mobile
+- Robust analytics and metrics: individual channels + aggregated reports
+- Campus sub-accounts with isolated access to own channels, content,
+  asset libraries — no visibility into other campuses
+- Comment and message management within the platform
+- Separate asset libraries per business unit
+- Transparent pricing for adding campuses, channels, users
+- Calendar views of scheduled posts
+- Accessibility features including alt text and .srt caption files
+- Tiered user roles (power users, content creators, etc.)
+
+ACCESSIBILITY NOTE
+Alt text is a REQUIREMENT, not a preference. All social posts must be
+accessible by April 24, 2026 (federal deadline). Alt text cannot be added
+retroactively on most platforms. Instagram API does not currently support
+alt text via API — vendors must disclose this limitation.
+
+PREFERRED FUNCTIONALITY — RFP Section 4
+
+- Link-in-bio and Instagram link page auto-generation
+- Separate billing by business unit
+- Advanced social listening: sentiment analysis, automated alerts
+- Custom shortened URLs, Google UTM auto-tagging, optimal post times
+- SSO authentication
+- Integrations: Canva, Microsoft Teams, Dropbox, Canto
+- Duplicate past posts, share assets between libraries
+- Post to LinkedIn Groups
+- More than 10 items in Facebook slideshows and Instagram carousels
+
+REQUIRED PROPOSAL DELIVERABLES — RFP Section 6
+
+- Pricing breakdown: university-wide and by campus/business unit
+- A la carte pricing for additional functionality
+- VPAT in HTML or accessible PDF format, tested within the last year
+- At least three customer references with contact info (higher ed preferred)
+- Functionality breakdown including social channels and mobile details
+- Support details
+- Company background: customers, years of experience, employees
+- Product roadmap information
+- Sample analytics report
+- Training options and any additional costs
+- Billing and invoice information, including per-unit billing availability
+- Whether sandbox/test access is available for accessibility testing
+
+EVALUATION PROCESS CONTEXT
+
+VendorLens handles the written proposal evaluation phase. The committee
+also conducts: vendor demos (recorded for absent members), digital
+accessibility testing, hands-on platform testing, reference checks.
+
+Evaluation timeline:
+- Finalist Selection: on or about December 5, 2025
+- Vendor Demonstrations: December 8-19, 2025
+- Selection and Notification: January 2026

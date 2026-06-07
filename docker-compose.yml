@@ -1,0 +1,12 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /app
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    # Keep container alive for iterative dev; override per command.
+    command: ["sh", "-c", "tail -f /dev/null"]
