@@ -49,10 +49,13 @@ GOOGLE_API_KEY=...
 ANTHROPIC_API_KEY=...
 LANGCHAIN_API_KEY=...         # optional — enables LangSmith tracing
 LANGCHAIN_TRACING_V2=true     # optional
+DATABASE_URL=postgresql://vendorlens:vendorlens@db:5432/vendorlens
 ```
 
 `GOOGLE_API_KEY` is required (used for embeddings and Gemini extraction/scoring).
 `ANTHROPIC_API_KEY` is required (used for the memo agent).
+`DATABASE_URL` is required for result persistence. The `db` service in `docker-compose.yml`
+(postgres:16-alpine) provides this automatically when using `docker compose up`.
 
 ### Step 3 — Ingest vendor proposals into ChromaDB
 
@@ -133,11 +136,12 @@ the `Dockerfile` itself changes.
 |-----------|---------|
 | Python file changed (agent, tool, API route) | `docker compose restart api` |
 | `requirements.txt` or `Dockerfile` changed | `docker compose up --build api` |
-| App not running — start it | `docker compose up api -d` |
-| Something is broken and you want a clean slate | `docker compose down && docker compose up --build api -d` |
+| App not running — start it | `docker compose up api db -d` |
+| Something is broken and you want a clean slate | `docker compose down && docker compose up --build api db -d` |
 | View live API logs | `docker compose logs api -f` |
 | Open a shell inside the container | `docker compose run --rm backend bash` |
 | Stop without removing the container | `docker compose stop api` |
+| Connect to Postgres directly | `docker compose exec db psql -U vendorlens vendorlens` |
 
 **Rule of thumb:** changed a `.py` file → `restart`. Changed `requirements.txt` or `Dockerfile` → `up --build`.
 
@@ -166,6 +170,7 @@ the `Dockerfile` itself changes.
 | GET    | `/bundles`         | List available RFP bundles                               |
 | POST   | `/analyze`         | Upload proposals + bundle; returns `job_id`              |
 | GET    | `/stream/{job_id}` | SSE stream: `extracting → memo → done`                   |
+| GET    | `/jobs/{job_id}`   | Fetch persisted result from Postgres (survives restarts) |
 
 ---
 

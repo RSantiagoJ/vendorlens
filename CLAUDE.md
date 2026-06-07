@@ -46,6 +46,7 @@ layer without knowing it broke a contract at another.
 |------|---------------|
 | `backend/tests/test_boundaries.py` | Data shape at every inter-layer handoff (B1–B7). Update this when any data contract changes. |
 | `backend/tests/test_mock_pipeline.py` | Full pipeline happy path + failure paths. Update this when pipeline structure or output changes. |
+| `backend/tests/test_persistence.py` | Postgres persistence layer — `AnalysisRun` model, `_persist_run()`, `GET /jobs/{job_id}` endpoint (15 tests). |
 
 All tests must work **without API keys**. Use `unittest.mock.patch` to stub
 `invoke_llm_cached`, `make_claude_llm`, `make_haiku_llm`, and any file I/O.
@@ -125,6 +126,43 @@ This is why `test_boundaries.py` tests cases like:
 - JSON array with preamble text
 - `deliverables` as a string instead of a list
 - Invalid `severity` literals in risk flags
+
+---
+
+## Persistence Layer
+
+VendorLens uses Postgres to persist completed pipeline runs so results survive API restarts.
+
+### Package layout
+
+```
+backend/db/
+  __init__.py   — re-exports Session, Base
+  session.py    — SQLAlchemy engine + SessionLocal factory (reads DATABASE_URL from env)
+  models.py     — AnalysisRun table (job_id PK, bundle, status, result JSON, timestamps)
+```
+
+### Environment variable
+
+`DATABASE_URL` must be set in `.env` (or docker-compose environment):
+```
+DATABASE_URL=postgresql://vendorlens:vendorlens@db:5432/vendorlens
+```
+
+The `db` service is defined in `docker-compose.yml` (postgres:16-alpine). The `api` service
+depends on it. Tables are created automatically on startup via `Base.metadata.create_all()`.
+
+### How persistence works
+
+1. `POST /analyze` creates an `AnalysisRun` row with `status="pending"` before the pipeline starts.
+2. `_persist_run()` in `api/main.py` upserts the row at `status="done"` or `status="error"`.
+3. `GET /jobs/{job_id}` returns the persisted result directly from Postgres — useful for polling
+   after a restart or when the SSE stream was not consumed.
+
+### Test coverage
+
+`backend/tests/test_persistence.py` — 15 tests covering model creation, upsert idempotency,
+missing-job 404, and error-result persistence. Uses an in-memory SQLite database (no Docker needed).
 
 ---
 

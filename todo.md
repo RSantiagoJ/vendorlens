@@ -54,12 +54,7 @@ This guide highlights the primary components and code patterns in VendorLens tha
   to match the rubric. Prior scale was 0–100 (introduced by an LLM fixing a UI display)
 - **`CLAUDE.md`** — project-level test-first rules and pipeline contract documentation
 
-### In progress
-- **DB persistence** — add Postgres + SQLAlchemy to replace in-memory `_jobs` dict
-  - `_jobs` currently leaks memory and dies on restart
-  - New: `analysis_runs` table, `GET /jobs/{job_id}` endpoint reads from DB on miss
-
 ### Still to do
 - Verify Haiku max_tokens (16384 — may be unnecessarily high for scoring task)
-- `warm_caches_node` has no error handling — a transient API failure kills the entire
-  pipeline before any vendor is processed; should catch and log, not raise
+- `_get_pipeline` lock — concurrent `/analyze` calls for the same bundle race on pipeline construction; add a per-bundle asyncio lock
+- `_jobs` TTL eviction — in-memory dict still grows unbounded for jobs not yet persisted or legacy paths; add a TTL cleanup pass

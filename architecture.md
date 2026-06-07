@@ -20,8 +20,12 @@ If you see improvements that don't blow up the timeline, flag them.
 ## Project structure
 
 vendorlens/
-docker-compose.yml         <- backend + api services
+docker-compose.yml         <- backend + api + db (postgres:16-alpine) services
 backend/
+db/
+__init__.py
+session.py             <- SQLAlchemy engine, SessionLocal (reads DATABASE_URL)
+models.py              <- AnalysisRun table (job_id PK, bundle, status, result JSON)
 agents/
 extraction_agent.py
 risk_agent.py
@@ -171,9 +175,10 @@ Policy context: built once at RiskAgent.__init__ time (5 queries, deduplicated),
 File: agents/scoring_agent.py
 Model: Claude Haiku 4.5 (prompt caching enabled — mechanical task, 4× faster than Sonnet)
 Input: ProposalData + list[RiskFlag]
-Output: ScoreCard with 9 dimension scores (0–10) + weighted overall
+Output: ScoreCard with 9 dimension scores (0–10) + weighted overall (also 0–10)
 Weights: parsed from rfp_criteria_<bundle>.txt at init time — not hardcoded
-Overall: computed in Python as weighted average, not by the LLM
+Overall: computed in Python as weighted average of dimension scores — result is 0–10, never 0–100.
+         Do not multiply by 10. The `× 10` bug was fixed in Day 11 and is regression-tested.
 
 ### Agent 4: Memo Writer Agent
 
@@ -236,15 +241,19 @@ Framework: FastAPI
 Dev server: `uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload` (inside Docker)
 
 Endpoints:
-POST /analyze       — multipart upload (files + bundle form field), enqueues job, returns {job_id}
-GET  /stream/{id}   — SSE stream; replays buffered events then polls until done/error
-                      Events: extracting | risk | scoring | memo | done | error
-GET  /bundles       — returns list of registered bundle descriptors (id, label, description)
-GET  /health        — {"status":"ok"}
-POST /reload        — clears pipeline cache; call after re-running ingest.py without restarting
+POST /analyze          — multipart upload (files + bundle form field), enqueues job, returns {job_id}
+GET  /stream/{id}      — SSE stream; replays buffered events then polls until done/error
+                         Events: extracting | risk | scoring | memo | done | error
+GET  /jobs/{job_id}    — returns persisted result from Postgres; survives API restarts; 404 if not found
+GET  /bundles          — returns list of registered bundle descriptors (id, label, description)
+GET  /health           — {"status":"ok"}
+POST /reload           — clears pipeline cache; call after re-running ingest.py without restarting
 
 Pipeline cache: one compiled LangGraph pipeline per bundle_id, built on first use and cached
 in-process. All requests to the same bundle share the cached pipeline.
+Persistence: completed runs are written to Postgres (`analysis_runs` table) by `_persist_run()`
+after every terminal pipeline event (done or error). `GET /jobs/{job_id}` reads from Postgres,
+making results retrievable after a restart without re-running the pipeline.
 CORS: localhost:3000
 
 ---
@@ -280,6 +289,7 @@ GOOGLE_API_KEY=
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_API_KEY=
 LANGCHAIN_PROJECT=vendorlens
+DATABASE_URL=postgresql://vendorlens:vendorlens@db:5432/vendorlens
 
 ---
 

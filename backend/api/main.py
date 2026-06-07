@@ -26,6 +26,8 @@ if _S3_BUCKET:
 from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from llama_index.core import SimpleDirectoryReader
+from llama_index.core.node_parser import SentenceSplitter
 
 from api.models import AnalysisResult, AnalyzeResponse, ProposalResult
 from db.session import get_db_session, init_db
@@ -65,25 +67,40 @@ _executor = ThreadPoolExecutor(max_workers=4)
 
 # One cached pipeline per bundle — built on first use.
 _pipelines: dict[str, object] = {}
+_pipeline_lock = threading.Lock()
 
 # Serialise concurrent ChromaDB inserts from parallel requests.
 _ingest_lock = threading.Lock()
 
+_splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
+
 
 def _get_pipeline(bundle_id: str = DEFAULT_BUNDLE):
-    if bundle_id not in _pipelines:
-        _pipelines[bundle_id] = build_pipeline(bundle_id=bundle_id)
+    if bundle_id in _pipelines:
+        return _pipelines[bundle_id]
+    with _pipeline_lock:
+        if bundle_id not in _pipelines:
+            _pipelines[bundle_id] = build_pipeline(bundle_id=bundle_id)
     return _pipelines[bundle_id]
 
 
 def _ingest_file(filename: str, content: bytes, index) -> None:
     """Write one uploaded file to a temp dir and insert its chunks into the shared index.
 
-    Uses LlamaIndex SimpleDirectoryReader so any supported format (.txt, .pdf, .docx, …)
+    Skips silently if chunks for this filename already exist — prevents duplicate
+    vectors when the same file is uploaded more than once.
+    Uses LlamaIndex SimpleDirectoryReader so any supported format (.txt, .pdf, .docx)
     is parsed natively — raw bytes are never decoded as UTF-8 here.
     """
-    from llama_index.core import SimpleDirectoryReader
-    from llama_index.core.node_parser import SentenceSplitter
+    try:
+        existing = index._vector_store._collection.get(
+            where={"file_name": filename}, limit=1, include=[],
+        )
+        if existing["ids"]:
+            logger.info("Skipping ingest for %s — already indexed", filename)
+            return
+    except Exception:
+        pass  # if the check fails, proceed with ingest rather than silently dropping
 
     with tempfile.TemporaryDirectory() as tmp:
         dest = Path(tmp) / filename
@@ -95,8 +112,7 @@ def _ingest_file(filename: str, content: bytes, index) -> None:
         ).load_data()
         if not docs:
             return
-        splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
-        nodes = splitter.get_nodes_from_documents(docs)
+        nodes = _splitter.get_nodes_from_documents(docs)
         index.insert_nodes(nodes)
 
 
