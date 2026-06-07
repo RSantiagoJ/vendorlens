@@ -11,7 +11,7 @@ Do this before responding to anything the user asks:
 
 1. **Read STATUS.md** — current state, settled decisions, open issues
 2. **Read DECISIONS.md** — why things were built the way they were (prevents re-debating closed questions)
-3. **Read RESTART.md** — production URLs, infrastructure, env vars (check here before asking about deployment config)
+3. **Check COMMANDS.md** — production URLs, deploy commands, test commands (check here before asking about deployment config)
 4. **Check tests** — if any tests are failing, fix them before touching what the user asked
 5. **Check for drift** — does anything in this file contradict what you can see in the code?
    If yes: update this file to match reality, not the other way around
@@ -26,6 +26,17 @@ Do this before responding to anything the user asks:
   ```
 - The `backend` service mounts `./backend` at `/app`. Edit files locally; run in container.
 - Use `sg docker -c "docker compose ..."` if the shell lacks the docker group.
+
+---
+
+## Live API Calls — Banned Unless Explicitly Approved
+
+**Never make live LLM or pipeline calls during a session** unless Ricardo explicitly asks for a live test.
+
+- All tests must mock LLM calls (`unittest.mock.patch`, `conftest.py` autouse fixture handles construction).
+- If a live smoke test is truly needed, use only the minimal vendor docs in `backend/data/vendor_proposals/test/` (`alpha_lms.txt`, `beta_lms.txt`). Never use the full LMS/ERP/Payroll corpus for live testing — it burns too many tokens.
+- Live tests live in `tests/live/` and are excluded from `pytest tests/` via `norecursedirs` in `pytest.ini`. Do not run them during normal session work.
+- The core suite (`test_boundaries.py`, `test_mock_pipeline.py`, `test_persistence.py`, `test_reliability.py`) must pass without any API keys. Run it with `pytest tests/`.
 
 ---
 
@@ -59,6 +70,24 @@ Do not rename, refactor, or clean up adjacent code. Out-of-scope changes need a 
 - Any frontend component that transforms or compares a numeric value for display
   (thresholds, labels, ring fills, progress bar widths, color tiers)
   → Extract logic to `frontend/lib/scoring.ts`. Run: `cd frontend && npm test`.
+
+---
+
+## Doc Sync — Required After Every Completed Change
+
+After any change lands (tests green, feature working), immediately check and update:
+
+| Doc | Update when |
+|-----|-------------|
+| `STATUS.md` | Any task completed, test count changes, new decisions made |
+| `COMMANDS.md` | New endpoint, new test path, new script, changed command |
+| `DECISIONS.md` | Architecture decision made or reversed |
+| `project_overview.md` | Tech stack changes, deployment changes |
+| `CLAUDE.md` | New rule learned, settled decision, something to avoid |
+
+**This is not optional cleanup — it is part of completing the task.** A change is not done until the docs reflect it. Do not wait for a separate doc-cleanup session.
+
+Do not update docs that are not affected by the change. One targeted update beats a broad sweep.
 
 ---
 

@@ -115,20 +115,21 @@ Eviction is via a daemon `threading.Timer` — fires and forgets, doesn't block 
 
 ---
 
-## Production SSE / Polling Fallback
+## Production — Pure Polling (day12)
 
-### App Runner hard-cuts SSE connections at 120 seconds
+### App Runner hard-cuts connections at 120 seconds
 AWS App Runner has a fixed 120-second request timeout that cannot be changed via API, CLI, or console.
-The pipeline takes 2–4 minutes on a warm container. This means the SSE stream is always cut before the pipeline finishes in production.
+The pipeline takes 2–4 minutes on a warm container. SSE streams are always cut before the pipeline finishes in production.
 
-**The fix (day11):** When `es.onerror` fires in the frontend, instead of showing an error, the client silently switches to polling `GET /jobs/{job_id}` every 5 seconds until the result appears. The pipeline keeps running in the backend (ThreadPoolExecutor is not affected by the dropped HTTP connection). When polling finds `status: "done"`, results are displayed normally.
+**Day11 (hybrid approach):** Frontend opened SSE and switched to polling `GET /jobs/{job_id}` on `onerror`. Worked but the hybrid had edge cases and no progress stages during the polling phase.
 
-**Race condition also fixed:** When the SSE connection closes normally (server done → connection closed), the browser fires `onerror` right after the `done` event. A `receivedDone` flag prevents `onerror` from starting polling when `done` was already handled.
+**Day12 (pure polling — current):** SSE removed from the frontend entirely. After POST /analyze returns a `job_id`, the client polls `GET /jobs/{job_id}/progress` every 2 seconds. The `/progress` endpoint returns the current stage (pending → extracting → risk → scoring → memo → done), vendor names, and total_risks from the in-memory events list — so the progress bar still animates identically to the old SSE approach. When `status` is `done` or `partial`, polling stops and results are displayed.
 
-**Why not just use polling from the start?**
-Polling was considered and not adopted because SSE gives live progress events (extracting → risk → scoring → memo) which are a real UX feature. The hybrid approach preserves progress updates when SSE works and degrades gracefully when it doesn't.
-
-**Acknowledged limitation:** This is a hack. The cleaner design is pure polling with the current stage stored in `GET /jobs/{job_id}`. Not worth the work for a demo.
+**Why polling over SSE:**
+- SSE was always going to be cut at 120s in production — it was never a real option
+- `/progress` polling delivers the same UX (live stage updates) with no long-lived connection
+- No `onerror`/`receivedDone` race conditions to manage
+- Simpler client code, easier to debug
 
 ---
 

@@ -5,7 +5,7 @@
 #   1. Environment variables
 #   2. Context bundle files (rubric, criteria, policy)
 #   3. Vendor proposal files (ChromaDB source data)
-#   4. Mock test suite (77 tests, all layers)
+#   4. Mock test suite (94 tests, all layers)
 #
 # Usage:
 #   cd /path/to/vendorlens
@@ -94,10 +94,9 @@ fi
 # ---------------------------------------------------------------------------
 header "5. Mock Test Suite (no API calls)"
 
-printf "\nRunning 77 offline tests...\n"
+printf "\nRunning 94 offline tests...\n"
 if sg docker -c "docker compose -f '$ROOT_DIR/docker-compose.yml' run --rm backend \
-    python -m pytest tests/test_boundaries.py tests/test_mock_pipeline.py \
-    tests/test_persistence.py tests/test_reliability.py -q --tb=short 2>&1"; then
+    python -m pytest tests/ -q --tb=short 2>&1"; then
     PASS=$((PASS + 1))
     green "All mock tests passed"
 else

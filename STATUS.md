@@ -73,9 +73,9 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 |------|-------|---------------|
 | `test_boundaries.py` | 47 | Data shape at every inter-layer handoff (B0–B7) |
 | `test_mock_pipeline.py` | 17 | Full pipeline happy path + all failure modes |
-| `test_persistence.py` | 26 | DB write, GET endpoint, error persistence, TTL, rfp_name |
+| `test_persistence.py` | 33 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
-| **Total** | **87** | **All offline — no API keys needed** |
+| **Total** | **94** | **All offline — no API keys needed** |
 
 ---
 
@@ -83,7 +83,7 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 | # | Task | Blocking anything? |
 |---|------|--------------------|
-| 1 | **Replace SSE with pure polling** (day12) | Yes — SSE hybrid is unreliable in production; polling fix is prerequisite to a stable deploy |
+| 1 | ~~**Replace SSE with pure polling** (day12)~~ | Done — `/jobs/{job_id}/progress` endpoint + frontend polls every 2s; SSE removed |
 | 2 | Show "scoring failed" state on partial proposal cards | UX gap — null scores silently render an empty card |
 | 3 | Surface `status: "partial"` at the top level | User has no indication one vendor failed vs all succeeded |
 | 4 | ~~Verify frontend handles 0–10 scores correctly~~ | Done |
@@ -107,6 +107,25 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 ---
 
 ## Daily Audit Log
+
+### 2026-06-07 — Doc cleanup + live/mock test separation
+- `tests/live/` created — 5 live-key test files moved there, excluded via `pytest.ini norecursedirs`
+- `pytest tests/` now runs only 94 offline tests, zero failures
+- COMMANDS.md rewritten: correct test count, live test paths, updated endpoint table, sg docker throughout
+- RESTART.md deleted (fully subsumed by COMMANDS.md); CLAUDE.md updated to reference COMMANDS.md
+- DECISIONS.md: SSE/polling section updated to reflect day12 pure-polling approach
+- project_overview.md: tech stack corrected (removed Gemini, LangSmith, Railway; added App Runner, FastEmbed, Mantine)
+- todo.md + debugging_notes.md deleted (historical notes, no operational value)
+- preflight.sh: test count 77→94, simplified to `pytest tests/`
+- CLAUDE.md: live API call ban + minimal test file rule added
+
+### 2026-06-07 — SSE replaced with pure polling (day12)
+- Added `GET /jobs/{job_id}/progress` endpoint — returns current stage, vendors, total_risks, and result when done
+- Frontend EventSource removed; replaced with `setInterval` polling every 2s against `/progress`
+- 7 new P11 tests for the progress endpoint (all offline, no API keys needed)
+- Core test count: 94 passing
+- CLAUDE.md updated: live API call ban + minimal test file rule added
+- Frontend build: clean (TypeScript passes)
 
 ### 2026-06-07 — Production deployment + SSE stabilisation
 - SSE compact JSON fix deployed (separators=(',',':'))

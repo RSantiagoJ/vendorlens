@@ -15,7 +15,7 @@ sg docker -c "docker compose up api db -d"
 ./scripts/preflight.sh
 ```
 
-Checks API key, all data files, ChromaDB, and runs 77 offline tests.
+Checks API key, all data files, ChromaDB, and runs the offline test suite.
 **GO = ready. NO-GO = tells you exactly what to fix.**
 
 ---
@@ -24,15 +24,15 @@ Checks API key, all data files, ChromaDB, and runs 77 offline tests.
 
 ```bash
 # 1. Build the Docker image
-docker compose build
+sg docker -c "docker compose build"
 
 # 2. Populate backend/.env (ANTHROPIC_API_KEY is required)
 
 # 3. Ingest vendor proposals into ChromaDB
-docker compose run --rm backend python scripts/ingest.py --force
+sg docker -c "docker compose run --rm backend python scripts/ingest.py --force"
 
 # 4. Start the app
-docker compose up api db -d
+sg docker -c "docker compose up api db -d"
 cd frontend && npm run dev
 ```
 
@@ -47,11 +47,11 @@ bash scripts/setup.sh
 
 | What | Command |
 |------|---------|
-| Start API + DB (background) | `docker compose up api db -d` |
+| Start API + DB (background) | `sg docker -c "docker compose up api db -d"` |
 | Start frontend | `cd frontend && npm run dev` |
-| Stop everything | `docker compose stop` |
-| Stop and remove containers | `docker compose down` |
-| Check what's running | `docker compose ps` |
+| Stop everything | `sg docker -c "docker compose stop"` |
+| Stop and remove containers | `sg docker -c "docker compose down"` |
+| Check what's running | `sg docker -c "docker compose ps"` |
 
 ---
 
@@ -59,20 +59,20 @@ bash scripts/setup.sh
 
 | Change made | Command |
 |-------------|---------|
-| Any `.py` file | `docker compose restart api` |
-| `requirements.txt` or `Dockerfile` | `docker compose up --build api db -d` |
-| `.env` file | `docker compose down && docker compose up api db -d` |
+| Any `.py` file | `sg docker -c "docker compose restart api"` |
+| `requirements.txt` or `Dockerfile` | `sg docker -c "docker compose up --build api db -d"` |
+| `.env` file | `sg docker -c "docker compose down && docker compose up api db -d"` |
 | Frontend (`.tsx`, `.ts`, CSS) | No restart — Next.js hot-reloads |
-| Something broken, no idea why | `docker compose down && docker compose up --build api db -d` |
+| Something broken, no idea why | `sg docker -c "docker compose down && docker compose up --build api db -d"` |
 
 ---
 
 ## Logs
 
 ```bash
-docker compose logs api -f          # live API logs
-docker compose logs db -f           # Postgres logs
-docker compose logs -f              # everything
+sg docker -c "docker compose logs api -f"    # live API logs
+sg docker -c "docker compose logs db -f"     # Postgres logs
+sg docker -c "docker compose logs -f"        # everything
 ```
 
 ---
@@ -82,13 +82,10 @@ docker compose logs -f              # everything
 ### Offline — no API calls, runs in ~5s
 
 ```bash
-docker compose run --rm backend python -m pytest \
-  tests/test_boundaries.py \
-  tests/test_mock_pipeline.py \
-  tests/test_persistence.py \
-  tests/test_reliability.py \
-  -v
+sg docker -c "docker compose run --rm backend python -m pytest tests/ -q"
 ```
+
+`tests/live/` is excluded automatically via `pytest.ini` (`norecursedirs`).
 
 ### Individual test files
 
@@ -96,24 +93,25 @@ docker compose run --rm backend python -m pytest \
 |---------------|---------|
 | Data contracts at every pipeline boundary | `... pytest tests/test_boundaries.py -v` |
 | Full pipeline happy/failure paths (mocked) | `... pytest tests/test_mock_pipeline.py -v` |
-| Persistence layer — DB write, GET /jobs | `... pytest tests/test_persistence.py -v` |
+| Persistence layer — DB write, GET /jobs, /progress | `... pytest tests/test_persistence.py -v` |
 | Concurrency, ingest dedup, output structure | `... pytest tests/test_reliability.py -v` |
 
-### Integration — requires `ANTHROPIC_API_KEY` + ingested ChromaDB
+### Live tests — require `ANTHROPIC_API_KEY` + ingested ChromaDB
+
+These are in `tests/live/` and excluded from the default run. Use minimal test files only.
 
 ```bash
 # RAG retrieval (no LLM calls — just ChromaDB)
-docker compose run --rm backend python tests/test_rag.py
+sg docker -c "docker compose run --rm backend python -m pytest tests/live/test_rag.py -v"
 
-# Extraction + risk + scoring (uses real LLM — ~$0.05)
-docker compose run --rm backend python tests/test_agents.py
+# Extraction + risk + scoring (~$0.05 — uses alpha_lms.txt, beta_lms.txt only)
+sg docker -c "docker compose run --rm backend python -m pytest tests/live/test_agents.py -v"
 
-# Full pipeline, one vendor (real LLM — ~$0.05)
-docker compose run --rm backend python tests/test_smoke.py --vendor canvas.txt
-
-# Full pipeline, dry-run (no LLM — just agent init)
-docker compose run --rm backend python tests/test_smoke.py --dry-run
+# Full pipeline smoke test (~$0.05)
+sg docker -c "docker compose run --rm backend python -m pytest tests/live/test_smoke.py -v"
 ```
+
+**Always use `backend/data/vendor_proposals/test/` files (`alpha_lms.txt`, `beta_lms.txt`) for live tests — not the full LMS/ERP/Payroll corpus.**
 
 ---
 
@@ -121,10 +119,10 @@ docker compose run --rm backend python tests/test_smoke.py --dry-run
 
 | Task | Command |
 |------|---------|
-| Ingest / re-ingest proposals into ChromaDB | `docker compose run --rm backend python scripts/ingest.py --force` |
+| Ingest / re-ingest proposals into ChromaDB | `sg docker -c "docker compose run --rm backend python scripts/ingest.py --force"` |
 | Pre-demo validation | `./scripts/preflight.sh` |
-| Open a shell inside the container | `docker compose run --rm backend bash` |
-| Connect to Postgres | `docker compose exec db psql -U vendorlens vendorlens` |
+| Open a shell inside the container | `sg docker -c "docker compose run --rm backend bash"` |
+| Connect to Postgres | `sg docker -c "docker compose exec db psql -U vendorlens vendorlens"` |
 
 **Re-run ingest when:**
 - You add, rename, or edit a proposal file
@@ -140,8 +138,9 @@ docker compose run --rm backend python tests/test_smoke.py --dry-run
 | `GET` | `http://localhost:8000/health` | Health check |
 | `GET` | `http://localhost:8000/bundles` | List RFP bundles |
 | `POST` | `http://localhost:8000/analyze` | Upload proposals → returns `job_id` |
-| `GET` | `http://localhost:8000/stream/{job_id}` | SSE live progress stream |
+| `GET` | `http://localhost:8000/jobs/{job_id}/progress` | Poll current stage (pending → extracting → risk → scoring → memo → done) |
 | `GET` | `http://localhost:8000/jobs/{job_id}` | Fetch persisted result from Postgres |
+| `GET` | `http://localhost:8000/stream/{job_id}` | SSE stream (legacy — prefer `/progress` polling) |
 | `POST` | `http://localhost:8000/reload` | Clear pipeline cache (after ingest without restart) |
 
 ---
@@ -153,10 +152,12 @@ docker compose run --rm backend python tests/test_smoke.py --dry-run
 | Frontend (Vercel) | https://vendorlens-beryl.vercel.app |
 | Backend (AWS App Runner) | https://brpste4mu9.us-east-1.awsapprunner.com |
 | Health check | https://brpste4mu9.us-east-1.awsapprunner.com/health |
+| ECR repo | `438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend` |
+| S3 uploads bucket | `vendorlens-uploads-438920434591` |
 
 ---
 
-## Deploy Backend to AWS (App Runner via ECR)
+## Deploy Backend (App Runner via ECR)
 
 ```bash
 bash scripts/deploy_backend.sh
@@ -166,7 +167,7 @@ Manual steps if needed:
 
 ```bash
 # 1. Authenticate with ECR
-aws ecr get-login-password --region us-east-1 \
+~/.local/bin/aws ecr get-login-password --region us-east-1 \
   | sg docker -c "docker login --username AWS --password-stdin \
     438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend"
 
@@ -176,11 +177,10 @@ sg docker -c "docker build --platform linux/amd64 -t vendorlens-backend backend/
 # 3. Tag and push
 sg docker -c "docker tag vendorlens-backend:latest \
   438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend:latest"
-
 sg docker -c "docker push \
   438920434591.dkr.ecr.us-east-1.amazonaws.com/vendorlens-backend:latest"
 
-# 4. Trigger App Runner deployment (auto-deploy may not fire — always do this manually)
+# 4. Trigger App Runner deployment
 ~/.local/bin/aws apprunner start-deployment \
   --service-arn arn:aws:apprunner:us-east-1:438920434591:service/vendorlens/696cbbb5a5b74503b0819ec443fff652 \
   --region us-east-1
@@ -188,21 +188,13 @@ sg docker -c "docker push \
 
 ---
 
-## Deploy Frontend to Vercel
+## Deploy Frontend (Vercel)
 
 Vercel deploys automatically on every push to `main`.
 
 ```bash
-git push origin main        # triggers Vercel deploy automatically
+git push origin main    # triggers Vercel deploy automatically
 ```
-
-To deploy manually or preview a branch:
-```bash
-npx vercel                  # preview deploy (from frontend/ directory)
-npx vercel --prod           # production deploy
-```
-
-Check deploy status: https://vercel.com/dashboard
 
 ---
 
@@ -224,17 +216,7 @@ cd terraform && terraform destroy
 API=https://brpste4mu9.us-east-1.awsapprunner.com ./scripts/test_api.sh
 ```
 
-Uses `backend/data/vendor_proposals/test/{alpha_lms.txt, beta_lms.txt}` — minimal docs, low cost (~$0.05).
-
----
-
-## Trigger App Runner Deployment Manually
-
-```bash
-~/.local/bin/aws apprunner start-deployment \
-  --service-arn arn:aws:apprunner:us-east-1:438920434591:service/vendorlens/696cbbb5a5b74503b0819ec443fff652 \
-  --region us-east-1
-```
+Uses `backend/data/vendor_proposals/test/{alpha_lms.txt, beta_lms.txt}` — minimal docs, low cost.
 
 ---
 
@@ -248,16 +230,16 @@ curl http://localhost:8000/health
 curl https://brpste4mu9.us-east-1.awsapprunner.com/health
 
 # View all ChromaDB collections
-docker compose run --rm backend python -c \
-  "import chromadb; c = chromadb.PersistentClient('data/chroma_db'); print(c.list_collections())"
+sg docker -c "docker compose run --rm backend python -c \
+  \"import chromadb; c = chromadb.PersistentClient('data/chroma_db'); print(c.list_collections())\""
 
 # Count indexed chunks per vendor
-docker compose run --rm backend python -c "
+sg docker -c "docker compose run --rm backend python -c \"
 import chromadb
 c = chromadb.PersistentClient('data/chroma_db')
 col = c.get_collection('vendor_proposals')
 for vendor in ['blackboard.txt', 'canvas.txt', 'brightspace.txt']:
     r = col.get(where={'file_name': vendor}, include=[])
     print(f'{vendor}: {len(r[\"ids\"])} chunks')
-"
+\""
 ```
