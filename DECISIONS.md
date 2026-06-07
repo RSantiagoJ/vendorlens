@@ -133,6 +133,36 @@ The pipeline takes 2–4 minutes on a warm container. SSE streams are always cut
 
 ---
 
+## Negotiation Agent (day15)
+
+### Sequential after memo, not parallel
+`negotiation_node` runs after `memo_node` completes, not in parallel with it.
+Reason: the negotiation brief references competitor scores (BATNA). With fan-in producing the full `proposals` list,
+all scores are available by the time `memo_node` runs. Running negotiation in parallel with memo would require
+a second fan-in or a shared intermediate state — unnecessary complexity for one extra Haiku call.
+
+### Haiku for negotiation, not Sonnet
+Generating negotiation briefs is a structured output task: read scores + risk flags → fill a JSON template.
+It doesn't require Sonnet's reasoning quality. Haiku is ~5× cheaper and sufficient for this task.
+Same reasoning as scoring: mechanical → Haiku; nuanced prose → Sonnet.
+
+### One batched LLM call for all vendors, not per-vendor calls
+All vendor data is sent in a single prompt and the LLM returns a JSON array of briefs.
+Per-vendor calls would cost N times as much and add N serial round-trips.
+The LLM has better cross-vendor context in one call (can compare scores for BATNA more accurately).
+
+### negotiation_plans at top-level state, not inside ProposalState
+Each brief references competitor scores (BATNA). Putting a brief inside `ProposalState` would mean
+each proposal's brief can't reference the others without accessing the full state.
+Top-level `negotiation_plans: list[NegotiationBrief]` keeps the data model clean and parallel to `memo`.
+
+### Negotiation node failure is non-fatal (empty list, not error)
+If the negotiation node fails, the pipeline returns `negotiation_plans: []` and status remains `done`.
+The frontend only renders the Negotiation Playbook section when `negotiation_plans` is non-empty,
+so a failure degrades gracefully without breaking the rest of the results.
+
+---
+
 ## What Was Proposed and Rejected
 
 | Proposal | Rejected Because |

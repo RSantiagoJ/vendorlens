@@ -72,14 +72,14 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 | File | Tests | What it covers |
 |------|-------|---------------|
-| `test_boundaries.py` | 51 | Data shape at every inter-layer handoff (B0–B8) |
-| `test_mock_pipeline.py` | 19 | Full pipeline happy path + all failure modes + negotiation_plans |
+| `test_boundaries.py` | 48 | Data shape at every inter-layer handoff (B0–B8) |
+| `test_mock_pipeline.py` | 13 | Full pipeline happy path + all failure modes + negotiation_plans |
 | `test_negotiation_agent.py` | 9 | NegotiationAgent unit tests + model shape |
-| `test_persistence.py` | 33 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
+| `test_persistence.py` | 30 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
-| **Total** | **148** | **All offline — no API keys needed** |
+| **Total** | **148** | **123 backend + 25 frontend — all offline, no API keys needed** |
 
 ---
 
