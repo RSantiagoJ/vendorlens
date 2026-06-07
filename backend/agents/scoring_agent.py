@@ -15,11 +15,14 @@ How it works:
 """
 
 import json
+import logging
 import re
 
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 from graph.state import DimensionScore, ProposalData, RiskFlag, ScoreCard
 from tools.context_loader import load_context_bundle
@@ -139,6 +142,10 @@ class ScoringAgent:
         )
         data = parse_llm_json(raw)
 
+        missing = [f for f in _SCORECARD_FIELDS if f not in data]
+        if missing:
+            logger.warning("[scoring] %s: LLM omitted fields: %s", proposal_data.vendor_name, missing)
+
         for field in _SCORECARD_FIELDS:
             if field not in data:
                 data[field] = {"score": 0.0, "rationale": "Score not provided by LLM."}
@@ -147,7 +154,9 @@ class ScoringAgent:
                 data[field]["score"] = _parse_score_value(raw_val)
 
         dim_scores = {field: data[field]["score"] for field in _SCORECARD_FIELDS}
+        overall = self._compute_overall(dim_scores)
+        logger.info("[scoring] %s: dim_scores=%s overall=%.1f", proposal_data.vendor_name, {k: round(v, 1) for k, v in dim_scores.items()}, overall)
         return ScoreCard(
             **{field: DimensionScore(**data[field]) for field in _SCORECARD_FIELDS},
-            overall=self._compute_overall(dim_scores),
+            overall=overall,
         )

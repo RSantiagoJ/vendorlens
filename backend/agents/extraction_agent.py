@@ -12,10 +12,13 @@ is parsed into a ProposalData Pydantic model.
 Null is returned for any field not explicitly stated — no hallucination.
 """
 
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 from llama_index.core import Settings, VectorStoreIndex
 from llama_index.core.schema import QueryBundle
@@ -69,7 +72,10 @@ class ExtractionAgent:
             results = pool.map(run_query, self._query_bundles)
 
         chunks = [chunk for batch in results for chunk in batch]
-        return "\n\n---\n\n".join(dedup_ordered(chunks))
+        deduped = dedup_ordered(chunks)
+        context = "\n\n---\n\n".join(deduped)
+        logger.info("[extraction] %s: %d chunks retrieved, %d chars total", filename, len(deduped), len(context))
+        return context
 
     def extract(self, filename: str) -> ProposalData:
         """Extract structured data from a vendor proposal.
@@ -87,4 +93,7 @@ class ExtractionAgent:
             self.system_prompt,
             f"Relevant chunks from the vendor proposal:\n{chunks}\n\nExtract all fields. Return JSON only.",
         )
-        return ProposalData.model_validate(parse_llm_json(raw))
+        data = ProposalData.model_validate(parse_llm_json(raw))
+        populated = [k for k, v in data.model_dump().items() if v is not None]
+        logger.info("[extraction] %s: %d/%d fields populated: %s", filename, len(populated), len(ProposalData.model_fields), populated)
+        return data

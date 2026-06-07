@@ -261,6 +261,10 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
 
         result_dict = result.model_dump()
         job["result"] = result_dict
+        logger.info("[pipeline] job %s done — status=%s proposals=%s",
+            job_id, final_status,
+            [{p.filename: round(p.scores.overall, 1) if p.scores else None} for p in proposals],
+        )
         _persist_run(job_id, bundle_id, result)
         emit("done", result_dict)
         job["status"] = "done"
@@ -378,7 +382,7 @@ async def stream(job_id: str) -> StreamingResponse:
             events = job["events"]
             while sent < len(events):
                 ev = events[sent]
-                yield f"event: {ev['type']}\ndata: {json.dumps(ev['data'])}\n\n"
+                yield f"event: {ev['type']}\ndata: {json.dumps(ev['data'], separators=(',', ':'))}\n\n"
                 sent += 1
             if job["status"] in ("done", "error") and sent >= len(events):
                 break

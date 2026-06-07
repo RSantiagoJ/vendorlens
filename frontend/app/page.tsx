@@ -500,7 +500,7 @@ function HomeContent() {
                         value: winner
                           ? Math.round(winner.scores!.overall)
                           : "—",
-                        suffix: winner ? "/100" : "",
+                        suffix: winner ? "/10" : "",
                         label: "Winner Score",
                         icon: <IconAward size={22} />,
                         color: "umgreen",

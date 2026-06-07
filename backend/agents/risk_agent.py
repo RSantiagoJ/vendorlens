@@ -19,9 +19,12 @@ policy_excerpt is populated by the LLM when the policy context contains
 a verbatim passage that triggered the flag. Null if no specific text found.
 """
 
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 from graph.state import ProposalData, RiskFlag
 from tools.context_loader import get_policy_path
@@ -78,4 +81,11 @@ class RiskAgent:
             f"Extracted contract data:\n{proposal_data.model_dump_json(exclude_none=True)}\n\n"
             "Identify all risks. Return JSON array only.",
         )
-        return [RiskFlag(**flag) for flag in parse_llm_json(raw)]
+        flags = [RiskFlag(**flag) for flag in parse_llm_json(raw)]
+        logger.info("[risk] %s: %d flags (%d HIGH, %d MEDIUM, %d LOW)",
+            proposal_data.vendor_name, len(flags),
+            sum(1 for f in flags if f.severity == "HIGH"),
+            sum(1 for f in flags if f.severity == "MEDIUM"),
+            sum(1 for f in flags if f.severity == "LOW"),
+        )
+        return flags
