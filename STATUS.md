@@ -83,11 +83,13 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 | # | Task | Blocking anything? |
 |---|------|--------------------|
-| 1 | Live end-to-end test with real API calls | Yes — must pass before deploy |
-| 2 | ~~Verify frontend handles 0–10 scores correctly~~ | Done — thresholds, labels, ring, fill bar all updated |
-| 3 | Vercel + Terraform integration | After live test passes |
-| 4 | Production Postgres (AWS RDS) for persistence | Required for Terraform deploy |
-| 5 | DB migration: `rfp_name` column on production DB | Before first production run |
+| 1 | **Replace SSE with pure polling** (day12) | Yes — SSE hybrid is unreliable in production; polling fix is prerequisite to a stable deploy |
+| 2 | Show "scoring failed" state on partial proposal cards | UX gap — null scores silently render an empty card |
+| 3 | Surface `status: "partial"` at the top level | User has no indication one vendor failed vs all succeeded |
+| 4 | ~~Verify frontend handles 0–10 scores correctly~~ | Done |
+| 5 | Vercel + Terraform integration | After polling fix lands |
+| 6 | Production Postgres (AWS RDS) for persistence | Required for Terraform deploy |
+| 7 | DB migration: `rfp_name` column on production DB | Before first production run |
 
 ---
 
@@ -106,28 +108,18 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 ## Daily Audit Log
 
-### 2026-06-07 — Production deployment + SSE polling fallback
-- SSE compact JSON fix deployed (separators=(',',':') — test script was checking for no-space format)
+### 2026-06-07 — Production deployment + SSE stabilisation
+- SSE compact JSON fix deployed (separators=(',',':'))
 - Agent logging added (extraction chunk count, risk flag count, scoring dim_scores + overall)
 - Frontend `/100` suffix bug fixed → `/10` in KPI bar
 - SSE polling fallback implemented: when onerror fires, frontend polls /jobs/{job_id} every 5s
-- receivedDone flag added to prevent polling starting after a clean SSE done event
-- App Runner 120s hard timeout confirmed — cannot be changed. See DECISIONS.md for full context.
+- SSE error handler fixed: guards added for connection-level closes (no `.data`) and post-done race
+- Root cause analysis: day10 onerror had zero recovery; explained all three reported failure modes
+- App Runner 120s hard timeout confirmed — cannot be changed. SSE is a workaround; polling is the fix (day12).
 - AWS CLI installed at ~/.local/bin/aws. deploy_backend.sh script created.
 - COMMANDS.md updated: live validation command, manual deploy trigger, sg docker note added.
+- `ProposalResult.error` field added to frontend types.ts
 - Branch day11 not yet merged to main — Vercel is watching main.
-
-
-- COMMANDS.md missing scripts: test_api.sh
-
-Recent commits:
-```
-1202662 chore: add minimal test vendor docs for live validation script
-e7955ed docs: update STATUS and DECISIONS with scoring fix history and next steps
-75048cf feat: rewrite test_api.sh as full live validation script
-02c4c68 feat: extract scoring logic to scoring.ts and fix 0–10 scale in UI
-2ac3938 docs: add RESTART.md to session start protocol
-```
 
 
 <!-- The daily audit appends findings here. Most recent first. -->
