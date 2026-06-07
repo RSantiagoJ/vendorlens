@@ -11,8 +11,9 @@ Do this before responding to anything the user asks:
 
 1. **Read STATUS.md** — current state, settled decisions, open issues
 2. **Read DECISIONS.md** — why things were built the way they were (prevents re-debating closed questions)
-3. **Check tests** — if any tests are failing, fix them before touching what the user asked
-4. **Check for drift** — does anything in this file contradict what you can see in the code?
+3. **Read RESTART.md** — production URLs, infrastructure, env vars (check here before asking about deployment config)
+4. **Check tests** — if any tests are failing, fix them before touching what the user asked
+5. **Check for drift** — does anything in this file contradict what you can see in the code?
    If yes: update this file to match reality, not the other way around
 
 ---
@@ -55,6 +56,9 @@ Do not rename, refactor, or clean up adjacent code. Out-of-scope changes need a 
 - Any state or data model (`graph/state.py`, `api/models.py`)
 - Any shared utility (`tools/llm_factory.py`, `tools/chroma.py`)
 - Any DB model or persistence function (`db/`, `api/main._persist_run`)
+- Any frontend component that transforms or compares a numeric value for display
+  (thresholds, labels, ring fills, progress bar widths, color tiers)
+  → Extract logic to `frontend/lib/scoring.ts`. Run: `cd frontend && npm test`.
 
 ---
 
@@ -100,9 +104,14 @@ Before closing any session:
    - Add new settled decisions if any were made
    - Add new items to the improvement backlog if you noticed anything
    - Append a dated entry to the Daily Audit Log
-3. If you explained something this session that a future Claude should already know — add it here
-4. If a bug occurred that a rule could have prevented — add the prevention rule here, not just the fix
-5. Commit and push with a clear message
+4. If you explained something this session that a future Claude should already know — add it here
+5. If a bug occurred that a rule could have prevented — add the prevention rule here, not just the fix
+6. **Save memory** — update `~/.claude/projects/-home-ricardo-projects-vendorlens/memory/`:
+   - Update `project_current_state.md` with where things stand (what's done, what's next, any blockers)
+   - Add a `feedback_*.md` for any new guidance Ricardo gave about how to work
+   - Update `MEMORY.md` index if new files were added
+   - Ricardo closes windows to get fresh context — this is how the next session picks up
+7. Commit and push with a clear message
 
 ---
 
