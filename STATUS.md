@@ -110,6 +110,19 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 ## Daily Audit Log
 
+### 2026-06-07 — Landing page redesign + UI polish (day13)
+- Landing page replaced with two-column split: dark gradient left panel (pulsating quotes + pipeline steps) / white right panel (upload form)
+- Quotes cycle automatically every ~5.7s; click-to-advance with hover brighten + "↻ click to change" hint
+- SSR hydration error fixed: random index initialized in `useEffect`, not `useState`
+- Results confetti made dramatically more explosive: 7 waves, 360° sphere burst, gold star shower, ceiling rain
+- BoredPanel: Confetti tab → Roast tab (15 vendor roasts); Fortune tab → Stats tab (15 procurement facts)
+- Tetris: canvas border visible, line-clear flash effect (white burst 220ms, input blocked during flash)
+- BoredPanel: single close affordance — header X (removed toggle "✕ Close" label; trigger always "🎮 Bored?")
+- Processing panels (AgentProgressBar + ThinkingLog) set to equal height via `alignItems: stretch`
+- Dead code removed: `BUNDLE_ICONS`, `IconDeviceLaptop/Coins/BankingBank`, `sub` fields in `PIPELINE_STEPS`, `IconArrowRight`
+- `presentation_todo.md` created with demo talking points and anticipated questions
+- Frontend TypeScript: clean. Backend: 109 passing.
+
 ### 2026-06-07 — End-to-end tests (offline, no API key)
 - `test_e2e.py` added: 15 tests covering POST /analyze → poll /progress → GET /jobs full flow
 - Mocking strategy: `_run_pipeline` stubbed with instant result; `_persist_run` patched to no-op
