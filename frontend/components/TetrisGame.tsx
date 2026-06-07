@@ -105,6 +105,9 @@ export function TetrisGame() {
       lines: 0,
       lastDrop: 0,
       alive: true,
+      flashing: false,
+      flashRows: [] as number[],
+      flashStart: 0,
     };
 
     let raf = 0;
@@ -137,43 +140,80 @@ export function TetrisGame() {
         for (let c = 0; c < COLS; c++)
           if (board[r][c]) drawCell(ctx, c, r, COLORS[board[r][c]]);
 
-      // ghost piece
-      let gy = piece.y;
-      while (fits(board, piece.shape, piece.x, gy + 1)) gy++;
-      if (gy > piece.y)
+      if (!state.flashing) {
+        // ghost piece
+        let gy = piece.y;
+        while (fits(board, piece.shape, piece.x, gy + 1)) gy++;
+        if (gy > piece.y)
+          for (let r = 0; r < piece.shape.length; r++)
+            for (let c = 0; c < piece.shape[r].length; c++)
+              if (piece.shape[r][c])
+                drawCell(ctx, piece.x + c, gy + r, COLORS[piece.shape[r][c]], 0.18);
+
         for (let r = 0; r < piece.shape.length; r++)
           for (let c = 0; c < piece.shape[r].length; c++)
             if (piece.shape[r][c])
-              drawCell(ctx, piece.x + c, gy + r, COLORS[piece.shape[r][c]], 0.18);
+              drawCell(ctx, piece.x + c, piece.y + r, COLORS[piece.shape[r][c]]);
+      }
 
-      for (let r = 0; r < piece.shape.length; r++)
-        for (let c = 0; c < piece.shape[r].length; c++)
-          if (piece.shape[r][c])
-            drawCell(ctx, piece.x + c, piece.y + r, COLORS[piece.shape[r][c]]);
+      // line-clear flash: bright white burst that fades over 200ms
+      if (state.flashing) {
+        const elapsed = performance.now() - state.flashStart;
+        const alpha = elapsed < 60 ? 0.9 : 0.9 * Math.max(0, 1 - (elapsed - 60) / 160);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = "white";
+        state.flashRows.forEach(r => ctx.fillRect(0, r * CELL, COLS * CELL, CELL));
+        ctx.globalAlpha = 1;
+      }
     }
 
     function loop(ts: number) {
       if (!state.alive) return;
-      const level = Math.floor(state.lines / 10);
-      const gravity = GRAVITY_MS[Math.min(level, GRAVITY_MS.length - 1)];
 
-      if (ts - state.lastDrop > gravity) {
-        state.lastDrop = ts;
-        if (fits(state.board, state.piece.shape, state.piece.x, state.piece.y + 1)) {
-          state.piece.y++;
-        } else {
-          state.board = merge(state.board, state.piece);
-          const [newBoard, cleared] = sweep(state.board);
-          state.board = newBoard;
-          state.lines += cleared;
-          state.score += SCORE_TABLE[cleared] * (level + 1);
-          setScore(state.score);
-          state.piece = spawnPiece();
-          if (!fits(state.board, state.piece.shape, state.piece.x, state.piece.y)) {
-            state.alive = false;
-            setOver(true);
-            draw();
-            return;
+      if (!state.flashing) {
+        const level = Math.floor(state.lines / 10);
+        const gravity = GRAVITY_MS[Math.min(level, GRAVITY_MS.length - 1)];
+
+        if (ts - state.lastDrop > gravity) {
+          state.lastDrop = ts;
+          if (fits(state.board, state.piece.shape, state.piece.x, state.piece.y + 1)) {
+            state.piece.y++;
+          } else {
+            state.board = merge(state.board, state.piece);
+
+            const completeRows: number[] = state.board
+              .map((row, i) => ({ row, i }))
+              .filter(({ row }) => row.every(v => v !== 0))
+              .map(({ i }) => i);
+
+            if (completeRows.length > 0) {
+              state.flashing = true;
+              state.flashRows = completeRows;
+              state.flashStart = performance.now();
+              setTimeout(() => {
+                const [newBoard, cleared] = sweep(state.board);
+                state.board = newBoard;
+                const lvl = Math.floor(state.lines / 10);
+                state.lines += cleared;
+                state.score += SCORE_TABLE[cleared] * (lvl + 1);
+                setScore(state.score);
+                state.piece = spawnPiece();
+                state.flashing = false;
+                state.flashRows = [];
+                if (!fits(state.board, state.piece.shape, state.piece.x, state.piece.y)) {
+                  state.alive = false;
+                  setOver(true);
+                }
+              }, 220);
+            } else {
+              state.piece = spawnPiece();
+              if (!fits(state.board, state.piece.shape, state.piece.x, state.piece.y)) {
+                state.alive = false;
+                setOver(true);
+                draw();
+                return;
+              }
+            }
           }
         }
       }
@@ -187,7 +227,7 @@ export function TetrisGame() {
     raf = requestAnimationFrame(loop);
 
     function onKey(e: KeyboardEvent) {
-      if (!state.alive) return;
+      if (!state.alive || state.flashing) return;
       if (!["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space"].includes(e.code)) return;
       e.preventDefault();
 
@@ -238,7 +278,7 @@ export function TetrisGame() {
           ref={canvasRef}
           width={COLS * CELL}
           height={ROWS * CELL}
-          style={{ display: "block", borderRadius: 4 }}
+          style={{ display: "block", borderRadius: 4, border: "1px solid rgba(255,255,255,0.15)" }}
         />
         {over && (
           <Box

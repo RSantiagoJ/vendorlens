@@ -1,78 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, Group, Paper, Stack, Text, Transition } from "@mantine/core";
 import { useReducedMotion } from "@mantine/hooks";
 import {
-  IconCookie,
+  IconBulb,
   IconDeviceGamepad2,
-  IconSparkles,
+  IconFlame,
   IconX,
 } from "@tabler/icons-react";
-import confetti from "canvas-confetti";
 import { TetrisGame } from "./TetrisGame";
 
-const FORTUNES = [
-  "A great contract awaits you — but read the auto-renewal clause first.",
-  "The vendor with the highest score is not always the lowest risk.",
-  "A $50,000 liability cap is a red flag dressed as a number.",
-  "Clarity will come. So will the invoice.",
-  "The RFP rubric you set today shapes the vendor you're stuck with tomorrow.",
-  "Beware the 30-day opt-out window disguised as flexibility.",
-  "Your next best decision will be backed by data, not intuition.",
-  "A DPA is worth a thousand apologies.",
-  "The winning vendor is not the cheapest — it is the least surprising.",
-  "Governing law matters more than the vendor admits.",
-  "Five AI agents cannot replace due diligence. They can, however, speed it up considerably.",
-  "The auto-renewal clause is always watching.",
-  "A SOC 2 Type II audit report is a love language.",
-  "Not all escalation caps are created equal.",
-  "The best negotiation starts before you sign.",
-  "Your procurement director will thank you. Eventually.",
-  "Read every exhibit. Especially Exhibit C.",
-  "An SLA without teeth is just a suggestion.",
-  "The vendor that rushes you to sign has something to hide.",
-  "Good things come to those who benchmark.",
+const ROASTS = [
+  "SynergyCloud promised 99.9% uptime. Their SLA defines 'uptime' as 'the server is physically plugged in.'",
+  "DocuPrime's support SLA is 48 hours. The clock starts when they feel like responding.",
+  "InnovateTech's 'AI-powered analytics' is a pivot table in a trench coat.",
+  "QuadrantPlus has not passed a SOC 2 audit. It has, however, attended a SOC 2 webinar.",
+  "VendorSoft 9.0 ships with 300 pages of documentation last updated for VendorSoft 4.2.",
+  "HelixEDU's pricing model has six tiers. None include the features you actually need.",
+  "MegaCorp Solutions buried the auto-renewal clause in Exhibit F, subsection 7, paragraph 3(b)(ii).",
+  "EduCloud Pro stores your data in 'the cloud.' They cannot tell you which one.",
+  "NexGen Platform's API is 'RESTful in spirit.'",
+  "OmniLearn's 'unlimited users' plan has a fair use policy that limits users.",
+  "ProcureMax calls their liability cap 'industry standard.' The industry would like a word.",
+  "FlexiVend's 'enterprise-grade security' is a login page with HTTPS. That's it.",
+  "TotalSoft's implementation timeline is '6–8 weeks.' Week 16 update: 'almost there.'",
+  "EduPrime's FERPA compliance documentation is a PDF from 2018 that says 'FERPA compliant.'",
+  "CoreSystems offers a 30-day money-back guarantee. Step 1: find the opt-out form.",
 ];
 
-function fireBurst() {
-  confetti({ particleCount: 180, spread: 80, origin: { y: 0.7 } });
-}
+const FACTS = [
+  "The average enterprise RFP process takes 3–6 months from release to contract signature.",
+  "42% of data breaches in 2023 originated from a third-party vendor or supplier.",
+  "Only 12% of enterprise vendor contracts are actively monitored after signature.",
+  "Auto-renewal clauses account for an estimated 23% of unplanned SaaS spend.",
+  "The average cost of a third-party data breach reached $4.29M in 2023.",
+  "68% of organizations experienced a third-party security incident in the past three years.",
+  "Fortune 500 companies manage an average of 10,000+ active vendor relationships.",
+  "Procurement teams using structured scoring rubrics close vendor selections 40% faster.",
+  "Only 34% of procurement teams have full visibility into their supplier risk exposure.",
+  "The average enterprise wastes $135K/year on unused or duplicate SaaS licenses.",
+  "Contracts with explicit data portability clauses reduce migration costs by up to 60%.",
+  "Liability caps below $1M appear in 44% of mid-market software contracts.",
+  "A poorly scoped SLA can cost 2–5× more in remediation than the original contract value.",
+  "The average time from contract signature to first support escalation: 47 days.",
+  "Vendor lock-in affects an estimated 80% of enterprise cloud contracts after year two.",
+];
 
-function fireFireworks() {
-  const shoot = (angle: number, x: number) =>
-    confetti({ particleCount: 80, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 } });
-  shoot(60, 0);
-  setTimeout(() => shoot(120, 1), 150);
-  setTimeout(() => shoot(90, 0.5), 300);
-}
-
-function fireSchoolPride() {
-  // UMass maroon + white + blue — 5-cannon wave
-  const colors = ["#881c1c", "#ffffff", "#003087"];
-  const shoot = (angle: number, x: number) =>
-    confetti({ particleCount: 90, angle, spread: 55, startVelocity: 60, origin: { x, y: 0.8 }, colors });
-  shoot(60, 0);
-  setTimeout(() => shoot(120, 1),    150);
-  setTimeout(() => shoot(75, 0.25),  300);
-  setTimeout(() => shoot(105, 0.75), 450);
-  setTimeout(() => shoot(90, 0.5),   600);
-}
-
-type Tab = "game" | "confetti" | "fortune";
+type Tab = "game" | "roast" | "facts";
 
 const TABS = [
-  { id: "game" as Tab,     Icon: IconDeviceGamepad2, label: "Game"     },
-  { id: "confetti" as Tab, Icon: IconSparkles,        label: "Confetti" },
-  { id: "fortune" as Tab,  Icon: IconCookie,          label: "Fortune"  },
+  { id: "game" as Tab,  Icon: IconDeviceGamepad2, label: "Game"  },
+  { id: "roast" as Tab, Icon: IconFlame,           label: "Roast" },
+  { id: "facts" as Tab, Icon: IconBulb,            label: "Stats" },
 ];
 
 const PANEL_WIDTH = 260;
 
 const tabHeights = {
   game: 511,
-  confetti: 192,
-  fortune: 168,
+  roast: 200,
+  facts: 180,
 };
 
 export function BoredPanel() {
@@ -80,9 +68,14 @@ export function BoredPanel() {
   const [tab, setTab] = useState<Tab>("game");
   const [visibleTab, setVisibleTab] = useState<Tab>("game");
   const [mounted, setMounted] = useState(true);
-  const [fortune, setFortune] = useState<string>(
-    () => FORTUNES[Math.floor(Math.random() * FORTUNES.length)]
-  );
+  const [roastIdx, setRoastIdx] = useState(0);
+  const [factIdx, setFactIdx] = useState(0);
+
+  // Randomize client-side only to avoid SSR hydration mismatch
+  useEffect(() => {
+    setRoastIdx(Math.floor(Math.random() * ROASTS.length));
+    setFactIdx(Math.floor(Math.random() * FACTS.length));
+  }, []);
 
   const reduceMotion = useReducedMotion();
   const duration = reduceMotion ? 0 : 150;
@@ -93,8 +86,12 @@ export function BoredPanel() {
     setMounted(false);
   }
 
-  function pickFortune() {
-    setFortune(FORTUNES[Math.floor(Math.random() * FORTUNES.length)]);
+  function pickRoast() {
+    setRoastIdx((i) => (i + 1) % ROASTS.length);
+  }
+
+  function pickFact() {
+    setFactIdx((i) => (i + 1) % FACTS.length);
   }
 
   return (
@@ -125,7 +122,7 @@ export function BoredPanel() {
             </Text>
             <Box
               onClick={() => setOpen(false)}
-              style={{ cursor: "pointer", color: "rgba(255,255,255,0.6)", lineHeight: 1 }}
+              style={{ cursor: "pointer", color: "rgba(255,255,255,0.5)", lineHeight: 1 }}
             >
               <IconX size={14} />
             </Box>
@@ -186,49 +183,14 @@ export function BoredPanel() {
                 <Box style={styles}>
                   {visibleTab === "game" && <TetrisGame />}
 
-                  {visibleTab === "confetti" && (
-                    <Stack gap="sm" p="md" align="center">
-                      <Text size="xs" ta="center" style={{ color: "rgba(255,255,255,0.65)" }}>
-                        No one will know.
-                      </Text>
-                      <Button
-                        fullWidth
-                        size="sm"
-                        variant="light"
-                        color="blue"
-                        onClick={fireBurst}
-                      >
-                        🎉 Burst
-                      </Button>
-                      <Button
-                        fullWidth
-                        size="sm"
-                        variant="light"
-                        color="orange"
-                        onClick={fireFireworks}
-                      >
-                        🎆 Fireworks
-                      </Button>
-                      <Button
-                        fullWidth
-                        size="sm"
-                        variant="light"
-                        color="red"
-                        onClick={fireSchoolPride}
-                      >
-                        🎓 School Pride
-                      </Button>
-                    </Stack>
-                  )}
-
-                  {visibleTab === "fortune" && (
+                  {visibleTab === "roast" && (
                     <Stack gap="md" p="md" align="center">
                       <Paper
                         p="sm"
                         radius="md"
                         style={{
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          background: "rgba(255,80,30,0.08)",
+                          border: "1px solid rgba(255,80,30,0.22)",
                           width: "100%",
                         }}
                       >
@@ -236,9 +198,41 @@ export function BoredPanel() {
                           size="sm"
                           c="white"
                           ta="center"
-                          style={{ lineHeight: 1.55, fontStyle: "italic" }}
+                          style={{ lineHeight: 1.55 }}
                         >
-                          &ldquo;{fortune}&rdquo;
+                          {ROASTS[roastIdx]}
+                        </Text>
+                      </Paper>
+                      <Button
+                        fullWidth
+                        size="xs"
+                        variant="light"
+                        color="orange"
+                        onClick={pickRoast}
+                      >
+                        🔥 Roast another
+                      </Button>
+                    </Stack>
+                  )}
+
+                  {visibleTab === "facts" && (
+                    <Stack gap="md" p="md" align="center">
+                      <Paper
+                        p="sm"
+                        radius="md"
+                        style={{
+                          background: "rgba(100,180,255,0.07)",
+                          border: "1px solid rgba(100,180,255,0.18)",
+                          width: "100%",
+                        }}
+                      >
+                        <Text
+                          size="sm"
+                          c="white"
+                          ta="center"
+                          style={{ lineHeight: 1.55 }}
+                        >
+                          {FACTS[factIdx]}
                         </Text>
                       </Paper>
                       <Button
@@ -246,9 +240,9 @@ export function BoredPanel() {
                         size="xs"
                         variant="light"
                         color="blue"
-                        onClick={pickFortune}
+                        onClick={pickFact}
                       >
-                        Another one
+                        💡 Next stat
                       </Button>
                     </Stack>
                   )}
@@ -271,7 +265,7 @@ export function BoredPanel() {
           transition: "box-shadow 0.2s",
         }}
       >
-        {open ? "✕ Close" : "🎮 Bored?"}
+          🎮 Bored?
       </Button>
     </Box>
   );

@@ -32,14 +32,10 @@ import {
 import {
   IconAlertCircle,
   IconAlertTriangle,
-  IconArrowRight,
   IconAward,
   IconBuilding,
-  IconBuildingBank,
   IconChartBar,
   IconCircleCheck,
-  IconCoins,
-  IconDeviceLaptop,
   IconFileText,
   IconRefresh,
   IconSearch,
@@ -49,23 +45,99 @@ import confetti from "canvas-confetti";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
-const BUNDLE_ICONS: Record<string, ReturnType<typeof IconDeviceLaptop>> = {
-  lms: <IconDeviceLaptop size={18} />,
-  payroll: <IconCoins size={18} />,
-  erp: <IconBuildingBank size={18} />,
-};
+const LANDING_QUOTES = [
+  "A great contract awaits you — but read the auto-renewal clause first.",
+  "The vendor with the highest score is not always the lowest risk.",
+  "The winning vendor is not the cheapest — it is the least surprising.",
+  "A DPA is worth a thousand apologies.",
+  "Five AI agents cannot replace due diligence. They can, however, speed it up considerably.",
+  "The auto-renewal clause is always watching.",
+  "A SOC 2 Type II audit report is a love language.",
+  "The best negotiation starts before you sign.",
+  "Read every exhibit. Especially Exhibit C.",
+  "An SLA without teeth is just a suggestion.",
+  "The vendor that rushes you to sign has something to hide.",
+  "Good things come to those who benchmark.",
+  "A $50,000 liability cap is a red flag dressed as a number.",
+  "Governing law matters more than the vendor admits.",
+  "The RFP rubric you set today shapes the vendor you're stuck with tomorrow.",
+];
+
+function BackgroundQuotes() {
+  const [idx, setIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const [hovered, setHovered] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const SHOW_MS = 4800;
+  const FADE_MS = 900;
+
+  function advance() {
+    setVisible(false);
+    setTimeout(() => {
+      setIdx((i) => (i + 1) % LANDING_QUOTES.length);
+      setVisible(true);
+    }, FADE_MS);
+  }
+
+  function restartTimer() {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(advance, SHOW_MS + FADE_MS);
+  }
+
+  useEffect(() => {
+    // Randomize starting quote client-side only (avoids SSR hydration mismatch)
+    setIdx(Math.floor(Math.random() * LANDING_QUOTES.length));
+    restartTimer();
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <Box
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => { advance(); restartTimer(); }}
+      style={{ cursor: "pointer" }}
+    >
+      <Text
+        style={{
+          fontStyle: "italic",
+          fontWeight: 300,
+          lineHeight: 1.7,
+          fontSize: "clamp(1.15rem, 1.7vw, 1.55rem)",
+          color: "white",
+          opacity: visible ? (hovered ? 1 : 0.82) : 0,
+          transition: "opacity 0.9s ease-in-out",
+          userSelect: "none",
+        }}
+      >
+        &ldquo;{LANDING_QUOTES[idx]}&rdquo;
+      </Text>
+      <Text
+        style={{
+          marginTop: 16,
+          fontSize: "0.7rem",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.35)",
+          userSelect: "none",
+          opacity: hovered ? 1 : 0,
+          transition: "opacity 0.25s ease",
+        }}
+      >
+        ↻ click to change
+      </Text>
+    </Box>
+  );
+}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const PIPELINE_STEPS = [
-  { label: "Extract", sub: "Parse proposals", Icon: IconSearch },
-  {
-    label: "Risk Analysis",
-    sub: "Flag policy violations",
-    Icon: IconShieldCheck,
-  },
-  { label: "Scoring", sub: "Rank by RFP criteria", Icon: IconChartBar },
-  { label: "Recommendation", sub: "Generate memo", Icon: IconFileText },
+  { label: "Extract",        Icon: IconSearch     },
+  { label: "Risk Analysis",  Icon: IconShieldCheck },
+  { label: "Scoring",        Icon: IconChartBar   },
+  { label: "Recommendation", Icon: IconFileText   },
 ];
 
 type AppState =
@@ -122,19 +194,32 @@ function HomeContent() {
 
   function revealResults() {
     setAppState("done");
-    const shoot = (angle: number, x: number) =>
-      confetti({
-        particleCount: 80,
-        angle,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x, y: 0.8 },
-      });
-    shoot(60, 0);
-    setTimeout(() => shoot(120, 1), 150);
-    setTimeout(() => shoot(75, 0.25), 300);
-    setTimeout(() => shoot(105, 0.75), 450);
-    setTimeout(() => shoot(90, 0.5), 600);
+
+    const umColors = ["#881c1c", "#ffffff", "#00a550", "#003087", "#FFD700"];
+    const shoot = (angle: number, x: number, count = 130) =>
+      confetti({ particleCount: count, angle, spread: 65, startVelocity: 72, origin: { x, y: 0.88 }, ticks: 220, colors: umColors });
+
+    // Wave 1 — both side cannons at once
+    shoot(60, 0, 160);
+    shoot(120, 1, 160);
+
+    // Wave 2 — inner flanks
+    setTimeout(() => { shoot(72, 0.12, 140); shoot(108, 0.88, 140); }, 180);
+
+    // Wave 3 — mid-court + center up
+    setTimeout(() => { shoot(80, 0.3, 120); shoot(100, 0.7, 120); shoot(90, 0.5, 200); }, 380);
+
+    // Wave 4 — 360° sphere burst from center
+    setTimeout(() => confetti({ particleCount: 500, spread: 360, startVelocity: 28, decay: 0.94, gravity: 0.75, origin: { x: 0.5, y: 0.45 }, ticks: 350, colors: umColors }), 650);
+
+    // Wave 5 — gold star shower
+    setTimeout(() => confetti({ particleCount: 120, spread: 360, startVelocity: 18, decay: 0.96, gravity: 0.35, origin: { x: 0.5, y: 0.5 }, ticks: 500, shapes: ["star"], colors: ["#FFD700", "#FFA500", "#FF6347"], scalar: 1.5 }), 850);
+
+    // Wave 6 — second side salvo
+    setTimeout(() => { shoot(60, 0.05, 120); shoot(120, 0.95, 120); }, 1200);
+
+    // Wave 7 — ceiling rain finale
+    setTimeout(() => confetti({ particleCount: 200, spread: 260, startVelocity: 8, decay: 0.95, gravity: 1.1, origin: { x: 0.5, y: 0 }, ticks: 300, colors: umColors }), 1550);
   }
 
   function reset() {
@@ -274,129 +359,64 @@ function HomeContent() {
       <AppShell.Main
         style={{
           background: "#f5f5f5",
-          overflowY: "auto",
+          overflowY: appState === "idle" ? "hidden" : "auto",
           height: "calc(100vh - 68px)",
         }}
       >
-        <Container size="xl" py="xl">
+        <Container size="xl" py={appState === "idle" ? 0 : "xl"}>
           {appState === "idle" && (
-            <Stack gap="xl" align="center">
+            <Box style={{ display: "flex", height: "calc(100vh - 68px)" }}>
+              {/* Left — quote panel */}
               <Box
-                py="xl"
                 style={{
-                  width: "100%",
-                  background:
-                    "radial-gradient(ellipse 90% 60% at 50% 0%, var(--mantine-color-umblue-0) 0%, transparent 100%)",
-                  borderRadius: "var(--mantine-radius-lg)",
+                  flex: "0 0 42%",
+                  background: "linear-gradient(160deg, #1c0810 0%, #0f1117 55%, #0d1a2e 100%)",
+                  borderRight: "1px solid rgba(255,255,255,0.06)",
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "40px",
                 }}
               >
-                <Stack gap="md" align="center" maw={560} mx="auto" ta="center">
-                  <Text
-                    size="2rem"
-                    fw={800}
-                    c="dark"
-                    style={{ lineHeight: 1.2 }}
-                  >
-                    AI-Powered Vendor Analysis
-                  </Text>
-                  <Text c="dimmed" size="md">
-                    Upload vendor proposals and get structured extraction, risk
-                    flags, scoring, and a recommendation memo in under a minute.
-                  </Text>
-                  {bundles.length > 0 && (
-                    <Group gap="sm" justify="center" mt="xs" wrap="wrap">
-                      {bundles.map((b) => (
-                        <Paper
-                          key={b.id}
-                          p="sm"
-                          radius="md"
-                          withBorder
-                          bg="white"
-                          style={{
-                            minWidth: 148,
-                            maxWidth: 168,
-                            boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-                          }}
-                        >
-                          <Group gap={7} mb={5} wrap="nowrap">
-                            <ThemeIcon
-                              size={26}
-                              radius="md"
-                              variant="light"
-                              color="umblue"
-                            >
-                              {BUNDLE_ICONS[b.id] ?? <IconBuilding size={14} />}
-                            </ThemeIcon>
-                            <Text size="sm" fw={700} c="dark">
-                              {b.label}
-                            </Text>
-                          </Group>
-                          <Text
-                            size="xs"
-                            c="dimmed"
-                            style={{ lineHeight: 1.4 }}
-                          >
-                            {b.description}
-                          </Text>
-                        </Paper>
-                      ))}
+                <Box style={{ flex: 1, display: "flex", alignItems: "center" }}>
+                  <BackgroundQuotes />
+                </Box>
+                <Stack gap={12}>
+                  {PIPELINE_STEPS.map(({ label, Icon }, i) => (
+                    <Group key={label} gap={12} align="center">
+                      <Text fw={600} style={{ color: "rgba(255,255,255,0.35)", minWidth: 18, textAlign: "right", fontSize: "0.85rem" }}>{i + 1}</Text>
+                      <Icon size={16} color="rgba(255,255,255,0.55)" />
+                      <Text style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.95rem" }}>{label}</Text>
                     </Group>
-                  )}
+                  ))}
                 </Stack>
               </Box>
 
-              {/* Pipeline steps visual */}
-              <Group justify="center" gap={0} wrap="nowrap">
-                {PIPELINE_STEPS.map(({ label, sub, Icon }, i) => (
-                  <Group key={label} gap={0} align="flex-start" wrap="nowrap">
-                    <Stack align="center" gap={6} style={{ width: 112 }}>
-                      <ThemeIcon
-                        size={48}
-                        radius="xl"
-                        variant="light"
-                        color="umblue"
-                      >
-                        <Icon size={22} />
-                      </ThemeIcon>
-                      <Text
-                        size="xs"
-                        fw={700}
-                        ta="center"
-                        c="dark"
-                        style={{ lineHeight: 1.3 }}
-                      >
-                        {label}
-                      </Text>
-                      <Text
-                        size="xs"
-                        ta="center"
-                        c="dimmed"
-                        style={{ lineHeight: 1.2 }}
-                      >
-                        {sub}
-                      </Text>
-                    </Stack>
-                    {i < PIPELINE_STEPS.length - 1 && (
-                      <Box
-                        style={{
-                          paddingTop: 14,
-                          color: "var(--mantine-color-gray-4)",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <IconArrowRight size={16} />
-                      </Box>
-                    )}
-                  </Group>
-                ))}
-              </Group>
+              {/* Right — upload panel */}
+              <Box
+                style={{
+                  flex: 1,
+                  background: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "40px 48px",
+                  overflowY: "auto",
+                }}
+              >
+                <Stack gap="lg" w="100%" maw={500}>
+                  <Box ta="center">
+                    <Text fw={800} c="dark" style={{ fontSize: "2rem", lineHeight: 1.15, letterSpacing: "-0.02em" }}>
+                      AI-Powered Vendor Analysis
+                    </Text>
+                    <Text c="dimmed" size="md" mt={10} style={{ lineHeight: 1.6 }}>
+                      Upload vendor proposals and get structured extraction, risk flags, scoring, and a recommendation memo in under a minute.
+                    </Text>
+                  </Box>
 
-              <UploadZone
-                onSubmit={handleSubmit}
-                loading={false}
-                bundles={bundles}
-              />
-            </Stack>
+                  <UploadZone onSubmit={handleSubmit} loading={false} bundles={bundles} />
+                </Stack>
+              </Box>
+            </Box>
           )}
 
           {appState === "uploading" && (
@@ -441,7 +461,7 @@ function HomeContent() {
                 <SimpleGrid
                   cols={{ base: 1, md: 2 }}
                   spacing="md"
-                  style={{ alignItems: "flex-start" }}
+                  style={{ alignItems: "stretch" }}
                 >
                   <AgentProgressBar
                     stage={appState === "ready" ? "done" : stage}
