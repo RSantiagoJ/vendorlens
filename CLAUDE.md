@@ -12,6 +12,7 @@ Do this before responding to anything the user asks:
 1. **Read STATUS.md** — current state, settled decisions, open issues
 2. **Read DECISIONS.md** — why things were built the way they were (prevents re-debating closed questions)
 3. **Check COMMANDS.md** — production URLs, deploy commands, test commands (check here before asking about deployment config)
+4. **Read `./memory/MEMORY.md`** — index of retained context from prior sessions (user profile, feedback, project state)
 4. **Check tests** — if any tests are failing, fix them before touching what the user asked
 5. **Check for drift** — does anything in this file contradict what you can see in the code?
    If yes: update this file to match reality, not the other way around
@@ -135,7 +136,7 @@ Before closing any session:
    - Append a dated entry to the Daily Audit Log
 4. If you explained something this session that a future Claude should already know — add it here
 5. If a bug occurred that a rule could have prevented — add the prevention rule here, not just the fix
-6. **Save memory** — update `~/.claude/projects/-home-ricardo-projects-vendorlens/memory/`:
+6. **Save memory** — update `./memory/` in the project root (committed to git, syncs across machines):
    - Update `project_current_state.md` with where things stand (what's done, what's next, any blockers)
    - Add a `feedback_*.md` for any new guidance Ricardo gave about how to work
    - Update `MEMORY.md` index if new files were added
