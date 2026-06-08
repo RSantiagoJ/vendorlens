@@ -107,6 +107,7 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 | LOW | `_jobs` TTL timer is daemon — won't fire if process exits abnormally | HIGH |
 | LOW | `analysis_runs` table has no index on `created_at` — slow for range queries at scale | MEDIUM |
 | LOW | `warm_caches_node` warms all 3 agents even if only 1 vendor is being processed | LOW |
+| LOW | `backend/Dockerfile` CMD uses shell form — change to JSON array `CMD ["uvicorn", ...]` to handle OS signals properly | HIGH |
 
 ---
 

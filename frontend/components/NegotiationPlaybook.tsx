@@ -142,7 +142,7 @@ export function NegotiationPlaybook({ plans }: Props) {
               {/* Red Lines + Concessions */}
               <Group gap="md" align="flex-start" grow>
                 {brief.red_lines.length > 0 && (
-                  <Box>
+                  <Box style={{ minWidth: 0 }}>
                     <SectionLabel
                       icon={<IconAlertTriangle size={14} color="var(--mantine-color-red-6)" />}
                       label="Red Lines"
@@ -167,7 +167,7 @@ export function NegotiationPlaybook({ plans }: Props) {
                 )}
 
                 {brief.concessions_to_offer.length > 0 && (
-                  <Box>
+                  <Box style={{ minWidth: 0 }}>
                     <SectionLabel
                       icon={<IconGift size={14} color="var(--mantine-color-teal-6)" />}
                       label="Concessions to Offer"
