@@ -67,6 +67,21 @@ bash scripts/setup.sh
 
 ---
 
+## Production — What to Redeploy
+
+| Change made | What to do |
+|-------------|------------|
+| Any frontend file (`.tsx`, `.ts`, CSS) | `git push origin main` — Vercel deploys automatically |
+| Any backend file (`.py`, `requirements.txt`, `Dockerfile`) | Run `bash scripts/deploy_backend.ps1` (or `.sh` on Linux) — pushes new image to ECR and triggers App Runner |
+| Both frontend and backend changed | Push to main first (Vercel), then run deploy script (App Runner) |
+| Environment variable changed on backend | Update in App Runner console → redeploy via deploy script |
+| New proposal files added to `data/vendor_proposals/` | Re-ingest locally, rebuild Docker image, redeploy backend |
+| DB schema changed (new column) | Run `ALTER TABLE` manually via Postgres, or `docker compose down -v` locally — App Runner uses the live RDS instance |
+
+**No action needed for:** frontend-only CSS/layout changes if already pushed to main (Vercel handles it). Vercel never needs a manual step.
+
+---
+
 ## Logs
 
 ```bash
@@ -78,6 +93,18 @@ sg docker -c "docker compose logs -f"        # everything
 ---
 
 ## Tests
+
+### When to run which tests
+
+| Situation | What to run |
+|-----------|-------------|
+| Before any commit | `pytest tests/ -q` (full offline suite, ~5s) |
+| After changing a backend agent, node, or model | `pytest tests/ -q` |
+| After changing the persistence layer or DB schema | `pytest tests/test_persistence.py -v` |
+| After changing the pipeline graph | `pytest tests/test_boundaries.py -v && pytest tests/test_mock_pipeline.py -v` |
+| After changing frontend scoring/display logic | `cd frontend && npm test` |
+| Before a demo / presentation | `pytest tests/ -q` then warm prod with `./scripts/test_api.sh` against prod URL |
+| Suspecting a live pipeline issue | Live smoke test (see below) — ~$0.05 |
 
 ### Offline — no API calls, runs in ~5s
 
