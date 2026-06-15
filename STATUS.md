@@ -80,7 +80,7 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
 | `telemetry.test.ts` | 9 | `formatElapsed` + `buildTelemetrySummary` including `llmCostUsd` |
-| **Total** | **158** | **131 backend + 27 frontend — all offline, no API keys needed** |
+| **Total** | **165** | **131 backend + 34 frontend — all offline, no API keys needed** |
 
 ---
 
@@ -123,7 +123,7 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 - `AnalysisResult` TypeScript interface updated; `DEMO_RESULT` fixture includes `llm_cost_usd: 0.09`
 - B9 boundary tests (8 cases): pricing math, `None` metadata, unknown model fallback, `AnalysisResult` field
 - 2 new telemetry frontend tests
-- Total: 158 tests (131 backend + 27 frontend), all passing
+- Total: 165 tests (131 backend + 34 frontend), all passing
 
 ### 2026-06-14
 No issues found.
