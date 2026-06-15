@@ -63,6 +63,14 @@ const LANDING_QUOTES = [
   "The RFP rubric you set today shapes the vendor you're stuck with tomorrow.",
 ];
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "Good morning, Ricardo. Coffee first, contracts second.";
+  if (h >= 12 && h < 17) return "Good afternoon, Ricardo. The RFPs won’t evaluate themselves.";
+  if (h >= 17 && h < 21) return "Good evening, Ricardo. Let’s make these vendors work for it.";
+  return "Still at it, Ricardo? The dedication is noted.";
+}
+
 function BackgroundQuotes() {
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -174,10 +182,12 @@ function HomeContent() {
   );
   const [totalRisks, setTotalRisks] = useState<number | undefined>(undefined);
   const [elapsedMs, setElapsedMs] = useState<number | undefined>(undefined);
+  const [greeting, setGreeting] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
+    setGreeting(getGreeting());
     fetch(`${API_BASE}/bundles`)
       .then((r) => r.json())
       .then(setBundles)
@@ -412,6 +422,11 @@ function HomeContent() {
                 }}
               >
                 <Stack gap="lg" w="100%" maw={500}>
+                  {greeting && (
+                    <Text size="sm" c="dimmed" ta="center" fs="italic">
+                      {greeting}
+                    </Text>
+                  )}
                   <Box ta="center">
                     <Text fw={800} c="dark" style={{ fontSize: "2rem", lineHeight: 1.15, letterSpacing: "-0.02em" }}>
                       AI-Powered Vendor Analysis
@@ -440,7 +455,7 @@ function HomeContent() {
           {(appState === "processing" ||
             appState === "ready" ||
             appState === "done") && (
-            <Stack gap="xl" pt="xl">
+            <Stack gap="xl" pt="xl" pb={100}>
               {currentBundle && (
                 <Box>
                   <Text
