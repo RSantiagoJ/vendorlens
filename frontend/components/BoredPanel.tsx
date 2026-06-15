@@ -9,6 +9,7 @@ import {
   IconClipboard,
   IconDeviceGamepad2,
   IconFlame,
+
   IconX,
 } from "@tabler/icons-react";
 import { TetrisGame } from "./TetrisGame";
@@ -54,9 +55,9 @@ const FACTS = [
 type Tab = "game" | "roast" | "facts";
 
 const TABS = [
-  { id: "game" as Tab,  Icon: IconDeviceGamepad2, label: "Game"  },
-  { id: "roast" as Tab, Icon: IconFlame,           label: "Roast" },
-  { id: "facts" as Tab, Icon: IconBulb,            label: "Stats" },
+  { id: "game"  as Tab, Icon: IconDeviceGamepad2, label: "Game"  },
+  { id: "roast" as Tab, Icon: IconFlame,          label: "Roast" },
+  { id: "facts" as Tab, Icon: IconBulb,           label: "Stats" },
 ];
 
 const PANEL_WIDTH = 260;
@@ -85,11 +86,19 @@ export function BoredPanel() {
     setMounted(false);
   }
 
-  function pickRoast() {
+  function nextRoast() {
+    setRoastIdx((i) => (i + 1) % ROASTS.length);
+  }
+
+  function randomRoast() {
     setRoastIdx((i) => pickRandom(ROASTS.length, i));
   }
 
-  function pickFact() {
+  function nextFact() {
+    setFactIdx((i) => (i + 1) % FACTS.length);
+  }
+
+  function randomFact() {
     setFactIdx((i) => pickRandom(FACTS.length, i));
   }
 
@@ -209,24 +218,21 @@ export function BoredPanel() {
                           {ROASTS[roastIdx]}
                         </Text>
                       </Paper>
-                      <Text size="xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      <Text size="xs" c="gray.5">
                         {roastIdx + 1} / {ROASTS.length}
                       </Text>
                       <Group gap="xs" w="100%">
-                        <Button
-                          style={{ flex: 1 }}
-                          size="xs"
-                          variant="light"
-                          color="orange"
-                          onClick={pickRoast}
-                        >
-                          🔥 Another
+                        <Button size="xs" variant="light" color="orange" onClick={nextRoast}>
+                          Next
+                        </Button>
+                        <Button size="xs" variant="subtle" color="orange" onClick={randomRoast}>
+                          🔥 Random
                         </Button>
                         <Tooltip label={copied ? "Copied!" : "Copy to clipboard"} withArrow>
                           <Button
                             size="xs"
                             variant="subtle"
-                            color="gray"
+                            color="gray.4"
                             px="xs"
                             onClick={() => copyText(ROASTS[roastIdx])}
                           >
@@ -257,24 +263,21 @@ export function BoredPanel() {
                           {FACTS[factIdx]}
                         </Text>
                       </Paper>
-                      <Text size="xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                      <Text size="xs" c="gray.5">
                         {factIdx + 1} / {FACTS.length}
                       </Text>
                       <Group gap="xs" w="100%">
-                        <Button
-                          style={{ flex: 1 }}
-                          size="xs"
-                          variant="light"
-                          color="blue"
-                          onClick={pickFact}
-                        >
-                          💡 Next stat
+                        <Button size="xs" variant="light" color="blue" onClick={nextFact}>
+                          Next
+                        </Button>
+                        <Button size="xs" variant="subtle" color="blue" onClick={randomFact}>
+                          💡 Random
                         </Button>
                         <Tooltip label={copied ? "Copied!" : "Copy to clipboard"} withArrow>
                           <Button
                             size="xs"
                             variant="subtle"
-                            color="gray"
+                            color="gray.4"
                             px="xs"
                             onClick={() => copyText(FACTS[factIdx])}
                           >

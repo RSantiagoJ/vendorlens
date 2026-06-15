@@ -37,6 +37,7 @@ type Piece = { shape: number[][]; x: number; y: number };
 type ScoreEntry = { name: string; score: number };
 
 const FAKE_SCORES: ScoreEntry[] = [
+  { name: "VendorSlayer", score: 15200 },
   { name: "Sardinator1337", score: 12350 },
   { name: "ChawlaChampion", score: 9150 },
 ];
