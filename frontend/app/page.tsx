@@ -46,9 +46,9 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 const LANDING_QUOTES = [
-  "A great contract awaits you — but read the auto-renewal clause first.",
+  "A great contract awaits you. Read the auto-renewal clause first.",
   "The vendor with the highest score is not always the lowest risk.",
-  "The winning vendor is not the cheapest — it is the least surprising.",
+  "The winning vendor is not the cheapest. It is the least surprising.",
   "A DPA is worth a thousand apologies.",
   "Five AI agents cannot replace due diligence. They can, however, speed it up considerably.",
   "The auto-renewal clause is always watching.",
