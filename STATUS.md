@@ -113,6 +113,19 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 ## Daily Audit Log
 
+### 2026-06-14
+No issues found.
+
+Recent commits:
+```
+0f7a762 chore: initialize memory system in project root
+e5b125b fix: updated docs
+cf0603c fix: prevent concessions column overflow in negotiation playbook
+b33f333 Merge branch 'main' of https://github.com/RSantiagoJ/vendorlens
+1e5c06e docs: sync all docs to day15 state — negotiation agent
+```
+
+
 ### 2026-06-07 — Landing page redesign + UI polish (day13)
 - Landing page replaced with two-column split: dark gradient left panel (pulsating quotes + pipeline steps) / white right panel (upload form)
 - Quotes cycle automatically every ~5.7s; click-to-advance with hover brighten + "↻ click to change" hint
