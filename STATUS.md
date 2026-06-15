@@ -72,7 +72,7 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 | File | Tests | What it covers |
 |------|-------|---------------|
-| `test_boundaries.py` | 56 | Data shape at every inter-layer handoff (B0–B9) |
+| `test_boundaries.py` | 57 | Data shape at every inter-layer handoff (B0–B9) |
 | `test_mock_pipeline.py` | 13 | Full pipeline happy path + all failure modes + negotiation_plans |
 | `test_negotiation_agent.py` | 9 | NegotiationAgent unit tests + model shape |
 | `test_persistence.py` | 30 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
@@ -80,7 +80,7 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
 | `telemetry.test.ts` | 9 | `formatElapsed` + `buildTelemetrySummary` including `llmCostUsd` |
-| **Total** | **165** | **131 backend + 34 frontend — all offline, no API keys needed** |
+| **Total** | **166** | **132 backend + 34 frontend — all offline, no API keys needed** |
 
 ---
 
@@ -114,6 +114,12 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 
 ## Daily Audit Log
 
+### 2026-06-15 — Fix cost tracking across LangGraph sub-threads
+- Root cause: `_current_run_id` was `threading.local` — invisible to fan-out sub-threads, so all runs returned $0.00 and footer showed nothing
+- Fix: replaced with `contextvars.ContextVar` — `ThreadPoolExecutor` copies the calling context to workers, so run_id now propagates into extract/risk/score nodes
+- New test `test_cost_tracking_run_id_propagates_to_subthreads` confirms the behavior (was red with threading.local, green with ContextVar)
+- No extra tokens consumed — cost tracking reads `usage_metadata` already returned by every API response
+
 ### 2026-06-15 — Real API cost tracking + UI cleanup
 - Removed hardcoded "Production Ready" label from TelemetryFooter (was meaningless static text)
 - Added `compute_llm_cost(usage_metadata, model_id)` to `llm_factory.py` with per-model pricing (Sonnet 4.6 + Haiku 4.5)
@@ -123,7 +129,7 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 - `AnalysisResult` TypeScript interface updated; `DEMO_RESULT` fixture includes `llm_cost_usd: 0.09`
 - B9 boundary tests (8 cases): pricing math, `None` metadata, unknown model fallback, `AnalysisResult` field
 - 2 new telemetry frontend tests
-- Total: 165 tests (131 backend + 34 frontend), all passing
+- Total: 166 tests (132 backend + 34 frontend), all passing
 
 ### 2026-06-14
 No issues found.

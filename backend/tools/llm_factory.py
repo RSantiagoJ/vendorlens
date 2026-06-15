@@ -20,6 +20,7 @@ Usage:
     result = invoke_llm_cached(llm, system_prompt, human_content)
 """
 
+import contextvars
 import json
 import os
 import threading
@@ -49,19 +50,19 @@ PRICING: dict[str, dict[str, float]] = {
 
 _run_costs: dict[str, float] = {}
 _run_costs_lock = threading.Lock()
-_current_run_id: threading.local = threading.local()
+_current_run_id: contextvars.ContextVar[str | None] = contextvars.ContextVar("_current_run_id", default=None)
 
 
 def begin_cost_tracking(run_id: str) -> None:
     """Call at the start of each pipeline run to zero the cost accumulator."""
-    _current_run_id.value = run_id
+    _current_run_id.set(run_id)
     with _run_costs_lock:
         _run_costs[run_id] = 0.0
 
 
 def end_cost_tracking(run_id: str) -> float:
     """Call at the end of each pipeline run. Returns total USD cost and clears the accumulator."""
-    _current_run_id.value = None
+    _current_run_id.set(None)
     with _run_costs_lock:
         return _run_costs.pop(run_id, 0.0)
 
@@ -141,8 +142,8 @@ def invoke_llm_cached(llm, system_prompt: str, human_content: str) -> str:
     Cache TTL is 5 minutes, refreshed on every hit.
 
     As a side effect, accumulates USD cost into the current run's accumulator when
-    begin_cost_tracking() has been called on this thread. Warm-cache calls that
-    run in sub-threads (ThreadPoolExecutor) will not be captured; that cost is small.
+    begin_cost_tracking() has been called. Uses contextvars so the run_id propagates
+    to sub-threads (LangGraph fan-out via ThreadPoolExecutor).
     """
     from langchain_core.messages import HumanMessage, SystemMessage
     system = SystemMessage(content=[{
@@ -152,7 +153,7 @@ def invoke_llm_cached(llm, system_prompt: str, human_content: str) -> str:
     }])
     response = llm.invoke([system, HumanMessage(content=human_content)])
 
-    run_id = getattr(_current_run_id, "value", None)
+    run_id = _current_run_id.get()
     if run_id:
         underlying = getattr(llm, "bound", llm)
         model_id = getattr(underlying, "model", "claude-sonnet-4-6")

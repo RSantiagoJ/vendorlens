@@ -684,3 +684,36 @@ class TestB9LLMCostTracking:
         result = AnalysisResult(job_id="test", bundle_id="lms", proposals=[], status="done", error=None)
         assert result.llm_cost_usd is None
 
+    def test_cost_tracking_run_id_propagates_to_subthreads(self):
+        """_current_run_id must use contextvars.ContextVar, not threading.local.
+
+        ThreadPoolExecutor copies the calling context (ContextVar values) to each
+        worker thread. threading.local values are NOT copied — they are thread-isolated.
+        LangGraph fan-out runs extract/risk/score nodes in sub-threads, so a
+        threading.local run_id is invisible there and all costs accumulate to zero.
+        """
+        import concurrent.futures
+        import contextvars
+        from tools.llm_factory import begin_cost_tracking, end_cost_tracking, _current_run_id
+
+        run_id = "test-ctx-propagation"
+        begin_cost_tracking(run_id)
+
+        seen: list = []
+
+        def capture():
+            if isinstance(_current_run_id, contextvars.ContextVar):
+                seen.append(_current_run_id.get())
+            else:
+                seen.append(getattr(_current_run_id, "value", None))
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            ex.submit(capture).result()
+
+        end_cost_tracking(run_id)
+        assert seen[0] == run_id, (
+            "_current_run_id must be a contextvars.ContextVar so run_id propagates "
+            "to sub-threads — threading.local is isolated per thread and costs will "
+            "always be 0 in the LangGraph fan-out"
+        )
+
