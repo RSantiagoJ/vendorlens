@@ -22,9 +22,72 @@ Usage:
 
 import json
 import os
+import threading
 from pathlib import Path
 
 import yaml
+
+# ---------------------------------------------------------------------------
+# LLM cost tracking
+# ---------------------------------------------------------------------------
+
+# Pricing per 1M tokens (as of 2026-06-04)
+PRICING: dict[str, dict[str, float]] = {
+    "claude-sonnet-4-6": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_read": 0.30,   # 0.1× input
+        "cache_write": 3.75,  # 1.25× input (5-min TTL)
+    },
+    "claude-haiku-4-5-20251001": {
+        "input": 1.00,
+        "output": 5.00,
+        "cache_read": 0.10,
+        "cache_write": 1.25,
+    },
+}
+
+_run_costs: dict[str, float] = {}
+_run_costs_lock = threading.Lock()
+_current_run_id: threading.local = threading.local()
+
+
+def begin_cost_tracking(run_id: str) -> None:
+    """Call at the start of each pipeline run to zero the cost accumulator."""
+    _current_run_id.value = run_id
+    with _run_costs_lock:
+        _run_costs[run_id] = 0.0
+
+
+def end_cost_tracking(run_id: str) -> float:
+    """Call at the end of each pipeline run. Returns total USD cost and clears the accumulator."""
+    _current_run_id.value = None
+    with _run_costs_lock:
+        return _run_costs.pop(run_id, 0.0)
+
+
+def compute_llm_cost(usage_metadata: dict | None, model_id: str) -> float:
+    """Compute USD cost from Anthropic usage_metadata dict.
+
+    Fields: input_tokens, output_tokens, cache_read_input_tokens, cache_creation_input_tokens.
+    Falls back to sonnet pricing for unknown model IDs.
+    Returns 0.0 if usage_metadata is None (e.g., mocked LLM calls in tests).
+    """
+    if not usage_metadata:
+        return 0.0
+    rates = PRICING.get(model_id, PRICING["claude-sonnet-4-6"])
+    mtok = 1_000_000.0
+    return (
+        usage_metadata.get("input_tokens", 0) * rates["input"] / mtok
+        + usage_metadata.get("output_tokens", 0) * rates["output"] / mtok
+        + usage_metadata.get("cache_read_input_tokens", 0) * rates["cache_read"] / mtok
+        + usage_metadata.get("cache_creation_input_tokens", 0) * rates["cache_write"] / mtok
+    )
+
+
+# ---------------------------------------------------------------------------
+# Prompt + model cache
+# ---------------------------------------------------------------------------
 
 _PROMPTS_PATH = Path(__file__).parent.parent / "prompts.yaml"
 _PROMPTS: dict | None = None
@@ -76,6 +139,10 @@ def invoke_llm_cached(llm, system_prompt: str, human_content: str) -> str:
     Requires the model to be created with cache=True (the prompt-caching beta header).
     On cache hit: ~90% cost reduction + ~85% latency reduction for the cached portion.
     Cache TTL is 5 minutes, refreshed on every hit.
+
+    As a side effect, accumulates USD cost into the current run's accumulator when
+    begin_cost_tracking() has been called on this thread. Warm-cache calls that
+    run in sub-threads (ThreadPoolExecutor) will not be captured; that cost is small.
     """
     from langchain_core.messages import HumanMessage, SystemMessage
     system = SystemMessage(content=[{
@@ -83,7 +150,19 @@ def invoke_llm_cached(llm, system_prompt: str, human_content: str) -> str:
         "text": system_prompt,
         "cache_control": {"type": "ephemeral"},
     }])
-    return llm.invoke([system, HumanMessage(content=human_content)]).content
+    response = llm.invoke([system, HumanMessage(content=human_content)])
+
+    run_id = getattr(_current_run_id, "value", None)
+    if run_id:
+        underlying = getattr(llm, "bound", llm)
+        model_id = getattr(underlying, "model", "claude-sonnet-4-6")
+        usage = getattr(response, "usage_metadata", None)
+        if isinstance(usage, dict):
+            cost = compute_llm_cost(usage, model_id)
+            with _run_costs_lock:
+                _run_costs[run_id] = _run_costs.get(run_id, 0.0) + cost
+
+    return response.content
 
 
 def dedup_ordered(items: list[str]) -> list[str]:

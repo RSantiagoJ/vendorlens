@@ -600,3 +600,87 @@ class TestB8NegotiationOutputContract:
                       "red_lines", "concessions_to_offer", "batna"):
             assert field in d, f"NegotiationBrief.model_dump() missing field: {field}"
 
+
+# ---------------------------------------------------------------------------
+# B9 — LLM cost tracking: compute_llm_cost + AnalysisResult.llm_cost_usd
+# ---------------------------------------------------------------------------
+
+class TestB9LLMCostTracking:
+    """Real API call cost must be computed from usage_metadata and exposed in AnalysisResult.
+
+    Pricing (per 1M tokens):
+      claude-sonnet-4-6:        input $3.00, output $15.00, cache_read $0.30, cache_write $3.75
+      claude-haiku-4-5-20251001: input $1.00, output $5.00,  cache_read $0.10, cache_write $1.25
+    """
+
+    def test_compute_llm_cost_sonnet_output_only(self):
+        """1,000 output tokens at sonnet output rate = 1000 × $15/1M = $0.015."""
+        from tools.llm_factory import compute_llm_cost
+        usage = {
+            "input_tokens": 0,
+            "output_tokens": 1000,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+        }
+        assert compute_llm_cost(usage, "claude-sonnet-4-6") == pytest.approx(0.015, rel=1e-4)
+
+    def test_compute_llm_cost_haiku_input_and_output(self):
+        """500 input + 200 output @ haiku: 500×$1/1M + 200×$5/1M = $0.0005 + $0.001 = $0.0015."""
+        from tools.llm_factory import compute_llm_cost
+        usage = {
+            "input_tokens": 500,
+            "output_tokens": 200,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+        }
+        assert compute_llm_cost(usage, "claude-haiku-4-5-20251001") == pytest.approx(0.0015, rel=1e-4)
+
+    def test_compute_llm_cost_cache_read_discount(self):
+        """Cache reads cost 0.1× input price: 1,000 cache_read @ sonnet = 1000×$0.30/1M = $0.0003."""
+        from tools.llm_factory import compute_llm_cost
+        usage = {
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cache_read_input_tokens": 1000,
+            "cache_creation_input_tokens": 0,
+        }
+        assert compute_llm_cost(usage, "claude-sonnet-4-6") == pytest.approx(0.0003, rel=1e-4)
+
+    def test_compute_llm_cost_cache_write_premium(self):
+        """Cache writes cost 1.25× input price: 1,000 cache_write @ sonnet = 1000×$3.75/1M = $0.00375."""
+        from tools.llm_factory import compute_llm_cost
+        usage = {
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 1000,
+        }
+        assert compute_llm_cost(usage, "claude-sonnet-4-6") == pytest.approx(0.00375, rel=1e-4)
+
+    def test_compute_llm_cost_none_metadata_returns_zero(self):
+        """Missing usage_metadata (e.g., mocked LLM) must not raise — return 0.0."""
+        from tools.llm_factory import compute_llm_cost
+        assert compute_llm_cost(None, "claude-sonnet-4-6") == 0.0
+
+    def test_compute_llm_cost_unknown_model_uses_sonnet_rates(self):
+        """Unknown model falls back to sonnet pricing rather than raising."""
+        from tools.llm_factory import compute_llm_cost
+        usage = {"input_tokens": 0, "output_tokens": 1000, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0}
+        cost = compute_llm_cost(usage, "unknown-model-xyz")
+        assert cost == pytest.approx(0.015, rel=1e-4)
+
+    def test_analysis_result_has_llm_cost_field(self):
+        """AnalysisResult must accept and return llm_cost_usd so the frontend can display it."""
+        from api.models import AnalysisResult
+        result = AnalysisResult(
+            job_id="test", bundle_id="lms", proposals=[], status="done",
+            error=None, llm_cost_usd=0.07,
+        )
+        assert result.llm_cost_usd == pytest.approx(0.07)
+
+    def test_analysis_result_llm_cost_defaults_to_none(self):
+        """llm_cost_usd must be optional — callers without cost tracking must not break."""
+        from api.models import AnalysisResult
+        result = AnalysisResult(job_id="test", bundle_id="lms", proposals=[], status="done", error=None)
+        assert result.llm_cost_usd is None
+

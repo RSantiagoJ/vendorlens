@@ -13,6 +13,7 @@ export function TelemetryFooter({ summary }: Props) {
     `${summary.vendorCount} vendor${summary.vendorCount !== 1 ? "s" : ""} analyzed`,
     `${summary.riskCount} risk flag${summary.riskCount !== 1 ? "s" : ""} surfaced`,
     ...(summary.elapsed ? [`completed in ${summary.elapsed}`] : []),
+    ...(summary.llmCostUsd != null ? [`$${summary.llmCostUsd.toFixed(2)} api cost`] : []),
   ];
 
   return (
@@ -31,17 +32,6 @@ export function TelemetryFooter({ summary }: Props) {
           style={{ fontFamily: "monospace", letterSpacing: "0.03em" }}
         >
           {parts.join(" · ")}
-        </Text>
-        <Text
-          size="xs"
-          fw={600}
-          style={{
-            fontFamily: "monospace",
-            letterSpacing: "0.05em",
-            color: "var(--mantine-color-umgreen-7)",
-          }}
-        >
-          · Production Ready
         </Text>
       </Group>
     </Box>

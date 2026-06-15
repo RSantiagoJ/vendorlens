@@ -24,3 +24,4 @@ class AnalysisResult(BaseModel):
     negotiation_plans: list[NegotiationBrief] | None = None
     status: str
     error: str | None = None
+    llm_cost_usd: float | None = None

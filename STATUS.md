@@ -9,7 +9,7 @@
 ## System State (as of 2026-06-07)
 
 **Working end-to-end:** Yes. Full pipeline runs locally via Docker.
-**Tests:** 109 passing, 0 failing. All offline (no API keys needed).
+**Tests:** 158 passing, 0 failing. All offline (no API keys needed).
 **Deployment:** Frontend on Vercel. Backend on AWS App Runner.
 
 ### Services
@@ -72,14 +72,15 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 
 | File | Tests | What it covers |
 |------|-------|---------------|
-| `test_boundaries.py` | 48 | Data shape at every inter-layer handoff (B0–B8) |
+| `test_boundaries.py` | 56 | Data shape at every inter-layer handoff (B0–B9) |
 | `test_mock_pipeline.py` | 13 | Full pipeline happy path + all failure modes + negotiation_plans |
 | `test_negotiation_agent.py` | 9 | NegotiationAgent unit tests + model shape |
 | `test_persistence.py` | 30 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
-| **Total** | **148** | **123 backend + 25 frontend — all offline, no API keys needed** |
+| `telemetry.test.ts` | 9 | `formatElapsed` + `buildTelemetrySummary` including `llmCostUsd` |
+| **Total** | **158** | **131 backend + 27 frontend — all offline, no API keys needed** |
 
 ---
 
@@ -112,6 +113,17 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 ---
 
 ## Daily Audit Log
+
+### 2026-06-15 — Real API cost tracking + UI cleanup
+- Removed hardcoded "Production Ready" label from TelemetryFooter (was meaningless static text)
+- Added `compute_llm_cost(usage_metadata, model_id)` to `llm_factory.py` with per-model pricing (Sonnet 4.6 + Haiku 4.5)
+- `invoke_llm_cached` now accumulates USD cost as a side effect via `begin_cost_tracking`/`end_cost_tracking` (thread-local per job_id)
+- `AnalysisResult.llm_cost_usd: float | None` exposed in API response; wired from `_run_pipeline` in `main.py`
+- Frontend: `TelemetrySummary.llmCostUsd`, `buildTelemetrySummary` updated; footer now shows `$0.09 api cost`
+- `AnalysisResult` TypeScript interface updated; `DEMO_RESULT` fixture includes `llm_cost_usd: 0.09`
+- B9 boundary tests (8 cases): pricing math, `None` metadata, unknown model fallback, `AnalysisResult` field
+- 2 new telemetry frontend tests
+- Total: 158 tests (131 backend + 27 frontend), all passing
 
 ### 2026-06-14
 No issues found.

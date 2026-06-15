@@ -36,6 +36,7 @@ from graph.pipeline import build_pipeline
 from graph.state import NegotiationBrief, ProposalState
 from tools.context_loader import BUNDLES, DEFAULT_BUNDLE
 from tools.chroma import load_index
+from tools.llm_factory import begin_cost_tracking, end_cost_tracking
 
 import logging
 logger = logging.getLogger(__name__)
@@ -172,6 +173,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
     def emit(event_type: str, data: dict) -> None:
         job["events"].append({"type": event_type, "data": data})
 
+    begin_cost_tracking(job_id)
     try:
         vendor_names = [name.rsplit(".", 1)[0] for name, _ in file_contents]
         emit("extracting", {"status": "extracting", "vendors": vendor_names})
@@ -245,6 +247,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
             final_status = "error"
         else:
             final_status = "partial"
+        llm_cost_usd = end_cost_tracking(job_id)
         result = AnalysisResult(
             job_id=job_id,
             bundle_id=bundle_id,
@@ -265,6 +268,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
             ] or None,
             status=final_status,
             error=final.get("error"),
+            llm_cost_usd=llm_cost_usd if llm_cost_usd > 0 else None,
         )
 
         result_dict = result.model_dump()
@@ -278,6 +282,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
         job["status"] = "done"
 
     except Exception as exc:
+        end_cost_tracking(job_id)
         emit("error", {"status": "error", "error": str(exc)})
         job["status"] = "error"
         job["error"] = str(exc)

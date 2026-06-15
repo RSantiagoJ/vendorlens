@@ -92,6 +92,7 @@ export interface AnalysisResult {
   negotiation_plans: NegotiationBrief[] | null;
   status: string;
   error: string | null;
+  llm_cost_usd: number | null;
 }
 
 export interface Bundle {

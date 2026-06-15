@@ -5,7 +5,8 @@ export const DEMO_RESULT: AnalysisResult = {
   bundle_id: "lms",
   status: "done",
   error: null,
-  memo: `## Executive Summary\n\nAfter evaluating three LMS proposals against UMass procurement criteria, **Brightspace by D2L** is the recommended platform. It offers the strongest combination of accessibility compliance, enterprise integrations, and transparent pricing.\n\n## Recommendation\n\n**Award to:** Brightspace (D2L) \n**Total 3-Year Cost:** $1,350,000 \n**Key Differentiator:** Full WCAG 2.1 AA certification with dedicated accessibility team and the only vendor offering a contractual uptime SLA with financial penalties.\n\n## Risk Summary\n\nBlackboard presents the highest risk profile due to vague data-ownership language and a missing DPA. Canvas is mid-tier — solid feature set but pricing escalation clauses warrant negotiation before award.`,
+  llm_cost_usd: 0.09,
+  memo: `## Executive Summary\n\nAfter evaluating three LMS proposals against institutional procurement criteria, **Brightspace by D2L** is the recommended platform. It offers the strongest combination of accessibility compliance, enterprise integrations, and transparent pricing.\n\n## Recommendation\n\n**Award to:** Brightspace (D2L) \n**Total 3-Year Cost:** $1,350,000 \n**Key Differentiator:** Full WCAG 2.1 AA certification with dedicated accessibility team and the only vendor offering a contractual uptime SLA with financial penalties.\n\n## Risk Summary\n\nBlackboard presents the highest risk profile due to vague data-ownership language and a missing DPA. Canvas is mid-tier — solid feature set but pricing escalation clauses warrant negotiation before award.`,
   proposals: [
     {
       filename: "brightspace_d2l.pdf",
@@ -197,7 +198,7 @@ export const DEMO_RESULT: AnalysisResult = {
       ],
       scores: {
         platform_functionality: { score: 6, rationale: "Legacy platform; functional but lacking modern UX and competency-based features." },
-        accessibility_compliance: { score: 5, rationale: "WCAG 2.0 AA only; falls short of UMass WCAG 2.1 AA requirement." },
+        accessibility_compliance: { score: 5, rationale: "WCAG 2.0 AA only; falls short of the required WCAG 2.1 AA standard." },
         integration_capability: { score: 6, rationale: "Native Banner integration is a plus; LTI 1.1 is outdated." },
         pricing_transparency: { score: 8, rationale: "Lowest cost and fixed pricing is a genuine strength." },
         security_and_compliance: { score: 4, rationale: "SOC 2 Type I only; no DPA provided; incident response undocumented." },
@@ -259,13 +260,13 @@ export const DEMO_RESULT: AnalysisResult = {
           area: "SLA penalties",
           their_position: "No financial penalties in current draft — uptime SLA is aspirational",
           our_ask: "Add penalty clause: minimum 5% monthly credit for any month below SLA",
-          leverage: "Absence of teeth is a HIGH-risk flag per UMass policy; non-negotiable for compliance",
+          leverage: "Absence of teeth is a HIGH-risk flag per institutional policy; non-negotiable for compliance",
         },
         {
           area: "Liability cap",
           their_position: "$250,000 liability cap (25% of annual contract value)",
           our_ask: "Minimum 1× annual contract value ($1,000,000)",
-          leverage: "UMass procurement policy requires adequate coverage; $250K is below threshold for a $1M contract",
+          leverage: "Institutional procurement policy requires adequate coverage; $250K is below threshold for a $1M contract",
         },
       ],
       red_lines: [
@@ -293,7 +294,7 @@ export const DEMO_RESULT: AnalysisResult = {
           area: "Liability cap",
           their_position: "$50,000 — approximately 2% of total contract value",
           our_ask: "Minimum $500,000 or 1× annual contract value",
-          leverage: "UMass policy floor; $50K is non-compliant — contract cannot proceed as written",
+          leverage: "Institutional policy floor; $50K is non-compliant — contract cannot proceed as written",
         },
       ],
       red_lines: [

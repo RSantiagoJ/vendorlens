@@ -4,6 +4,7 @@ export interface TelemetrySummary {
   vendorCount: number;
   riskCount: number;
   elapsed: string | null;
+  llmCostUsd: number | null;
 }
 
 export function formatElapsed(ms: number): string {
@@ -16,10 +17,12 @@ export function formatElapsed(ms: number): string {
 export function buildTelemetrySummary(
   proposals: ProposalResult[],
   elapsedMs?: number,
+  llmCostUsd?: number,
 ): TelemetrySummary {
   return {
     vendorCount: proposals.length,
     riskCount: proposals.reduce((sum, p) => sum + (p.risks?.length ?? 0), 0),
     elapsed: elapsedMs != null ? formatElapsed(elapsedMs) : null,
+    llmCostUsd: llmCostUsd != null ? llmCostUsd : null,
   };
 }

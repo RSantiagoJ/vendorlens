@@ -58,4 +58,14 @@ describe("buildTelemetrySummary", () => {
     const summary = buildTelemetrySummary([noRisks, p(2)]);
     expect(summary.riskCount).toBe(2);
   });
+
+  it("includes llmCostUsd when provided", () => {
+    const summary = buildTelemetrySummary([p(1)], 5000, 0.07);
+    expect(summary.llmCostUsd).toBe(0.07);
+  });
+
+  it("sets llmCostUsd to null when not provided", () => {
+    const summary = buildTelemetrySummary([p(1)]);
+    expect(summary.llmCostUsd).toBeNull();
+  });
 });

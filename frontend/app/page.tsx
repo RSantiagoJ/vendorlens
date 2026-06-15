@@ -346,7 +346,7 @@ function HomeContent() {
                   lineHeight: 1.3,
                 }}
               >
-                Proposal Intelligence · UMass Procurement
+                Proposal Intelligence · Procurement
               </Text>
             </Box>
           </Group>
@@ -591,7 +591,7 @@ function HomeContent() {
                   )}
 
                   <TelemetryFooter
-                    summary={buildTelemetrySummary(result.proposals, elapsedMs)}
+                    summary={buildTelemetrySummary(result.proposals, elapsedMs, result.llm_cost_usd ?? undefined)}
                   />
                 </Stack>
               )}
