@@ -349,35 +349,35 @@ export function TetrisGame() {
       {/* Leaderboard */}
       <Box
         w={COLS * CELL}
-        mt={4}
+        mt={6}
         style={{
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-          paddingTop: 8,
+          borderTop: "1px solid rgba(255,255,255,0.15)",
+          paddingTop: 10,
         }}
       >
-        <Text size="10px" c="dimmed" fw={700} mb={6} style={{ letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          High Scores
+        <Text size="xs" c="white" fw={700} mb={8} style={{ letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          🏆 High Scores
         </Text>
-        <Stack gap={3}>
+        <Stack gap={5}>
           {leaderboard.map((entry, i) => (
             <Group key={i} justify="space-between" wrap="nowrap">
-              <Group gap={4} wrap="nowrap">
-                <Text size="10px" style={{ width: 14, flexShrink: 0 }}>
+              <Group gap={6} wrap="nowrap">
+                <Text size="xs" style={{ width: 18, flexShrink: 0 }}>
                   {i < 3 ? MEDALS[i] : `${i + 1}.`}
                 </Text>
                 <Text
-                  size="10px"
-                  fw={entry.name === PLAYER ? 700 : 400}
-                  c={entry.name === PLAYER ? "yellow.4" : "dimmed"}
+                  size="xs"
+                  fw={entry.name === PLAYER ? 700 : 500}
+                  c={entry.name === PLAYER ? "yellow.4" : "gray.3"}
                   style={{ fontFamily: "monospace" }}
                 >
                   {entry.name}
                 </Text>
               </Group>
               <Text
-                size="10px"
-                fw={entry.name === PLAYER ? 700 : 400}
-                c={entry.name === PLAYER ? "yellow.4" : "dimmed"}
+                size="xs"
+                fw={entry.name === PLAYER ? 700 : 500}
+                c={entry.name === PLAYER ? "yellow.4" : "gray.3"}
                 style={{ fontFamily: "monospace", flexShrink: 0 }}
               >
                 {entry.score.toLocaleString()}
