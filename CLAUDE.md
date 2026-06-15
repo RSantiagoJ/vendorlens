@@ -19,6 +19,14 @@ Do this before responding to anything the user asks:
 
 ---
 
+## Running Commands — Ricardo Runs, Claude Instructs
+
+**Never use the Bash tool to run commands.** Instead, print the exact command for Ricardo to run.
+This applies to all shell commands: tests, docker, git, curl, scripts — everything.
+File edits (Read/Edit/Write tools) are fine to do directly.
+
+---
+
 ## Environment
 
 - **All Python runs inside Docker.** Never run `python3` or `pytest` on the host.
