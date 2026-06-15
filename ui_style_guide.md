@@ -16,7 +16,7 @@ This document describes the UI aesthetic, theme, and component patterns used in 
 
 ## Organization Context
 
-This app belongs to the **University of Massachusetts** (UMass). The brand palette is built around UMass institutional colors. The logo is a PNG (`umass-logo.png`) rendered via an `<Image>` component at `width={48}` in the header.
+This app is built for a university procurement office. The brand palette is built around institutional colors. The logo is a PNG (`institution-logo.png`) rendered via an `<Image>` component at `width={48}` in the header.
 
 ---
 

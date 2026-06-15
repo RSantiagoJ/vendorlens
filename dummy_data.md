@@ -2,7 +2,7 @@
 
 ## Instructions for Claude Code
 
-These three vendor proposals are **fictional** responses to the UMass
+These three vendor proposals are **fictional** responses to a generic
 2025-2026 Enterprise Learning Management System (LMS) RFP
 (issued November 2025, proposals due December 1, 2025).
 The RFP details are distilled in backend/data/context_bundle/rfp_criteria_lms.txt.
@@ -25,7 +25,7 @@ Expected pipeline outcome:
 ## backend/data/dummy_docs/vendor_a_blackboard.txt
 
 VENDOR PROPOSAL â€” Blackboard Learn Ultra (Anthology Inc.)
-Submitted to: University of Massachusetts System
+Submitted to: University Procurement Office
 In Response to: Enterprise Learning Management System RFP
 Date: November 28, 2025
 
@@ -202,7 +202,7 @@ University agrees not to publicly benchmark pricing against competitors.
 ## backend/data/dummy_docs/vendor_b_canvas.txt
 
 VENDOR PROPOSAL â€” Canvas LMS by Instructure
-Submitted to: University of Massachusetts System
+Submitted to: University Procurement Office
 In Response to: Enterprise Learning Management System RFP
 Date: November 25, 2025
 
@@ -217,7 +217,7 @@ Employees: 1,100+.
 PRICING
 Base platform fee: $38 per enrolled FTE student per year â€” fixed for full contract term
 Estimated total (60,000 FTE): $2,280,000 per year, no escalation for 3 years
-All five UMass campuses and the President's Office included in base price
+All campuses and administrative offices included in base price
 All core modules included: Canvas LMS, Canvas Studio (video), Canvas Analytics,
 Gauge (assessment), New Quizzes, SpeedGrader, Peer Review, ePortfolio
 Implementation and migration: Included â€” Instructure Professional Services
@@ -392,7 +392,7 @@ notice and university consent.
 ## backend/data/dummy_docs/vendor_c_brightspace.txt
 
 VENDOR PROPOSAL â€” D2L Brightspace
-Submitted to: University of Massachusetts System
+Submitted to: University Procurement Office
 In Response to: Enterprise Learning Management System RFP
 Date: November 30, 2025
 

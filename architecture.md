@@ -2,13 +2,13 @@
 
 ## Background
 
-VendorLens is a multi-agent AI system built by Ricardo Santiago at UMPO.
+VendorLens is a multi-agent AI system built by Ricardo Santiago.
 Ricardo is an experienced full-stack developer building his first agentic
 AI application. The architecture is intentionally straightforward — one
 pipeline, four agents, clear handoffs — buildable in a sprint while
 demonstrating production-grade patterns.
 
-The agents are grounded in real UMPO policy. See context/ folder (local
+The agents are grounded in institutional procurement policy. See context/ folder (local
 only, not in repo) for the policy notes and LMS RFP criteria that inform
 agent prompts. If context/ is not present, refer to agent_prompts.md
 which contains the distilled rules.
@@ -309,11 +309,11 @@ Resume keyword: document pipeline integration / enterprise content ingestion
 
 ### What it does
 
-Instead of uploading PDFs manually through the UI, authorized UMPO staff
+Instead of uploading PDFs manually through the UI, authorized staff
 drop vendor proposals into a designated Dropbox folder. VendorLens polls
 the folder on demand (or on a schedule) and pulls new files automatically.
 
-This is how the tool would work in real production at UMPO — staff already
+This is how the tool would work in real production — staff already
 use Dropbox, no new behavior required from them.
 
 ### Implementation

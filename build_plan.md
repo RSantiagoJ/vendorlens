@@ -59,7 +59,7 @@ Tasks:
 
 5. Copy dummy doc content from dummy_data.md into backend/data/dummy_docs/
    Create backend/data/context_bundle/ with three files:
-   - policy.txt (UMPO SVM-01 + UMass Contract for Services rules)
+   - policy.txt (SVM-01 + Contract for Services rules)
    - rfp_criteria.txt (scoring dimensions and weights from the real RFP)
    - scoring_rubric_lms.txt (rubric descriptions per dimension, 0-10 scale)
      Content sourced from dummy_data.md and context/ folder notes.
@@ -590,7 +590,7 @@ All tasks complete.
 
 1. **Bored Panel** — floating "🎮 Bored?" widget fixed to the bottom-right corner, visible only during analysis. Three tabs:
    - **Game**: fully playable Tetris with ghost piece, wall kicks, per-level gravity, and game-over overlay
-   - **Confetti**: three presets — Burst, Fireworks (left/right cannons), School Pride (UMass maroon/white/blue)
+   - **Confetti**: three presets — Burst, Fireworks (left/right cannons), School Pride (maroon/white/blue)
    - **Fortune**: procurement-themed fortune cookies, random on open, "Another one" to cycle
 
 2. **"Ready" state** — when the SSE `done` event fires, the app pauses on the processing view instead of immediately replacing it. A dark notification card slides up ("Analysis complete! Finish your game or jump straight to results.") with a **View Results →** button. Clicking it triggers fireworks and reveals results.
@@ -856,7 +856,7 @@ Implemented Anthropic prompt caching, reducing input token costs ~60% per analys
 - **Risk severity legend**: HIGH · MEDIUM · LOW color key inline with the "Risk Flags" heading
 - **RFP category badge**: moved from floating next to progress bar into the winner banner
 - **Live activity log**: updated to say "Gemini Flash" (not "Claude Sonnet") for extraction and risk stages
-- All institution-specific text (UMPO, UMass, SVM-01, LMS-specific labels) removed from frontend copy
+- All institution-specific text (SVM-01, LMS-specific labels) removed from frontend copy
 
 ### Code cleanup (post-Day 6)
 - `api/main.py`: `asyncio.get_event_loop()` → `get_running_loop()` in all async contexts; `Optional[str]` → `str | None`; `{k: v for k, v in …}` → `dict(initial_state)`

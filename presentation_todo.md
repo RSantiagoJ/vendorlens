@@ -6,7 +6,7 @@
   - The rubric (bundle) is the only thing that's department-specific.
   - Any department that receives vendor proposals can plug in their own scoring criteria.
   - Examples to have ready: IT infrastructure, facilities, marketing agencies, staffing vendors, consulting firms.
-  - Frame it as: "we built this for UMass Procurement, but the architecture is generic — swap the rubric, keep everything else."
+  - Frame it as: "the architecture is generic — swap the rubric, keep everything else."
 
 - [ ] **The "how would we extend this" question** — anticipate it and have a concrete answer.
   - New bundle = new JSON rubric file + a few scoring dimension labels. No code changes needed.

@@ -70,7 +70,7 @@ MOCK_LLM_RESPONSE = json.dumps([
                 "area": "Liability cap",
                 "their_position": "$50,000 cap — 5% of contract value",
                 "our_ask": "Minimum $500,000 or 1x annual contract value",
-                "leverage": "UMass procurement policy requires adequate coverage; HIGH risk flag raised",
+                "leverage": "Institutional procurement policy requires adequate coverage; HIGH risk flag raised",
             },
         ],
         "red_lines": [

@@ -3,7 +3,7 @@
 ## Context: Who is building this and why
 
 The developer is Ricardo Santiago, a Full Stack Software Developer and DevOps
-Engineer at the UMass President's Office (UMPO) in Westfield, MA. He has strong
+Engineer at a university procurement office. He has strong
 professional experience in Node.js, TypeScript, React, Next.js, Python, Java,
 CI/CD pipelines, REST APIs, PostgreSQL, and RPA automation using UiPath.
 
@@ -21,16 +21,16 @@ Do not silently deviate from the plan — flag better approaches and explain why
 
 ## What VendorLens does
 
-VendorLens automates the vendor proposal evaluation process for the UMass
-President's Office. It is grounded in a real procurement the office ran:
-the 2025-2026 Enterprise Learning Management System (LMS) RFP
+VendorLens automates the vendor proposal evaluation process for a university
+procurement office. It is grounded in a realistic procurement scenario:
+a 2025-2026 Enterprise Learning Management System (LMS) RFP
 (issued November 2025, proposals due December 1, 2025).
 
 A staff member uploads 2-3 vendor proposal PDFs. VendorLens:
 
 1. Extracts structured contract data from each proposal
-2. Flags risks against real UMPO security and procurement policy (SVM-01)
-   and the standard UMass Contract for Services terms
+2. Flags risks against institutional security and procurement policy (SVM-01)
+   and standard Contract for Services terms
 3. Scores each vendor against the actual RFP evaluation criteria
 4. Writes a professional recommendation memo
 

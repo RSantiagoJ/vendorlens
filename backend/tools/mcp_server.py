@@ -4,7 +4,7 @@ VendorLens MCP tool server.
 Exposes two tools via the official MCP Python SDK (stdio transport):
 
   document_reader(filename) — returns full text of a vendor proposal file
-  policy_lookup(query)      — searches UMPO policy.txt for relevant rules
+  policy_lookup(query)      — searches policy.txt for relevant rules
 
 The underlying Python functions (_document_reader, _policy_lookup) are also
 importable directly by agents for Day 2/3. Day 4 wires these into LangGraph
@@ -61,7 +61,7 @@ def _document_reader(filename: str) -> str:
 
 
 def _policy_lookup(query: str) -> str:  # default bundle (LMS)
-    """Search UMPO policy.txt for sections relevant to the query.
+    """Search policy.txt for sections relevant to the query.
 
     Splits policy.txt by section headers and scores each section by
     keyword overlap with the query. Returns the top three matching
@@ -107,7 +107,7 @@ def document_reader(filename: str) -> str:
 
 @mcp.tool()
 def policy_lookup(query: str) -> str:
-    """Search UMPO procurement policy for rules matching the query.
+    """Search institutional procurement policy for rules matching the query.
 
     Args:
         query: A topic or question, e.g. "liability cap requirements"

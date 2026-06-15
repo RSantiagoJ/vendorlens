@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "VendorLens — Proposal Intelligence",
-  description: "AI-powered vendor proposal analysis for UMass Procurement",
+  description: "AI-powered vendor proposal analysis for institutional procurement",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

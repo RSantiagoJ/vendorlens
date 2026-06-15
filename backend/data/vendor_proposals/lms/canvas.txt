@@ -1,5 +1,5 @@
 VENDOR PROPOSAL — Canvas LMS by Instructure
-Submitted to: University of Massachusetts System
+Submitted to: University Procurement Office
 In Response to: Enterprise Learning Management System RFP
 Date: November 25, 2025
 
@@ -17,7 +17,7 @@ Employees: 1,100+.
 PRICING
 Base platform fee: $38 per enrolled FTE student per year — fixed for full contract term
 Estimated total (60,000 FTE): $2,280,000 per year, no escalation for 3 years
-All five UMass campuses and the President's Office included in base price
+All campuses and administrative offices included in base price
 All core modules included: Canvas LMS, Canvas Studio (video), Canvas Analytics,
 Gauge (assessment), New Quizzes, SpeedGrader, Peer Review, ePortfolio
 Implementation and data migration: Included at no additional cost

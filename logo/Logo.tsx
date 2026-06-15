@@ -1,5 +1,5 @@
 import Image from "next/image";
-import umassLogo from "./umass-logo.png";
+import institutionLogo from "./institution-logo.png";
 
 interface Props {
   width?: number;
@@ -9,8 +9,8 @@ interface Props {
 export function Logo({ width = 60, ...props }: Props) {
   return (
     <Image
-      src={umassLogo}
-      alt="University of Massachusetts logo"
+      src={institutionLogo}
+      alt="Institution logo"
       width={width}
       priority
       {...props}
