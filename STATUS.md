@@ -73,14 +73,14 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | File | Tests | What it covers |
 |------|-------|---------------|
 | `test_boundaries.py` | 57 | Data shape at every inter-layer handoff (B0–B9) |
-| `test_mock_pipeline.py` | 13 | Full pipeline happy path + all failure modes + negotiation_plans |
-| `test_negotiation_agent.py` | 9 | NegotiationAgent unit tests + model shape |
+| `test_mock_pipeline.py` | 14 | Full pipeline happy path + all failure modes + negotiation_plans |
+| `test_negotiation_agent.py` | 10 | NegotiationAgent unit tests + model shape |
 | `test_persistence.py` | 30 | DB write, GET endpoint, error persistence, TTL, rfp_name, /progress endpoint |
 | `test_reliability.py` | 8 | Concurrency, ingest dedup, output structure |
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
 | `telemetry.test.ts` | 9 | `formatElapsed` + `buildTelemetrySummary` including `llmCostUsd` |
-| **Total** | **166** | **132 backend + 34 frontend — all offline, no API keys needed** |
+| **Total** | **168** | **134 backend + 34 frontend — all offline, no API keys needed** |
 
 ---
 
@@ -113,6 +113,17 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 ---
 
 ## Daily Audit Log
+
+### 2026-06-15 — NegotiationAgent: filter ProposalData to 16 commercial/legal fields
+- `_NEGOTIATION_FIELDS` constant defines the 16 fields relevant to negotiation leverage (pricing, contract terms, SLA, legal)
+- `plan()` now filters `extracted` before serializing to JSON — cuts ~45% of the per-vendor token payload in the batched negotiation call
+- Excluded: social_listening, mobile_app, analytics_reporting, training_offered, sandbox_available, accessibility_vpat, customer_references, supplier_diversity, deliverables, multi_campus_support, user_roles, support_model, incident_response_docs, integrations
+- Test: `test_plan_sends_only_negotiation_relevant_fields` asserts excluded fields absent, commercial fields present
+
+### 2026-06-15 — Pipeline efficiency: skip warm-up for single vendor, fix warm-up parallelism
+- `warm_caches_node` now returns early when `len(pending) < 2` — 1-vendor runs no longer pay for 4 extra LLM calls or wait for the warm-up round-trip before fan-out
+- `max_workers=3` → `max_workers=4` so all 4 warm-up targets fire truly in parallel for 2+ vendor runs
+- Test: `test_warm_caches_skipped_for_single_vendor` (asserts `graph.pipeline.invoke_llm_cached` never called with 1 vendor)
 
 ### 2026-06-15 — Fix cost tracking across LangGraph sub-threads
 - Root cause: `_current_run_id` was `threading.local` — invisible to fan-out sub-threads, so all runs returned $0.00 and footer showed nothing

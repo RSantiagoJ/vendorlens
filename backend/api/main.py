@@ -196,6 +196,7 @@ def _run_pipeline(job_id: str, file_contents: list[tuple[str, bytes]], bundle_id
             "negotiation_plans": None,
             "status": "pending",
             "error": None,
+            "run_id": job_id,
         }
 
         final = {

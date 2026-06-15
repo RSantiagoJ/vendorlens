@@ -389,8 +389,37 @@ def test_pipeline_all_vendors_fail(mock_memo, mock_retrieve, mock_load_index):
 
 
 # ---------------------------------------------------------------------------
-# warm_caches_node resilience
+# warm_caches_node — efficiency + resilience
 # ---------------------------------------------------------------------------
+
+@patch("graph.pipeline.load_index")
+@patch("graph.pipeline.invoke_llm_cached")
+@patch("agents.extraction_agent.ExtractionAgent._retrieve_chunks")
+@patch("agents.extraction_agent.invoke_llm_cached")
+@patch("agents.risk_agent.invoke_llm_cached")
+@patch("agents.scoring_agent.invoke_llm_cached")
+@patch("agents.memo_agent.MemoAgent.write")
+def test_warm_caches_skipped_for_single_vendor(
+    mock_memo, mock_score_llm, mock_risk_llm, mock_extract_llm,
+    mock_retrieve, mock_warm_invoke, mock_load_index,
+):
+    """warm_caches_node must be skipped when there is only 1 vendor.
+
+    With 1 vendor there is no parallel fan-out. Cache entries created by the
+    warm-up can't be shared across concurrent calls, so the 4 extra LLM calls
+    add latency and cost with no benefit.
+    """
+    mock_load_index.return_value = MagicMock()
+    mock_retrieve.return_value = "some text chunks"
+    mock_extract_llm.return_value = json.dumps(MOCK_EXTRACTION_BLACKBOARD)
+    mock_risk_llm.return_value = json.dumps(MOCK_RISKS_BLACKBOARD)
+    mock_score_llm.return_value = json.dumps(MOCK_SCORING_VALID)
+    mock_memo.return_value = "Memo"
+
+    _build_graph().invoke(_state("blackboard.txt"))
+
+    mock_warm_invoke.assert_not_called()
+
 
 @patch("graph.pipeline.load_index")
 @patch("graph.pipeline.invoke_llm_cached")

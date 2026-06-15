@@ -232,6 +232,58 @@ class TestNegotiationAgent:
     @patch("agents.negotiation_agent.invoke_llm_cached")
     @patch("agents.negotiation_agent.make_haiku_llm")
     @patch("agents.negotiation_agent.load_prompt")
+    def test_plan_sends_only_negotiation_relevant_fields(self, mock_load_prompt, mock_haiku, mock_llm):
+        """plan() must filter ProposalData to negotiation-relevant fields only.
+
+        Sending all 30 ProposalData fields (mobile app, analytics, social listening,
+        sandbox, training, etc.) wastes tokens — these have no bearing on pricing
+        or contract leverage. Only commercial/legal fields should be sent.
+        """
+        mock_load_prompt.return_value = "You are a negotiation expert."
+        mock_haiku.return_value = MagicMock()
+        mock_llm.return_value = MOCK_LLM_RESPONSE
+
+        from agents.negotiation_agent import NegotiationAgent
+        agent = NegotiationAgent()
+
+        full_proposal = ProposalState(
+            filename="alpha.txt",
+            extracted=ProposalData(
+                vendor_name="AlphaVendor",
+                total_cost="$1,000,000",
+                termination_clause="90 days notice",
+                liability_cap="$50,000",
+                governing_law="Massachusetts",
+                social_listening="Full suite",
+                mobile_app="iOS and Android",
+                training_offered="40 hours included",
+                analytics_reporting="Advanced dashboards",
+                sandbox_available="Yes",
+                supplier_diversity="Certified MBE",
+            ),
+            risks=[],
+            scores=_make_scorecard(7.0),
+        )
+
+        agent.plan([full_proposal])
+
+        _, _, human_content = mock_llm.call_args[0]
+        # Non-negotiation fields must be absent
+        assert "social_listening" not in human_content
+        assert "mobile_app" not in human_content
+        assert "training_offered" not in human_content
+        assert "analytics_reporting" not in human_content
+        assert "sandbox_available" not in human_content
+        assert "supplier_diversity" not in human_content
+        # Commercial/legal fields must be present
+        assert "total_cost" in human_content
+        assert "termination_clause" in human_content
+        assert "liability_cap" in human_content
+        assert "governing_law" in human_content
+
+    @patch("agents.negotiation_agent.invoke_llm_cached")
+    @patch("agents.negotiation_agent.make_haiku_llm")
+    @patch("agents.negotiation_agent.load_prompt")
     def test_plan_handles_list_llm_response(self, mock_load_prompt, mock_haiku, mock_llm):
         """invoke_llm_cached can return a list of content blocks — agent must handle it."""
         mock_load_prompt.return_value = "You are a negotiation expert."

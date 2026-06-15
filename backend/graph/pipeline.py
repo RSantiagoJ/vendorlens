@@ -42,7 +42,7 @@ from agents.risk_agent import RiskAgent
 from agents.scoring_agent import ScoringAgent
 from graph.state import ProposalData, ProposalState, RiskFlag
 from tools.chroma import load_index
-from tools.llm_factory import invoke_llm_cached
+from tools.llm_factory import invoke_llm_cached, _current_run_id
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +60,7 @@ class PipelineState(TypedDict):
     negotiation_plans: Annotated[Optional[list], _last]
     status: Annotated[str, _last]
     error: Annotated[Optional[str], _last]
+    run_id: Annotated[Optional[str], _last]           # pipeline job id for cost tracking
 
 
 class VendorSubgraphState(TypedDict, total=False):
@@ -68,6 +69,7 @@ class VendorSubgraphState(TypedDict, total=False):
     risks: Optional[list]                             # set by risk_node
     error: Optional[str]                              # set on any stage failure
     proposals: Annotated[List[dict], operator.add]    # set by score_node; fan-in'd to parent
+    run_id: Optional[str]                             # passed via Send for cost tracking
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +92,7 @@ def build_pipeline(bundle_id: str = "lms"):
     # -----------------------------------------------------------------------
 
     def extract_node(state: VendorSubgraphState) -> dict:
+        _current_run_id.set(state.get("run_id"))
         filename = state["filename"]
         try:
             proposal_data = extraction_agent.extract(filename)
@@ -99,6 +102,7 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"error": str(e)}
 
     def risk_node(state: VendorSubgraphState) -> dict:
+        _current_run_id.set(state.get("run_id"))
         if state.get("error"):
             return {}
         try:
@@ -110,6 +114,7 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"error": str(e)}
 
     def score_node(state: VendorSubgraphState) -> dict:
+        _current_run_id.set(state.get("run_id"))
         filename = state["filename"]
 
         # Safely parse whatever state we have so far to avoid losing it on error
@@ -182,11 +187,19 @@ def build_pipeline(bundle_id: str = "lms"):
         """Pre-warm Anthropic prompt caches before parallel vendor fan-out.
 
         Fires one minimal call per agent in parallel so cache entries exist
-        before the vendor subgraphs start — all 3 vendors then get cache hits
-        on the first run instead of only on subsequent runs.
+        before the vendor subgraphs start — all N vendors then get cache hits
+        instead of paying the cache-write premium on their first call.
+
+        Skipped for single-vendor runs: no parallel fan-out means no shared
+        cache benefit, so the 4 extra calls would cost tokens and add latency
+        with nothing to show for it.
         """
+        if len(state["pending"]) < 2:
+            return {}
+
         from concurrent.futures import ThreadPoolExecutor
 
+        run_id = state.get("run_id")
         targets = [
             (extraction_agent.llm,    extraction_agent.system_prompt),
             (risk_agent.llm,          risk_agent.system_prompt),
@@ -195,11 +208,12 @@ def build_pipeline(bundle_id: str = "lms"):
         ]
 
         def warm(args):
+            _current_run_id.set(run_id)
             llm, prompt = args
             invoke_llm_cached(llm, prompt, "ready")
 
         try:
-            with ThreadPoolExecutor(max_workers=3) as pool:
+            with ThreadPoolExecutor(max_workers=4) as pool:
                 list(pool.map(warm, targets))
         except Exception:
             logger.warning("Cache warm-up failed — continuing without pre-warmed caches", exc_info=True)
@@ -207,9 +221,11 @@ def build_pipeline(bundle_id: str = "lms"):
         return {}
 
     def fan_out_vendors(state: PipelineState) -> List[Send]:
-        return [Send("vendor_subgraph", p) for p in state["pending"]]
+        run_id = state.get("run_id")
+        return [Send("vendor_subgraph", {**p, "run_id": run_id}) for p in state["pending"]]
 
     def memo_node(state: PipelineState) -> dict:
+        _current_run_id.set(state.get("run_id"))
         try:
             all_proposals = [ProposalState(**p) for p in state["proposals"]]
             good = [p for p in all_proposals if p.scores is not None]
@@ -236,6 +252,7 @@ def build_pipeline(bundle_id: str = "lms"):
             return {"status": "error", "error": str(e)}
 
     def negotiation_node(state: PipelineState) -> dict:
+        _current_run_id.set(state.get("run_id"))
         try:
             all_proposals = [ProposalState(**p) for p in state["proposals"]]
             briefs = negotiation_agent.plan(all_proposals)

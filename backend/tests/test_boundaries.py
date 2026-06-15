@@ -684,36 +684,41 @@ class TestB9LLMCostTracking:
         result = AnalysisResult(job_id="test", bundle_id="lms", proposals=[], status="done", error=None)
         assert result.llm_cost_usd is None
 
-    def test_cost_tracking_run_id_propagates_to_subthreads(self):
-        """_current_run_id must use contextvars.ContextVar, not threading.local.
+    def test_cost_accumulates_when_node_sets_run_id_in_subthread(self):
+        """Costs accumulate when a worker thread explicitly sets _current_run_id.
 
-        ThreadPoolExecutor copies the calling context (ContextVar values) to each
-        worker thread. threading.local values are NOT copied — they are thread-isolated.
-        LangGraph fan-out runs extract/risk/score nodes in sub-threads, so a
-        threading.local run_id is invisible there and all costs accumulate to zero.
+        Python 3.11's ThreadPoolExecutor does NOT propagate ContextVar values
+        to worker threads — that was only added in 3.12. LangGraph fan-out runs
+        extract/risk/score nodes in sub-threads. Each node must call
+        _current_run_id.set(run_id) explicitly so invoke_llm_cached can attribute
+        the cost to the right run.
         """
         import concurrent.futures
-        import contextvars
-        from tools.llm_factory import begin_cost_tracking, end_cost_tracking, _current_run_id
+        import pytest
+        from tools.llm_factory import (
+            begin_cost_tracking, end_cost_tracking,
+            _current_run_id, _run_costs, _run_costs_lock, compute_llm_cost,
+        )
 
-        run_id = "test-ctx-propagation"
+        run_id = "test-explicit-set"
         begin_cost_tracking(run_id)
 
-        seen: list = []
-
-        def capture():
-            if isinstance(_current_run_id, contextvars.ContextVar):
-                seen.append(_current_run_id.get())
-            else:
-                seen.append(getattr(_current_run_id, "value", None))
+        def node_work():
+            _current_run_id.set(run_id)          # what each pipeline node does
+            cost = compute_llm_cost(
+                {"input_tokens": 500, "output_tokens": 0,
+                 "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0},
+                "claude-sonnet-4-6",
+            )
+            with _run_costs_lock:
+                _run_costs[run_id] = _run_costs.get(run_id, 0.0) + cost
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
-            ex.submit(capture).result()
+            ex.submit(node_work).result()
 
-        end_cost_tracking(run_id)
-        assert seen[0] == run_id, (
-            "_current_run_id must be a contextvars.ContextVar so run_id propagates "
-            "to sub-threads — threading.local is isolated per thread and costs will "
-            "always be 0 in the LangGraph fan-out"
+        total = end_cost_tracking(run_id)
+        assert total == pytest.approx(0.0015, rel=1e-4), (
+            "500 input tokens @ $3.00/M = $0.0015; explicit set in sub-thread "
+            "must make cost visible to end_cost_tracking"
         )
 

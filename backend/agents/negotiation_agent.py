@@ -27,6 +27,16 @@ logger = logging.getLogger(__name__)
 from graph.state import NegotiationBrief, NegotiationTactic, ProposalState
 from tools.llm_factory import invoke_llm_cached, load_prompt, make_haiku_llm, parse_llm_json
 
+# Only commercial and legal fields are relevant for negotiation leverage.
+# Feature/UX fields (mobile app, analytics, accessibility, etc.) have no bearing
+# on pricing terms, contract risk, or walk-away leverage.
+_NEGOTIATION_FIELDS = frozenset({
+    "total_cost", "pricing_model", "price_escalation", "overage_fees",
+    "contract_length", "renewal_terms", "termination_clause", "liability_cap",
+    "data_ownership", "data_processing_agreement", "ip_ownership", "governing_law",
+    "sla_uptime", "sla_response_times", "sla_penalties", "security_certifications",
+})
+
 
 class NegotiationAgent:
     def __init__(self):
@@ -56,7 +66,10 @@ class NegotiationAgent:
                     for k, v in p.scores.model_dump().items()
                     if k != "overall"
                 },
-                "extracted": p.extracted.model_dump(exclude_none=True) if p.extracted else {},
+                "extracted": {
+                    k: v for k, v in p.extracted.model_dump(exclude_none=True).items()
+                    if k in _NEGOTIATION_FIELDS
+                } if p.extracted else {},
                 "high_risks": [
                     {"clause": r.clause, "explanation": r.explanation, "recommendation": r.recommendation}
                     for r in (p.risks or []) if r.severity == "HIGH"
