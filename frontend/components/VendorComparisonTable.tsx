@@ -10,15 +10,16 @@ const SCORE_DIMENSIONS: {
   key: keyof Omit<ScoreCard, "overall">;
   label: string;
   weight: string;
+  description: string;
 }[] = [
-  { key: "platform_functionality",  label: "Platform Functionality",   weight: "25%" },
-  { key: "accessibility_compliance",label: "Accessibility & Compliance",weight: "15%" },
-  { key: "integration_capability",  label: "Integration Capability",   weight: "15%" },
-  { key: "security_and_compliance", label: "Security & Compliance",    weight: "15%" },
-  { key: "pricing_transparency",    label: "Pricing Transparency",     weight: "10%" },
-  { key: "support_and_training",    label: "Support & Training",       weight: "10%" },
-  { key: "enterprise_readiness",    label: "Enterprise Readiness",     weight: "5%"  },
-  { key: "innovation_roadmap",      label: "Innovation Roadmap",       weight: "5%"  },
+  { key: "platform_functionality",   label: "Platform Functionality",    weight: "25%", description: "Core ERP modules — financial management (GL, AP/AR, grants, procurement), HR, payroll, and faculty-specific workflows. Highest-weighted criterion (25%)." },
+  { key: "accessibility_compliance", label: "Accessibility & Compliance", weight: "15%", description: "GASB accounting standards, 2 CFR 200 grant compliance, IRS reporting (W-2, 1099, ACA), NACUBO reporting, and WCAG 2.1 AA accessibility for employee-facing portals." },
+  { key: "integration_capability",   label: "Integration Capability",    weight: "15%", description: "Native connectors for Banner/PeopleSoft SIS, banking and ACH, benefits carrier EDI, SSO/SAML 2.0 with Azure AD and Okta, and open REST API quality." },
+  { key: "security_and_compliance",  label: "Security & Compliance",     weight: "15%", description: "SOC 2 Type II / ISO 27001 certification, data processing agreement covering FERPA and GLBA, encryption standards, disaster recovery documentation, and data ownership terms." },
+  { key: "pricing_transparency",     label: "Pricing Transparency",      weight: "10%", description: "Clarity of implementation costs, subscription pricing, annual escalation rate, data migration fees, and total cost of ownership over the contract term." },
+  { key: "support_and_training",     label: "Support & Training",        weight: "10%", description: "Implementation methodology, named staffing model, hypercare period, post-go-live SLAs with financial penalties, 24/7 payroll window coverage, and higher education references." },
+  { key: "enterprise_readiness",     label: "Enterprise Readiness",      weight: "5%",  description: "Multi-campus and multi-entity accounting, granular role-based access control, published uptime history, and disaster recovery RTO/RPO documentation." },
+  { key: "innovation_roadmap",       label: "Innovation Roadmap",        weight: "5%",  description: "18–24 month product roadmap, AI/automation plans (anomaly detection, spend analytics), continuous delivery model, and higher education advisory board influence." },
 ];
 
 const CONTRACT_FIELDS: { key: keyof ProposalData; label: string }[] = [
@@ -149,11 +150,13 @@ export function VendorComparisonTable({ proposals, winner }: Props) {
               </td>
             </tr>
 
-            {SCORE_DIMENSIONS.map(({ key, label, weight }) => (
+            {SCORE_DIMENSIONS.map(({ key, label, weight, description }) => (
               <tr key={key}>
                 <td style={labelCell}>
                   <Group gap={4}>
-                    <Text size="xs" c="dark">{label}</Text>
+                    <Tooltip label={description} multiline w={260} withArrow position="right" openDelay={300}>
+                      <Text size="xs" c="dark" style={{ cursor: "help", textDecoration: "underline dotted" }}>{label}</Text>
+                    </Tooltip>
                     <Text size="xs" c="dimmed">· {weight}</Text>
                   </Group>
                 </td>

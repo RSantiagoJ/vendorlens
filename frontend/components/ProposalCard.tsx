@@ -81,16 +81,16 @@ function ScoreRing({ overall, animated, tier, recommended }: {
   );
 }
 
-const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string }[] = [
-  { key: "platform_functionality",  label: "Platform Functionality" },
-  { key: "accessibility_compliance", label: "Accessibility & Compliance" },
-  { key: "integration_capability",  label: "Integration Capability" },
-  { key: "pricing_transparency",    label: "Pricing Transparency" },
-  { key: "security_and_compliance", label: "Security & Compliance" },
-  { key: "support_and_training",    label: "Support & Training" },
-  { key: "enterprise_readiness",    label: "Enterprise Readiness" },
-  { key: "innovation_roadmap",      label: "Innovation Roadmap" },
-  { key: "risk_level",              label: "Risk Level" },
+const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string; description: string }[] = [
+  { key: "platform_functionality",   label: "Platform Functionality",    description: "Core ERP modules — financial management (GL, AP/AR, grants, procurement), HR, payroll, and faculty-specific workflows. Highest-weighted criterion (25%)." },
+  { key: "accessibility_compliance", label: "Accessibility & Compliance", description: "GASB accounting standards, 2 CFR 200 grant compliance, IRS reporting (W-2, 1099, ACA), NACUBO reporting, and WCAG 2.1 AA accessibility for employee-facing portals." },
+  { key: "integration_capability",   label: "Integration Capability",    description: "Native connectors for Banner/PeopleSoft SIS, banking and ACH, benefits carrier EDI, SSO/SAML 2.0 with Azure AD and Okta, and open REST API quality." },
+  { key: "pricing_transparency",     label: "Pricing Transparency",      description: "Clarity of implementation costs, subscription pricing, annual escalation rate, data migration fees, and total cost of ownership over the contract term." },
+  { key: "security_and_compliance",  label: "Security & Compliance",     description: "SOC 2 Type II / ISO 27001 certification, data processing agreement covering FERPA and GLBA, encryption standards, disaster recovery documentation, and data ownership terms." },
+  { key: "support_and_training",     label: "Support & Training",        description: "Implementation methodology, named staffing model, hypercare period, post-go-live SLAs with financial penalties, 24/7 payroll window coverage, and higher education references." },
+  { key: "enterprise_readiness",     label: "Enterprise Readiness",      description: "Multi-campus and multi-entity accounting, granular role-based access control, published uptime history, and disaster recovery RTO/RPO documentation." },
+  { key: "innovation_roadmap",       label: "Innovation Roadmap",        description: "18–24 month product roadmap, AI/automation plans (anomaly detection, spend analytics), continuous delivery model, and higher education advisory board influence." },
+  { key: "risk_level",               label: "Risk Level",                description: "Derived from contract risk analysis. Score: 10 = zero HIGH-severity flags, 7 = one, 4 = two, 0 = three or more. Higher score means fewer serious contract risks." },
 ];
 
 const CONTRACT_FIELDS: { key: keyof import("@/lib/types").ProposalData; label: string }[] = [
@@ -263,7 +263,7 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
         {/* Dimension scores — click any row to see AI rationale */}
         {scores && (
           <Stack gap={6}>
-            {DIMENSIONS.map(({ key, label }) => {
+            {DIMENSIONS.map(({ key, label, description }) => {
               const dim = scores[key];
               const isOpen = openRationale === key;
               return (
@@ -282,7 +282,9 @@ export function ProposalCard({ proposal, recommended = false, showBadge = true, 
                       className="dim-row"
                     >
                       <Group justify="space-between" mb={2}>
-                        <Text size="xs" c="dimmed">{label}</Text>
+                        <Tooltip label={description} multiline w={260} withArrow position="top" openDelay={300}>
+                          <Text size="xs" c="dimmed" style={{ cursor: "help", textDecoration: "underline dotted" }}>{label}</Text>
+                        </Tooltip>
                         <Group gap={4} align="center">
                           <Text size="xs" fw={600} style={{ color: scoreTier(dim.score).textColor }}>
                             {dim.score.toFixed(1)}
