@@ -18,20 +18,20 @@ function useCountUp(target: number, duration = 1100): number {
   return value;
 }
 
-import { Box, Group, Stack, Text, Badge, ThemeIcon, Divider } from "@mantine/core";
+import { Box, Group, Stack, Text, Badge, ThemeIcon, Divider, Tooltip } from "@mantine/core";
 import { IconAward, IconShieldCheck, IconTrendingUp } from "@tabler/icons-react";
 import type { ProposalResult, ScoreCard } from "@/lib/types";
 import { scoreTier, scoreLabel } from "@/lib/scoring";
 
-const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string }[] = [
-  { key: "platform_functionality",  label: "Platform Functionality" },
-  { key: "security_and_compliance", label: "Security & Compliance" },
-  { key: "integration_capability",  label: "Integration Capability" },
-  { key: "accessibility_compliance",label: "Accessibility" },
-  { key: "support_and_training",    label: "Support & Training" },
-  { key: "pricing_transparency",    label: "Pricing Transparency" },
-  { key: "enterprise_readiness",    label: "Enterprise Readiness" },
-  { key: "innovation_roadmap",      label: "Innovation Roadmap" },
+const DIMENSIONS: { key: keyof Omit<ScoreCard, "overall">; label: string; description: string }[] = [
+  { key: "platform_functionality",   label: "Platform Functionality",    description: "Core ERP modules — financial management (GL, AP/AR, grants, procurement), HR, payroll, and faculty-specific workflows. Highest-weighted criterion (25%)." },
+  { key: "security_and_compliance",  label: "Security & Compliance",     description: "SOC 2 Type II / ISO 27001 certification, data processing agreement covering FERPA and GLBA, encryption standards, disaster recovery documentation, and data ownership terms." },
+  { key: "integration_capability",   label: "Integration Capability",    description: "Native connectors for Banner/PeopleSoft SIS, banking and ACH, benefits carrier EDI, SSO/SAML 2.0 with Azure AD and Okta, and open REST API quality." },
+  { key: "accessibility_compliance", label: "Accessibility",             description: "GASB accounting standards, 2 CFR 200 grant compliance, IRS reporting (W-2, 1099, ACA), NACUBO reporting, and WCAG 2.1 AA accessibility for employee-facing portals." },
+  { key: "support_and_training",     label: "Support & Training",        description: "Implementation methodology, named staffing model, hypercare period, post-go-live SLAs with financial penalties, 24/7 payroll window coverage, and higher education references." },
+  { key: "pricing_transparency",     label: "Pricing Transparency",      description: "Clarity of implementation costs, subscription pricing, annual escalation rate, data migration fees, and total cost of ownership over the contract term." },
+  { key: "enterprise_readiness",     label: "Enterprise Readiness",      description: "Multi-campus and multi-entity accounting, granular role-based access control, published uptime history, and disaster recovery RTO/RPO documentation." },
+  { key: "innovation_roadmap",       label: "Innovation Roadmap",        description: "18–24 month product roadmap, AI/automation plans (anomaly detection, spend analytics), continuous delivery model, and higher education advisory board influence." },
 ];
 
 interface Props {
@@ -46,7 +46,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
 
   const topStrengths = winner.scores
     ? DIMENSIONS
-        .map(({ key, label }) => ({ label, score: winner.scores![key]?.score ?? 0 }))
+        .map(({ key, label, description }) => ({ label, description, score: winner.scores![key]?.score ?? 0 }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 3)
     : [];
@@ -208,7 +208,21 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
                 {(["HIGH", "MEDIUM", "LOW"] as const)
                   .filter((s) => riskBreakdown[s] > 0)
                   .map((s) => (
-                    <Group key={s} gap={5} align="center">
+                    <Tooltip
+                      key={s}
+                      label={
+                        s === "HIGH"
+                          ? "Requires immediate negotiation or legal review before signing. Contract terms that could expose the institution to significant financial or legal risk."
+                          : s === "MEDIUM"
+                          ? "Worth negotiating, but not a blocker. Terms that deviate from best practice or institutional policy but carry manageable risk."
+                          : "Minor deviations from preferred terms. Note for the record but unlikely to affect the decision."
+                      }
+                      multiline
+                      w={220}
+                      withArrow
+                      position="bottom"
+                    >
+                    <Group gap={5} align="center" style={{ cursor: "help" }}>
                       <Box
                         style={{
                           width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
@@ -221,6 +235,7 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
                       />
                       <Text size="xs" c="dimmed">{riskBreakdown[s]} {s}</Text>
                     </Group>
+                    </Tooltip>
                   ))}
               </Group>
             </Box>
@@ -247,10 +262,12 @@ export function WinnerHero({ winner, totalVendors, totalRisks }: Props) {
               </Text>
             </Group>
             <Stack gap={12}>
-              {topStrengths.map(({ label, score }, i) => (
+              {topStrengths.map(({ label, description, score }, i) => (
                 <Box key={label}>
                   <Group justify="space-between" mb={5}>
-                    <Text size="sm" c="dark" fw={i === 0 ? 700 : 500}>{label}</Text>
+                    <Tooltip label={description} multiline w={240} withArrow position="left" openDelay={300}>
+                      <Text size="sm" c="dark" fw={i === 0 ? 700 : 500} style={{ cursor: "help", textDecoration: "underline dotted" }}>{label}</Text>
+                    </Tooltip>
                     <Text
                       size="sm"
                       fw={800}

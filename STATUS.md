@@ -80,7 +80,8 @@ Raw doc → ProposalData JSON → RiskFlags → ScoreCard → Memo (each stage s
 | `test_e2e.py` | 15 | Full HTTP flow: POST /analyze → poll /progress → GET /jobs |
 | `scoring.test.ts` | 25 | Frontend scoring utilities + `countFailedProposals` |
 | `telemetry.test.ts` | 9 | `formatElapsed` + `buildTelemetrySummary` including `llmCostUsd` |
-| **Total** | **168** | **134 backend + 34 frontend — all offline, no API keys needed** |
+| `bored.test.ts` | 4 | `pickRandom` utility (BoredPanel tab cycling) |
+| **Total** | **172** | **134 backend + 38 frontend — all offline, no API keys needed** |
 
 ---
 
@@ -113,6 +114,13 @@ Items noticed but not yet acted on. Each needs a failing test before any fix.
 ---
 
 ## Daily Audit Log
+
+### 2026-06-15 — Hover tooltips on all scored dimension labels
+- `ProposalCard`, `VendorComparisonTable`, `WinnerHero`: `DIMENSIONS` array extended with `description` field; labels now wrapped in Mantine `Tooltip` (300ms open delay, dotted underline cursor hint)
+- `WinnerHero`: HIGH/MEDIUM/LOW risk severity dots in the risk breakdown bar now have tooltips explaining what each level means
+- `TelemetryFooter`: refactored from single joined string to individual elements so `risk flags` and `api cost` stats can have their own tooltips
+- Descriptions sourced from actual scoring rubric files (`scoring_rubric_erp.txt`, etc.)
+- TypeScript clean; 38 frontend tests pass (discovered `bored.test.ts` was uncounted — fixed total to 172)
 
 ### 2026-06-15 — NegotiationAgent: filter ProposalData to 16 commercial/legal fields
 - `_NEGOTIATION_FIELDS` constant defines the 16 fields relevant to negotiation leverage (pricing, contract terms, SLA, legal)
