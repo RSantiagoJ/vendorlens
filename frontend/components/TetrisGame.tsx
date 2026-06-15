@@ -34,6 +34,38 @@ const GRAVITY_MS = [800, 700, 600, 500, 400, 300, 200, 150, 100, 80];
 
 type Board = number[][];
 type Piece = { shape: number[][]; x: number; y: number };
+type ScoreEntry = { name: string; score: number };
+
+const FAKE_SCORES: ScoreEntry[] = [
+  { name: "sardinator1337", score: 12350 },
+  { name: "chawlachampion", score: 9150 },
+];
+
+const LS_KEY = "tetris_hs_v1";
+const PLAYER = "vendorslayer";
+
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+function loadRealScores(): ScoreEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveRealScore(score: number): void {
+  const stored = loadRealScores();
+  stored.push({ name: PLAYER, score });
+  localStorage.setItem(LS_KEY, JSON.stringify(stored));
+}
+
+function getLeaderboard(): ScoreEntry[] {
+  return [...FAKE_SCORES, ...loadRealScores()]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+}
 
 function emptyBoard(): Board {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
@@ -96,6 +128,11 @@ export function TetrisGame() {
   const [score, setScore] = useState(0);
   const [over, setOver] = useState(false);
   const [runId, setRunId] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<ScoreEntry[]>([]);
+
+  useEffect(() => {
+    setLeaderboard(getLeaderboard());
+  }, []);
 
   useEffect(() => {
     const state = {
@@ -141,7 +178,6 @@ export function TetrisGame() {
           if (board[r][c]) drawCell(ctx, c, r, COLORS[board[r][c]]);
 
       if (!state.flashing) {
-        // ghost piece
         let gy = piece.y;
         while (fits(board, piece.shape, piece.x, gy + 1)) gy++;
         if (gy > piece.y)
@@ -156,7 +192,6 @@ export function TetrisGame() {
               drawCell(ctx, piece.x + c, piece.y + r, COLORS[piece.shape[r][c]]);
       }
 
-      // line-clear flash: bright white burst that fades over 200ms
       if (state.flashing) {
         const elapsed = performance.now() - state.flashStart;
         const alpha = elapsed < 60 ? 0.9 : 0.9 * Math.max(0, 1 - (elapsed - 60) / 160);
@@ -202,6 +237,8 @@ export function TetrisGame() {
                 state.flashRows = [];
                 if (!fits(state.board, state.piece.shape, state.piece.x, state.piece.y)) {
                   state.alive = false;
+                  saveRealScore(state.score);
+                  setLeaderboard(getLeaderboard());
                   setOver(true);
                 }
               }, 220);
@@ -209,6 +246,8 @@ export function TetrisGame() {
               state.piece = spawnPiece();
               if (!fits(state.board, state.piece.shape, state.piece.x, state.piece.y)) {
                 state.alive = false;
+                saveRealScore(state.score);
+                setLeaderboard(getLeaderboard());
                 setOver(true);
                 draw();
                 return;
@@ -296,6 +335,7 @@ export function TetrisGame() {
           >
             <Text c="white" fw={800} size="xl">Game Over</Text>
             <Text c="dimmed" size="sm">{score.toLocaleString()} pts</Text>
+            <Text size="xs" c="yellow.4">saved as {PLAYER}</Text>
             <Button size="xs" color="umblue" mt={4} onClick={() => setRunId((n) => n + 1)}>
               Play again
             </Button>
@@ -305,6 +345,47 @@ export function TetrisGame() {
       <Text size="10px" ta="center" w={COLS * CELL} style={{ color: "rgba(255,255,255,0.6)" }}>
         ← → move · ↑ rotate · ↓ drop · space hard drop
       </Text>
+
+      {/* Leaderboard */}
+      <Box
+        w={COLS * CELL}
+        mt={4}
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          paddingTop: 8,
+        }}
+      >
+        <Text size="10px" c="dimmed" fw={700} mb={6} style={{ letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          High Scores
+        </Text>
+        <Stack gap={3}>
+          {leaderboard.map((entry, i) => (
+            <Group key={i} justify="space-between" wrap="nowrap">
+              <Group gap={4} wrap="nowrap">
+                <Text size="10px" style={{ width: 14, flexShrink: 0 }}>
+                  {i < 3 ? MEDALS[i] : `${i + 1}.`}
+                </Text>
+                <Text
+                  size="10px"
+                  fw={entry.name === PLAYER ? 700 : 400}
+                  c={entry.name === PLAYER ? "yellow.4" : "dimmed"}
+                  style={{ fontFamily: "monospace" }}
+                >
+                  {entry.name}
+                </Text>
+              </Group>
+              <Text
+                size="10px"
+                fw={entry.name === PLAYER ? 700 : 400}
+                c={entry.name === PLAYER ? "yellow.4" : "dimmed"}
+                style={{ fontFamily: "monospace", flexShrink: 0 }}
+              >
+                {entry.score.toLocaleString()}
+              </Text>
+            </Group>
+          ))}
+        </Stack>
+      </Box>
     </Stack>
   );
 }
