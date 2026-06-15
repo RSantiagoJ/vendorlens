@@ -7,6 +7,7 @@ import { BoredPanel } from "@/components/BoredPanel";
 import { MemoPanel } from "@/components/MemoPanel";
 import { NegotiationPlaybook } from "@/components/NegotiationPlaybook";
 import { ProposalCard } from "@/components/ProposalCard";
+import { TelemetryFooter } from "@/components/TelemetryFooter";
 import { ThinkingLog } from "@/components/ThinkingLog";
 import { UploadZone } from "@/components/UploadZone";
 import { VendorComparisonTable } from "@/components/VendorComparisonTable";
@@ -14,6 +15,7 @@ import { VendorRadarChart } from "@/components/VendorRadarChart";
 import { WinnerHero } from "@/components/WinnerHero";
 import { DEMO_RESULT } from "@/lib/fixtures";
 import { countFailedProposals } from "@/lib/scoring";
+import { buildTelemetrySummary } from "@/lib/telemetry";
 import type { AnalysisResult, Bundle, Stage } from "@/lib/types";
 import { Logo } from "@/logo";
 import {
@@ -171,7 +173,9 @@ function HomeContent() {
       : [],
   );
   const [totalRisks, setTotalRisks] = useState<number | undefined>(undefined);
+  const [elapsedMs, setElapsedMs] = useState<number | undefined>(undefined);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/bundles`)
@@ -229,12 +233,15 @@ function HomeContent() {
     setError(null);
     setVendorNames([]);
     setTotalRisks(undefined);
+    setElapsedMs(undefined);
+    startTimeRef.current = null;
   }
 
   const handleSubmit = useCallback(async (files: File[], bundle: string) => {
     setAppState("uploading");
     setSelectedBundleId(bundle);
     setError(null);
+    startTimeRef.current = Date.now();
 
     try {
       const form = new FormData();
@@ -266,6 +273,8 @@ function HomeContent() {
 
           if (data.status === "done" || data.status === "partial") {
             clearInterval(pollRef.current!); pollRef.current = null;
+            if (startTimeRef.current != null)
+              setElapsedMs(Date.now() - startTimeRef.current);
             setResult(data.result as AnalysisResult);
             setStage("memo");
             setTimeout(() => { setStage("done"); setAppState("ready"); }, 800);
@@ -580,6 +589,10 @@ function HomeContent() {
                       <NegotiationPlaybook plans={result.negotiation_plans} />
                     </Box>
                   )}
+
+                  <TelemetryFooter
+                    summary={buildTelemetrySummary(result.proposals, elapsedMs)}
+                  />
                 </Stack>
               )}
             </Stack>

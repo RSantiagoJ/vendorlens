@@ -1,50 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Box, Button, Group, Paper, Stack, Text, Transition } from "@mantine/core";
+import { useState } from "react";
+import { Box, Button, Group, Paper, Stack, Text, Transition, Tooltip } from "@mantine/core";
 import { useReducedMotion } from "@mantine/hooks";
 import {
   IconBulb,
+  IconCheck,
+  IconClipboard,
   IconDeviceGamepad2,
   IconFlame,
   IconX,
 } from "@tabler/icons-react";
 import { TetrisGame } from "./TetrisGame";
+import { pickRandom } from "@/lib/bored";
 
 const ROASTS = [
-  "SynergyCloud promised 99.9% uptime. Their SLA defines 'uptime' as 'the server is physically plugged in.'",
-  "DocuPrime's support SLA is 48 hours. The clock starts when they feel like responding.",
-  "InnovateTech's 'AI-powered analytics' is a pivot table in a trench coat.",
-  "QuadrantPlus has not passed a SOC 2 audit. It has, however, attended a SOC 2 webinar.",
-  "VendorSoft 9.0 ships with 300 pages of documentation last updated for VendorSoft 4.2.",
-  "HelixEDU's pricing model has six tiers. None include the features you actually need.",
-  "MegaCorp Solutions buried the auto-renewal clause in Exhibit F, subsection 7, paragraph 3(b)(ii).",
-  "EduCloud Pro stores your data in 'the cloud.' They cannot tell you which one.",
-  "NexGen Platform's API is 'RESTful in spirit.'",
-  "OmniLearn's 'unlimited users' plan has a fair use policy that limits users.",
-  "ProcureMax calls their liability cap 'industry standard.' The industry would like a word.",
-  "FlexiVend's 'enterprise-grade security' is a login page with HTTPS. That's it.",
-  "TotalSoft's implementation timeline is '6–8 weeks.' Week 16 update: 'almost there.'",
-  "EduPrime's FERPA compliance documentation is a PDF from 2018 that says 'FERPA compliant.'",
-  "CoreSystems offers a 30-day money-back guarantee. Step 1: find the opt-out form.",
+  "Their FERPA compliance documentation is a one-page attestation signed by someone in marketing.",
+  "The implementation timeline says 12–16 weeks. The go-live date in their proposal is 8 weeks from now.",
+  "Their LTI integration is 'fully supported.' LTI 1.1. They're working on 1.3.",
+  "'Unlimited storage' appears in the contract. Fair use policy on page 47 limits it to 2TB per institution.",
+  "Their SOC 2 Type II report covers their data centers. Their subprocessors are a separate conversation.",
+  "The ERP vendor's 'dedicated higher education team' is one account manager shared across 40 institutions.",
+  "Their SIS migration tool 'supports Banner data.' What it does with Banner data is another matter.",
+  "99.9% uptime SLA measured annually. That's 8.7 hours of downtime — all during finals week.",
+  "The vendor's API is 'RESTful in spirit.'",
+  "Their accessibility VPAT is WCAG 2.0 AA. Your RFP requires 2.1. They're 'working on it.'",
+  "The ERP has been in continuous development since 2002. The 2002 code is still there.",
+  "'No hidden fees' is in the executive summary. Exhibit C lists $85K in professional services.",
+  "Their SOC 2 Type II is pending renewal. It has been pending renewal for 11 months.",
+  "The ERP implementation is '6 months.' Month 9 update: 'entering final configuration phase.'",
+  "Their data ownership clause says 'institution retains rights to content.' Derived analytics: not mentioned.",
+  "The disaster recovery SLA promises a 4-hour RTO. The backup policy runs quarterly.",
 ];
 
 const FACTS = [
-  "The average enterprise RFP process takes 3–6 months from release to contract signature.",
-  "42% of data breaches in 2023 originated from a third-party vendor or supplier.",
-  "Only 12% of enterprise vendor contracts are actively monitored after signature.",
-  "Auto-renewal clauses account for an estimated 23% of unplanned SaaS spend.",
-  "The average cost of a third-party data breach reached $4.29M in 2023.",
-  "68% of organizations experienced a third-party security incident in the past three years.",
-  "Fortune 500 companies manage an average of 10,000+ active vendor relationships.",
-  "Procurement teams using structured scoring rubrics close vendor selections 40% faster.",
-  "Only 34% of procurement teams have full visibility into their supplier risk exposure.",
-  "The average enterprise wastes $135K/year on unused or duplicate SaaS licenses.",
-  "Contracts with explicit data portability clauses reduce migration costs by up to 60%.",
-  "Liability caps below $1M appear in 44% of mid-market software contracts.",
-  "A poorly scoped SLA can cost 2–5× more in remediation than the original contract value.",
-  "The average time from contract signature to first support escalation: 47 days.",
-  "Vendor lock-in affects an estimated 80% of enterprise cloud contracts after year two.",
+  "Universities spend an average of 6–9 months on major ERP or SIS procurement cycles.",
+  "FERPA violations can result in the loss of federal funding — directly impacting Title IV aid for enrolled students.",
+  "A failed ERP implementation at a mid-size university typically costs $15–50M in remediation.",
+  "Less than 25% of university vendor contracts include an explicit FERPA data processing addendum.",
+  "The average university runs 900+ distinct software applications across campus.",
+  "60% of higher ed ERP migrations exceed their initial timeline by more than 6 months.",
+  "Auto-renewal clauses without adequate notice periods appear in 38% of higher ed SaaS contracts.",
+  "Only 31% of higher ed procurement teams conduct structured post-contract vendor performance reviews.",
+  "87% of higher ed IT leaders cite vendor lock-in as a top 3 infrastructure concern.",
+  "The average university pays 22% more for software licenses than peer institutions due to decentralized purchasing.",
+  "ERP contracts without clear data portability clauses cost 2–3× more in migration when the vendor is replaced.",
+  "A liability cap below the annual contract value appears in 44% of mid-market software contracts.",
+  "Consortium purchasing through organizations like Internet2 reduces software costs by an average of 31%.",
+  "Only 12% of university vendor contracts are actively monitored for SLA compliance after signature.",
+  "The average time from ERP contract signature to first major support escalation: 63 days.",
 ];
 
 type Tab = "game" | "roast" | "facts";
@@ -59,8 +63,8 @@ const PANEL_WIDTH = 260;
 
 const tabHeights = {
   game: 511,
-  roast: 200,
-  facts: 180,
+  roast: 230,
+  facts: 210,
 };
 
 export function BoredPanel() {
@@ -68,14 +72,9 @@ export function BoredPanel() {
   const [tab, setTab] = useState<Tab>("game");
   const [visibleTab, setVisibleTab] = useState<Tab>("game");
   const [mounted, setMounted] = useState(true);
-  const [roastIdx, setRoastIdx] = useState(0);
-  const [factIdx, setFactIdx] = useState(0);
-
-  // Randomize client-side only to avoid SSR hydration mismatch
-  useEffect(() => {
-    setRoastIdx(Math.floor(Math.random() * ROASTS.length));
-    setFactIdx(Math.floor(Math.random() * FACTS.length));
-  }, []);
+  const [roastIdx, setRoastIdx] = useState(() => Math.floor(Math.random() * ROASTS.length));
+  const [factIdx, setFactIdx] = useState(() => Math.floor(Math.random() * FACTS.length));
+  const [copied, setCopied] = useState(false);
 
   const reduceMotion = useReducedMotion();
   const duration = reduceMotion ? 0 : 150;
@@ -87,11 +86,18 @@ export function BoredPanel() {
   }
 
   function pickRoast() {
-    setRoastIdx((i) => (i + 1) % ROASTS.length);
+    setRoastIdx((i) => pickRandom(ROASTS.length, i));
   }
 
   function pickFact() {
-    setFactIdx((i) => (i + 1) % FACTS.length);
+    setFactIdx((i) => pickRandom(FACTS.length, i));
+  }
+
+  function copyText(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
   }
 
   return (
@@ -203,15 +209,31 @@ export function BoredPanel() {
                           {ROASTS[roastIdx]}
                         </Text>
                       </Paper>
-                      <Button
-                        fullWidth
-                        size="xs"
-                        variant="light"
-                        color="orange"
-                        onClick={pickRoast}
-                      >
-                        🔥 Roast another
-                      </Button>
+                      <Text size="xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                        {roastIdx + 1} / {ROASTS.length}
+                      </Text>
+                      <Group gap="xs" w="100%">
+                        <Button
+                          style={{ flex: 1 }}
+                          size="xs"
+                          variant="light"
+                          color="orange"
+                          onClick={pickRoast}
+                        >
+                          🔥 Another
+                        </Button>
+                        <Tooltip label={copied ? "Copied!" : "Copy to clipboard"} withArrow>
+                          <Button
+                            size="xs"
+                            variant="subtle"
+                            color="gray"
+                            px="xs"
+                            onClick={() => copyText(ROASTS[roastIdx])}
+                          >
+                            {copied ? <IconCheck size={14} color="var(--mantine-color-green-5)" /> : <IconClipboard size={14} />}
+                          </Button>
+                        </Tooltip>
+                      </Group>
                     </Stack>
                   )}
 
@@ -235,15 +257,31 @@ export function BoredPanel() {
                           {FACTS[factIdx]}
                         </Text>
                       </Paper>
-                      <Button
-                        fullWidth
-                        size="xs"
-                        variant="light"
-                        color="blue"
-                        onClick={pickFact}
-                      >
-                        💡 Next stat
-                      </Button>
+                      <Text size="xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                        {factIdx + 1} / {FACTS.length}
+                      </Text>
+                      <Group gap="xs" w="100%">
+                        <Button
+                          style={{ flex: 1 }}
+                          size="xs"
+                          variant="light"
+                          color="blue"
+                          onClick={pickFact}
+                        >
+                          💡 Next stat
+                        </Button>
+                        <Tooltip label={copied ? "Copied!" : "Copy to clipboard"} withArrow>
+                          <Button
+                            size="xs"
+                            variant="subtle"
+                            color="gray"
+                            px="xs"
+                            onClick={() => copyText(FACTS[factIdx])}
+                          >
+                            {copied ? <IconCheck size={14} color="var(--mantine-color-green-5)" /> : <IconClipboard size={14} />}
+                          </Button>
+                        </Tooltip>
+                      </Group>
                     </Stack>
                   )}
                 </Box>
